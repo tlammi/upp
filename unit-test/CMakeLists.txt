@@ -6,8 +6,8 @@ target_link_libraries(unit-test gtest ${COMMON_LIBS})
 
 add_custom_target(run-unit-test COMMAND $<TARGET_FILE:unit-test> DEPENDS unit-test)
 add_custom_target(
-    run-gcovr
-    COMMAND mkdir -p html &&
+    coverage-html
+    COMMAND mkdir -p cov &&
         python -m gcovr ${CMAKE_CURRENT_BINARY_DIR}
-            --html --html-details --exclude "unit-test" -o html/upp.html DEPENDS run-unit-test
+            --html --html-details --exclude "unit-test" -o cov/upp.html DEPENDS run-unit-test
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
