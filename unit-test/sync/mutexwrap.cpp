@@ -1,6 +1,7 @@
+#include "upp/sync/mutexwrap.hpp"
 #include <gtest/gtest.h>
 #include <atomic>
-#include "upp/sync.hpp"
+#include "upp/sync/thread.hpp"
 
 TEST(MutexWrapTest, IndirectionOperator) {
     upp::sync::MutexWrap<int> a{100};
