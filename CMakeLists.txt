@@ -16,8 +16,8 @@ set(CMAKE_CXX_FLAGS "--std=c++17 -Wall -Werror -Wextra -Wno-unused -Wcast-align 
 
 set(CMAKE_CXX_FLAGS_DEBUG "-fprofile-arcs -ftest-coverage")
 
-#add_definitions(--std=c++17 -fprofile-arcs -ftest-coverage)
 include_directories("${PROJECT_SOURCE_DIR}/include")
+file(GLOB_RECURSE LIB_SRCS src/**.cpp)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 add_subdirectory(unit-test)

@@ -1,7 +1,7 @@
 
 file(GLOB_RECURSE UNIT_TEST_SRCS *.cpp)
 
-add_executable(unit-test EXCLUDE_FROM_ALL ${UNIT_TEST_SRCS})
+add_executable(unit-test EXCLUDE_FROM_ALL ${UNIT_TEST_SRCS} ${LIB_SRCS})
 target_link_libraries(unit-test gtest ${COMMON_LIBS})
 
 add_custom_target(run-unit-test COMMAND $<TARGET_FILE:unit-test> DEPENDS unit-test)
