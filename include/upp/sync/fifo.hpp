@@ -20,8 +20,8 @@ class Fifo {
             if (_count < S) ++_count;
             windex = _windex;
             _windex = Fifo<T, S>::_wrap_inc(_windex);
+            _buf[windex] = val;
         }
-        _buf[windex] = val;
         _cv.notify_one();
     }
 
@@ -33,8 +33,8 @@ class Fifo {
             ++_count;
             windex = _windex;
             _windex = Fifo<T, S>::_wrap_inc(_windex);
+            _buf[windex] = val;
         }
-        _buf[windex] = val;
         _cv.notify_one();
         return true;
     }
