@@ -2,6 +2,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include "upp/cli/value.hpp"
 
 namespace upp {
@@ -16,6 +17,23 @@ class OptContainer {
         add(longflag);
     }
     void add(std::string longflag) { _ltov_mapping[longflag] = T(); }
+
+    std::vector<char> shortflags() const {
+        std::vector<char> out;
+        for (std::map<char, std::string>::iterator pair = _stol_mapping.begin();
+             pair != _stol_mapping.end(); ++pair) {
+            out.push_back(pair->first);
+        }
+        return out;
+    }
+    std::vector<std::string> longflags() const {
+        std::vector<std::string> out;
+        for (std::map<char, std::string>::iterator pair = _stol_mapping.begin();
+             pair != _stol_mapping.end(); ++pair) {
+            out.push_back(pair->second);
+        }
+        return out;
+    }
 
     const T& operator[](char shortflag) const {
         return this->operator[](_stol_mapping.at(shortflag));

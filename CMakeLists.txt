@@ -19,6 +19,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-fprofile-arcs -ftest-coverage")
 include_directories("${PROJECT_SOURCE_DIR}/include")
 file(GLOB_RECURSE LIB_SRCS src/**.cpp)
 
+add_executable(demo demo.cpp ${LIB_SRCS})
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 add_subdirectory(unit-test)
 endif()
