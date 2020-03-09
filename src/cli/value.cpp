@@ -66,7 +66,6 @@ short Value::as() const {
 
 template <>
 int Value::as() const {
-    std::cout << "Calling for int. Value: " << _value << std::endl;
     return std::stoi(_value, nullptr, 0);
 }
 
@@ -74,21 +73,31 @@ template <>
 unsigned short Value::as() const {
     unsigned long tmp{std::stoul(_value, nullptr, 0)};
     if (fits<unsigned short>(tmp)) return static_cast<unsigned short>(tmp);
+    if (_value == "-1") return static_cast<unsigned short>(tmp);
     throw std::out_of_range("Number does not fit in unsigned short: " + _value);
 }
 
 template <>
 unsigned int Value::as() const {
-    unsigned long long tmp{std::stoul(_value, nullptr, 0)};
+    unsigned long long tmp{std::stoull(_value, nullptr, 0)};
     if (fits<unsigned int>(tmp)) return static_cast<unsigned int>(tmp);
+    if (_value == "-1") return static_cast<unsigned int>(tmp);
     throw std::out_of_range("Number does not fit in unsigned int: " + _value);
 }
 
-AS_SPECIALIZATION(long)
-AS_SPECIALIZATION(long long)
+#define SPECIALIZE(type, func)           \
+    template <>                          \
+    type Value::as() const {             \
+        return func(_value, nullptr, 0); \
+    }
+
+SPECIALIZE(long, std::stol);
+SPECIALIZE(long long, std::stoll);
+
+SPECIALIZE(unsigned long, std::stoul);
+SPECIALIZE(unsigned long long, std::stoull);
 AS_SPECIALIZATION(unsigned char)
-AS_SPECIALIZATION(unsigned long)
-AS_SPECIALIZATION(unsigned long long)
+
 AS_SPECIALIZATION(float)
 AS_SPECIALIZATION(double)
 AS_SPECIALIZATION(long double)

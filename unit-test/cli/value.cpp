@@ -26,18 +26,44 @@ std::string stringify(const T& in) {
     return out;
 }
 
+static std::string increment(std::string in) {
+    if (in == "0") return "-1";
+    bool done{false};
+    for (int i = in.size() - 1; i >= 0; i++) {
+        size_t index = static_cast<size_t>(i);
+        if (in[index] == '9') {
+            in[index] = '0';
+        } else {
+            ++in[index];
+            done = true;
+            break;
+        }
+    }
+    if (!done) {
+        if (!(in[0] == '-'))
+            in.insert(0, "1");
+        else
+            in.insert(1, "1");
+    }
+    std::cout << "incremented: " << in << std::endl;
+    return in;
+}
+
 template <typename T>
 void do_integer_test_as() {
-    long long min{minval<T>()};
-    long long max{maxval<T>()};
-    long long toosmall{min - 1};
-    long long toobig{max + 1};
+    std::string min{stringify(minval<T>())};
+    std::string max{stringify(maxval<T>())};
+    std::string toosmall{increment(min)};
+    std::string toobig{increment(max)};
 
-    ASSERT_EQ(Value{stringify(min)}.as<T>(), min);
-    ASSERT_EQ(Value{stringify(max)}.as<T>(), max);
-
-    ASSERT_THROW(Value{stringify(toosmall)}.as<T>(), std::out_of_range);
-    ASSERT_THROW(Value{stringify(toobig)}.as<T>(), std::out_of_range);
+    ASSERT_EQ(Value{min}.as<T>(), minval<T>());
+    ASSERT_EQ(Value{max}.as<T>(), maxval<T>());
+    // -1 Is a valid value for an unsigned
+    if (minval<T>() != 0)
+        ASSERT_THROW(Value{toosmall}.as<T>(), std::out_of_range);
+    else
+        ASSERT_EQ(Value{"-1"}.as<T>(), maxval<T>());
+    ASSERT_THROW(Value{toobig}.as<T>(), std::out_of_range);
 }
 }  // namespace util
 
@@ -62,6 +88,12 @@ TEST(CliValueTest, AsChar) {
 
 TEST(CliValueTest, AsShort) { util::do_integer_test_as<short>(); }
 TEST(CliValueTest, AsInt) { util::do_integer_test_as<int>(); }
+TEST(CliValueTest, AsLong) { util::do_integer_test_as<long>(); }
+TEST(CliValueTest, AsLongLong) { util::do_integer_test_as<long long>(); }
 
 TEST(CliValueTest, AsUShort) { util::do_integer_test_as<unsigned short>(); }
 TEST(CliValueTest, AsUInt) { util::do_integer_test_as<unsigned int>(); }
+TEST(CliValueTest, AsULong) { util::do_integer_test_as<unsigned long>(); }
+TEST(CliValueTest, AsULongLong) {
+    util::do_integer_test_as<unsigned long long>();
+}
