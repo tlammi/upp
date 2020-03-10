@@ -124,12 +124,27 @@ class Parser {
     }
 
     void _print_help() {
+        size_t short_width{0}, long_width{0};
+
         std::vector<std::tuple<char, std::string, std::string>> help_data{};
+        std::vector<std::string> help_rows{};
         auto tmp = _boolopts.help_data();
+        for (const auto& tup : tmp) {
+            long_width = std::max(long_width, std::get<1>(tup).size());
+        }
         help_data.insert(help_data.end(), tmp.begin(), tmp.end());
         tmp = _opts.help_data();
+        for (auto& tup : tmp) {
+            long_width = std::max(long_width, std::get<1>(tup).size() + 6);
+            std::get<1>(tup) += " VALUE";
+        }
         help_data.insert(help_data.end(), tmp.begin(), tmp.end());
         tmp = _vectopts.help_data();
+        for (auto& tup : tmp) {
+            std::get<2>(tup) += " (Multiple can be specified)";
+            long_width = std::max(long_width, std::get<1>(tup).size() + 6);
+            std::get<1>(tup) += " VALUE";
+        }
         help_data.insert(help_data.end(), tmp.begin(), tmp.end());
 
         std::sort(help_data.begin(), help_data.end(),
@@ -142,9 +157,13 @@ class Parser {
                   << "Options: " << std::endl;
 
         for (auto [c, l, h] : help_data) {
-            std::cerr << std::setw(5) << std::right << "-" << c << "    --"
-                      << std::setw(10) << std::left << l << " " << h
-                      << std::endl;
+            std::cerr << std::setw(short_width + 2) << std::right;
+            if (c != '\0')
+                std::cerr << "-" << c;
+            else
+                std::cerr << "   ";
+            std::cerr << "    --" << std::setw(long_width + 2) << std::left << l
+                      << " " << h << std::endl;
         }
     }
 

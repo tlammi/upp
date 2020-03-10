@@ -47,6 +47,10 @@ class OptContainer {
             _lflag_cache.erase(l);
             out.push_back(std::make_tuple(s, l, h));
         }
+        for (const auto l : _lflag_cache) {
+            auto h = _ltoh_mapping.at(l);
+            out.push_back(std::make_tuple('\0', l, h));
+        }
         _caches_up_to_date = false;
         return out;
     }
