@@ -90,3 +90,24 @@ TEST(ParserTest, Subparser) {
     auto tmp{p.subcommands()["subcmd"].pos_args().as<std::string>()};
     ASSERT_THAT(tmp, ElementsAre("arg0", "arg1"));
 }
+
+TEST(ParserTest, InvalidBoolOpt) {
+    upp::cli::Parser<int> p;
+    p.boolopts().add('f', "flag");
+    ASSERT_THROW(p.parse(std::vector<std::string>({"--notflag"})),
+                 std::invalid_argument);
+}
+
+TEST(ParserTest, InvalidOpt) {
+    upp::cli::Parser<int> p;
+    p.opts().add('o', "opt");
+    ASSERT_THROW(p.parse(std::vector<std::string>({"--notopt"})),
+                 std::invalid_argument);
+}
+
+TEST(ParserTest, InvalidVectOpt) {
+    upp::cli::Parser<int> p;
+    p.opts().add('v', "vect-opt");
+    ASSERT_THROW(p.parse(std::vector<std::string>({"--notv"})),
+                 std::invalid_argument);
+}

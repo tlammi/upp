@@ -43,14 +43,12 @@ class Parser {
         size_t i{0};
         while (i < args.size()) {
             std::string arg = args[i];
-            std::cout << "parsing flag: " << arg << std::endl;
             if (auto sflag = _as_short_flag(arg)) {
                 i = _handle_sflags(*sflag, i, args);
             } else if (auto lflag = _as_long_flag(arg)) {
                 i = _handle_lflags(*lflag, i, args);
             } else {
                 if (_subparsers.size()) {
-                    std::cout << "found subcommand: " << arg << std::endl;
                     std::vector<std::string> unparsed{
                         args.begin() + static_cast<long>(i) + 1, args.end()};
                     _parsed_subcmd = arg;
