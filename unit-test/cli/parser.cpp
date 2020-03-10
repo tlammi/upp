@@ -1,5 +1,10 @@
 #include "upp/cli/parser.hpp"
+#include <gmock/gmock-matchers.h>
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+using namespace ::testing;
+
 TEST(ParserTest, BoolOpts) {
     upp::cli::Parser<int> p;
     p.boolopts().add('h', "help");
@@ -20,10 +25,7 @@ TEST(ParserTest, VectOpts) {
     upp::cli::Parser<int> p;
     p.vectopts().add('v', "vect-opt");
     p.vectopts()['v'].push_back("169");
+    p.vectopts()['v'].push_back("168");
     auto intvect = p.vectopts()["vect-opt"].as<int>();
-    std::vector<int> expected{169};
-    ASSERT_EQ(intvect.size(), expected.size());
-    for (size_t i = 0; i < intvect.size(); ++i) {
-        ASSERT_EQ(intvect[i], expected[i]);
-    }
+    ASSERT_THAT(intvect, ElementsAreArray({169, 168}));
 }

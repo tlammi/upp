@@ -1,7 +1,7 @@
 #pragma once
 
-#include <sstream>
 #include <vector>
+#include "upp/util.hpp"
 
 namespace upp {
 namespace cli {
@@ -13,13 +13,7 @@ class VectValue : public std::vector<std::string> {
     template <typename T>
     std::vector<T> as() const {
         std::vector<T> out;
-        for (const auto& val : *this) {
-            std::stringstream ss;
-            ss << val;
-            T tmp;
-            ss >> tmp;
-            out.push_back(tmp);
-        }
+        for (const auto& val : *this) { out.push_back(util::convert<T>(val)); }
         return out;
     }
 

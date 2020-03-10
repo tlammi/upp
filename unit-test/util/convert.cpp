@@ -143,3 +143,18 @@ TEST(ConvertTest, Invalid) {
     ASSERT_THROW(convert<float>("0.0 is also a number"), std::invalid_argument);
     ASSERT_THROW(convert<double>("asdf"), std::invalid_argument);
 }
+
+TEST(ConvertTest, Bool) {
+    ASSERT_EQ(convert<bool>("TrUe"), true);
+    ASSERT_EQ(convert<bool>("FalSe"), false);
+    ASSERT_EQ(convert<bool>("1"), true);
+    ASSERT_EQ(convert<bool>("0"), false);
+    ASSERT_THROW(convert<bool>("asdfasdf"), std::invalid_argument);
+}
+
+TEST(ConvertTest, Char) {
+    ASSERT_EQ(convert<char>("c"), 'c');
+    ASSERT_EQ(convert<unsigned char>("C"), 'C');
+    ASSERT_EQ(convert<char>(""), '\0');
+    ASSERT_THROW(convert<unsigned char>("asdf"), std::invalid_argument);
+}
