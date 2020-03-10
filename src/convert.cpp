@@ -4,6 +4,19 @@
 #include <stdexcept>
 #include <string>
 
+#define SPECIALIZE_STR_TO_NUMBER(outtype, tmptype, convfunc) \
+    template <>                                              \
+    outtype convert(const std::string& in) {                 \
+        tmptype tmp{convfunc(in, nullptr, 0)};               \
+        return static_cast<outtype>(tmp);                    \
+    }
+
+#define SPECIALIZE_STR_TO_UNSIGNED(outtype) \
+    SPECIALIZE_STR_TO_NUMBER(outtype, unsigned long long, std::stoull)
+
+#define SPECIALIZE_STR_TO_SIGNED(outtype) \
+    SPECIALIZE_STR_TO_NUMBER(outtype, long long, std::stoll)
+
 namespace upp {
 namespace util {
 
@@ -31,19 +44,6 @@ unsigned char convert(const std::string& in) {
     return static_cast<unsigned char>(convert<char>(in));
 }
 
-#define SPECIALIZE_STR_TO_NUMBER(outtype, tmptype, convfunc) \
-    template <>                                              \
-    outtype convert(const std::string& in) {                 \
-        tmptype tmp{convfunc(in, nullptr, 0)};               \
-        return static_cast<outtype>(tmp);                    \
-    }
-
-#define SPECIALIZE_STR_TO_UNSIGNED(outtype) \
-    SPECIALIZE_STR_TO_NUMBER(outtype, unsigned long long, std::stoull)
-
-#define SPECIALIZE_STR_TO_SIGNED(outtype) \
-    SPECIALIZE_STR_TO_NUMBER(outtype, long long, std::stoll)
-
 SPECIALIZE_STR_TO_SIGNED(short);
 SPECIALIZE_STR_TO_UNSIGNED(unsigned short);
 SPECIALIZE_STR_TO_SIGNED(int);
@@ -52,6 +52,16 @@ SPECIALIZE_STR_TO_SIGNED(long);
 SPECIALIZE_STR_TO_UNSIGNED(unsigned long);
 SPECIALIZE_STR_TO_SIGNED(long long);
 SPECIALIZE_STR_TO_UNSIGNED(unsigned long long);
+
+template <>
+std::string convert(const std::string& in) {
+    return in;
+}
+
+template <>
+const char* convert(const std::string& in) {
+    return in.c_str();
+}
 
 }  // namespace util
 }  // namespace upp

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <sstream>
-
+#include <string>
+#include "upp/util.hpp"
 namespace upp {
 namespace cli {
 class Value {
@@ -10,7 +10,9 @@ class Value {
     Value(std::string value);
 
     template <typename T>
-    T as() const;
+    T as() const {
+        return util::convert<T>(_value);
+    }
 
     Value& operator=(const std::string& other);
 
