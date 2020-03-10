@@ -128,3 +128,9 @@ TEST(ConvertTest, UnsignedMinus1) {
     DO_TEST_MINUS1(unsigned long);
     DO_TEST_MINUS1(unsigned long long);
 }
+
+TEST(ConvertTest, ToFloatingPoint) {
+    ASSERT_EQ(convert<float>("0.5"), 0.5);
+    ASSERT_EQ(convert<double>("0.5"), 0.5);
+    ASSERT_EQ(convert<long double>("0.5"), 0.5);
+}
