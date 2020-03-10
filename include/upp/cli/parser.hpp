@@ -20,11 +20,15 @@ class Parser {
           _boolopts{},
           _opts{},
           _vectopts{},
+          _subparsers{},
+          _parsed_subcmd{""},
           _pos_args{} {}
 
     OptContainer<bool>& boolopts() { return _boolopts; }
     OptContainer<Value>& opts() { return _opts; }
     OptContainer<VectValue>& vectopts() { return _vectopts; }
+    std::map<std::string, Parser<T>>& subcommands() { return _subparsers; }
+    const std::string& parsed_subcmd() { return _parsed_subcmd; }
     const VectValue& pos_args() const { return _pos_args; }
 
     int parse(int argc, const char** argv) {
@@ -45,7 +49,15 @@ class Parser {
             } else if (auto lflag = _as_long_flag(arg)) {
                 i = _handle_lflags(*lflag, i, args);
             } else {
-                _pos_args.push_back(arg);
+                if (_subparsers.size()) {
+                    std::cout << "found subcommand: " << arg << std::endl;
+                    std::vector<std::string> unparsed{
+                        args.begin() + static_cast<long>(i) + 1, args.end()};
+                    _parsed_subcmd = arg;
+                    return _subparsers.at(arg).parse(unparsed);
+                } else {
+                    _pos_args.push_back(arg);
+                }
             }
             ++i;
         }
@@ -104,6 +116,8 @@ class Parser {
     OptContainer<bool> _boolopts;
     OptContainer<Value> _opts;
     OptContainer<VectValue> _vectopts;
+    std::map<std::string, Parser<T>> _subparsers;
+    std::string _parsed_subcmd;
     VectValue _pos_args;
 };
 }  // namespace cli

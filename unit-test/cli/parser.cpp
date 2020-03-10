@@ -81,3 +81,12 @@ TEST(ParserTest, PosArgs) {
     ASSERT_THAT(p.pos_args().as<std::string>(),
                 ElementsAre("arg0", "arg1", "arg2"));
 }
+
+TEST(ParserTest, Subparser) {
+    upp::cli::Parser<int> p;
+    p.subcommands()["subcmd"] = upp::cli::Parser<int>();
+    p.parse(std::vector<std::string>({"subcmd", "arg0", "arg1"}));
+    ASSERT_EQ(p.parsed_subcmd(), "subcmd");
+    auto tmp{p.subcommands()["subcmd"].pos_args().as<std::string>()};
+    ASSERT_THAT(tmp, ElementsAre("arg0", "arg1"));
+}
