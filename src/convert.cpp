@@ -17,6 +17,13 @@
 #define SPECIALIZE_STR_TO_SIGNED(outtype) \
     SPECIALIZE_STR_TO_NUMBER(outtype, long long, std::stoll)
 
+#define SPECIALIZE_STR_TO_FLOATING(outtype)       \
+    template <>                                   \
+    outtype convert(const std::string& in) {      \
+        long double tmp{std::stold(in, nullptr)}; \
+        return static_cast<outtype>(tmp);         \
+    }
+
 namespace upp {
 namespace util {
 
@@ -52,6 +59,9 @@ SPECIALIZE_STR_TO_SIGNED(long);
 SPECIALIZE_STR_TO_UNSIGNED(unsigned long);
 SPECIALIZE_STR_TO_SIGNED(long long);
 SPECIALIZE_STR_TO_UNSIGNED(unsigned long long);
+SPECIALIZE_STR_TO_FLOATING(float);
+SPECIALIZE_STR_TO_FLOATING(double);
+SPECIALIZE_STR_TO_FLOATING(long double);
 
 template <>
 std::string convert(const std::string& in) {

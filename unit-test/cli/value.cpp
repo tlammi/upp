@@ -22,7 +22,6 @@ std::string stringify(const T& in) {
     ss << in;
     std::string out;
     ss >> out;
-    std::cout << "stringified: " << out << std::endl;
     return out;
 }
 
@@ -86,14 +85,72 @@ TEST(CliValueTest, AsChar) {
     ASSERT_THROW(Value("123123").as<char>(), std::invalid_argument);
 }
 
-TEST(CliValueTest, AsShort) { util::do_integer_test_as<short>(); }
-TEST(CliValueTest, AsInt) { util::do_integer_test_as<int>(); }
-TEST(CliValueTest, AsLong) { util::do_integer_test_as<long>(); }
-TEST(CliValueTest, AsLongLong) { util::do_integer_test_as<long long>(); }
+#define DO_TEST_MIN(type)                                       \
+    do {                                                        \
+        std::string min{util::stringify(util::minval<type>())}; \
+        ASSERT_EQ(Value{min}.as<type>(), util::minval<type>()); \
+    } while (0)
 
-TEST(CliValueTest, AsUShort) { util::do_integer_test_as<unsigned short>(); }
-TEST(CliValueTest, AsUInt) { util::do_integer_test_as<unsigned int>(); }
-TEST(CliValueTest, AsULong) { util::do_integer_test_as<unsigned long>(); }
-TEST(CliValueTest, AsULongLong) {
-    util::do_integer_test_as<unsigned long long>();
+#define DO_TEST_MAX(type)                                       \
+    do {                                                        \
+        std::string max{util::stringify(util::maxval<type>())}; \
+        ASSERT_EQ(Value{max}.as<type>(), util::maxval<type>()); \
+    } while (0)
+
+#define DO_TEST_TOOBIG(type)                                       \
+    do {                                                           \
+        std::string max{util::stringify(util::maxval<type>())};    \
+        std::string toobig{util::increment(max)};                  \
+        ASSERT_LT(Value{toobig}.as<type>(), util::maxval<type>()); \
+    } while (0)
+
+#define DO_TEST_MINUS1(type) \
+    do { ASSERT_EQ(Value{"-1"}.as<type>(), util::maxval<type>()); } while (0)
+
+#define DO_TEST_SET_UNSIGNED(type) \
+    do {                           \
+        DO_TEST_MIN(type);         \
+        DO_TEST_MAX(type);         \
+        DO_TEST_MINUS1(type);      \
+        DO_TEST_TOOBIG(type);      \
+    } while (0)
+
+#define DO_TEST_SET_SIGNED(type) \
+    do {                         \
+        DO_TEST_MIN(type);       \
+        DO_TEST_MAX(type);       \
+        DO_TEST_TOOBIG(type);    \
+    } while (0)
+
+TEST(CliValueTest, AsShort) {
+    DO_TEST_MIN(short);
+    DO_TEST_MAX(short);
 }
+
+TEST(CliValueTest, AsUShort) { DO_TEST_SET_UNSIGNED(unsigned short); }
+
+TEST(CliValueTest, AsInt) { DO_TEST_SET_SIGNED(int); }
+
+TEST(CliValueTest, AsLongLong) {
+    DO_TEST_MIN(long long);
+    DO_TEST_MAX(long long);
+    std::string tmp{util::stringify(util::minval<long long>())};
+    std::string toosmall{util::increment(tmp)};
+    ASSERT_THROW(Value{toosmall}.as<long long>(), std::out_of_range);
+    tmp = util::stringify(util::maxval<long long>());
+    std::string toobig{util::increment(tmp)};
+    ASSERT_THROW(Value{toobig}.as<long long>(), std::out_of_range);
+}
+
+TEST(CliValueTest, AsULongLong) {
+    DO_TEST_MIN(unsigned long long);
+    DO_TEST_MAX(unsigned long long);
+    ASSERT_EQ(Value{"-1"}.as<unsigned long long>(),
+              util::maxval<unsigned long long>());
+
+    std::string tmp{util::stringify(util::maxval<long long>())};
+    std::string toobig{util::increment(tmp)};
+    ASSERT_THROW(Value{toobig}.as<long long>(), std::out_of_range);
+}
+
+TEST(CliValueTest, AsFLoat) { ASSERT_EQ(Value{"0.5"}.as<float>(), 0.5); }
