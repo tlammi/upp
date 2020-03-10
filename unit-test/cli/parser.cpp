@@ -73,3 +73,11 @@ TEST(ParserTest, VectOption) {
     p.parse(std::vector<std::string>());
     ASSERT_EQ(p.vectopts()['v'].size(), 0);
 }
+
+TEST(ParserTest, PosArgs) {
+    upp::cli::Parser<int> p;
+    ASSERT_EQ(p.pos_args().size(), 0);
+    p.parse(std::vector<std::string>({"arg0", "arg1", "arg2"}));
+    ASSERT_THAT(p.pos_args().as<std::string>(),
+                ElementsAre("arg0", "arg1", "arg2"));
+}

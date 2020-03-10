@@ -15,11 +15,17 @@ class Parser {
     typedef int (*callback_t)(T*);
 
     Parser(callback_t callback = nullptr, T* parg = nullptr)
-        : _cback{callback}, _parg{parg}, _boolopts{}, _opts{}, _vectopts{} {}
+        : _cback{callback},
+          _parg{parg},
+          _boolopts{},
+          _opts{},
+          _vectopts{},
+          _pos_args{} {}
 
     OptContainer<bool>& boolopts() { return _boolopts; }
     OptContainer<Value>& opts() { return _opts; }
     OptContainer<VectValue>& vectopts() { return _vectopts; }
+    const VectValue& pos_args() const { return _pos_args; }
 
     int parse(int argc, const char** argv) {
         std::vector<std::string> args{argv + 1, argv + argc};
@@ -39,6 +45,7 @@ class Parser {
             } else if (auto lflag = _as_long_flag(arg)) {
                 i = _handle_lflags(*lflag, i, args);
             } else {
+                _pos_args.push_back(arg);
             }
             ++i;
         }
@@ -97,6 +104,7 @@ class Parser {
     OptContainer<bool> _boolopts;
     OptContainer<Value> _opts;
     OptContainer<VectValue> _vectopts;
+    VectValue _pos_args;
 };
 }  // namespace cli
 }  // namespace upp
