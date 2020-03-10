@@ -20,19 +20,26 @@ class OptContainer {
 
     std::vector<char> shortflags() const {
         std::vector<char> out;
-        for (std::map<char, std::string>::iterator pair = _stol_mapping.begin();
-             pair != _stol_mapping.end(); ++pair) {
+        for (auto pair = _stol_mapping.begin(); pair != _stol_mapping.end();
+             ++pair) {
             out.push_back(pair->first);
         }
         return out;
     }
     std::vector<std::string> longflags() const {
         std::vector<std::string> out;
-        for (std::map<char, std::string>::iterator pair = _stol_mapping.begin();
-             pair != _stol_mapping.end(); ++pair) {
-            out.push_back(pair->second);
+        for (auto pair = _ltov_mapping.begin(); pair != _ltov_mapping.end();
+             ++pair) {
+            out.push_back(pair->first);
         }
         return out;
+    }
+
+    void clear() {
+        for (auto pair = _ltov_mapping.begin(); pair != _ltov_mapping.end();
+             ++pair) {
+            pair->second = T();
+        }
     }
 
     const T& operator[](char shortflag) const {
