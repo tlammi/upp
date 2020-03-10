@@ -126,26 +126,41 @@ class Parser {
     void _print_help() {
         size_t short_width{0}, long_width{0};
 
-        std::vector<std::tuple<char, std::string, std::string>> help_data{};
+        std::vector<std::tuple<std::string, std::string, std::string>>
+            help_data{};
         std::vector<std::string> help_rows{};
         auto tmp = _boolopts.help_data();
         for (const auto& tup : tmp) {
-            long_width = std::max(long_width, std::get<1>(tup).size());
+            auto [s, l, h] = tup;
+            long_width = std::max(long_width, l.size());
+            if (s != '\0')
+                help_data.push_back(std::make_tuple(std::string(1, s), l, h));
+            else
+                help_data.push_back(std::make_tuple("", l, h));
         }
-        help_data.insert(help_data.end(), tmp.begin(), tmp.end());
         tmp = _opts.help_data();
         for (auto& tup : tmp) {
             long_width = std::max(long_width, std::get<1>(tup).size() + 6);
-            std::get<1>(tup) += " VALUE";
+            auto [s, l, h] = tup;
+            short_width = std::max(short_width, static_cast<size_t>(7));
+            if (s != '\0')
+                help_data.push_back(std::make_tuple(
+                    std::string(1, s) + " VALUE", l + " VALUE", h));
+            else
+                help_data.push_back(std::make_tuple("", l + " VALUE", h));
         }
-        help_data.insert(help_data.end(), tmp.begin(), tmp.end());
         tmp = _vectopts.help_data();
         for (auto& tup : tmp) {
-            std::get<2>(tup) += " (Multiple can be specified)";
-            long_width = std::max(long_width, std::get<1>(tup).size() + 6);
-            std::get<1>(tup) += " VALUE";
+            auto [s, l, h] = tup;
+            long_width = std::max(long_width, l.size() + 6);
+            if (s != '\0')
+                help_data.push_back(
+                    std::make_tuple(std::string(1, s) + " VALUE", l + " VALUE",
+                                    h + " (Multiple can be specified)"));
+            else
+                help_data.push_back(std::make_tuple(
+                    "", l + " VALUE", h + "(Multiple can be specified)"));
         }
-        help_data.insert(help_data.end(), tmp.begin(), tmp.end());
 
         std::sort(help_data.begin(), help_data.end(),
                   [](const auto& a, const auto& b) {
@@ -156,13 +171,13 @@ class Parser {
                   << std::endl
                   << "Options: " << std::endl;
 
-        for (auto [c, l, h] : help_data) {
-            std::cerr << std::setw(short_width + 2) << std::right;
-            if (c != '\0')
-                std::cerr << "-" << c;
+        for (auto [s, l, h] : help_data) {
+            if (s != "\0")
+                std::cerr << "-" << std::setw(short_width + 2) << std::left
+                          << s;
             else
-                std::cerr << "   ";
-            std::cerr << "    --" << std::setw(long_width + 2) << std::left << l
+                std::cerr << std::setw(short_width + 3) << "";
+            std::cerr << "--" << std::setw(long_width + 2) << std::left << l
                       << " " << h << std::endl;
         }
     }
