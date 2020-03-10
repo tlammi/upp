@@ -41,7 +41,6 @@ static std::string increment(std::string in) {
         else
             in.insert(1, "1");
     }
-    std::cout << "incremented: " << in << std::endl;
     return in;
 }
 
@@ -133,4 +132,14 @@ TEST(ConvertTest, ToFloatingPoint) {
     ASSERT_EQ(convert<float>("0.5"), 0.5);
     ASSERT_EQ(convert<double>("0.5"), 0.5);
     ASSERT_EQ(convert<long double>("0.5"), 0.5);
+}
+
+TEST(ConvertTest, Hex) { ASSERT_EQ(convert<short>("0xffff"), -1); }
+TEST(ConvertTest, IntAsFloat) { ASSERT_EQ(convert<long double>("2"), 2.0); }
+
+TEST(ConvertTest, Invalid) {
+    ASSERT_THROW(convert<int>("asdf"), std::invalid_argument);
+    ASSERT_THROW(convert<int>("0 is a number"), std::invalid_argument);
+    ASSERT_THROW(convert<float>("0.0 is also a number"), std::invalid_argument);
+    ASSERT_THROW(convert<double>("asdf"), std::invalid_argument);
 }

@@ -4,11 +4,14 @@
 #include <stdexcept>
 #include <string>
 
-#define SPECIALIZE_STR_TO_NUMBER(outtype, tmptype, convfunc) \
-    template <>                                              \
-    outtype convert(const std::string& in) {                 \
-        tmptype tmp{convfunc(in, nullptr, 0)};               \
-        return static_cast<outtype>(tmp);                    \
+#define SPECIALIZE_STR_TO_NUMBER(outtype, tmptype, convfunc)             \
+    template <>                                                          \
+    outtype convert(const std::string& in) {                             \
+        size_t lastindex;                                                \
+        tmptype tmp{convfunc(in, &lastindex, 0)};                        \
+        if (lastindex != in.size())                                      \
+            throw std::invalid_argument("Not a number: \"" + in + "\""); \
+        return static_cast<outtype>(tmp);                                \
     }
 
 #define SPECIALIZE_STR_TO_UNSIGNED(outtype) \
@@ -17,11 +20,14 @@
 #define SPECIALIZE_STR_TO_SIGNED(outtype) \
     SPECIALIZE_STR_TO_NUMBER(outtype, long long, std::stoll)
 
-#define SPECIALIZE_STR_TO_FLOATING(outtype)       \
-    template <>                                   \
-    outtype convert(const std::string& in) {      \
-        long double tmp{std::stold(in, nullptr)}; \
-        return static_cast<outtype>(tmp);         \
+#define SPECIALIZE_STR_TO_FLOATING(outtype)                              \
+    template <>                                                          \
+    outtype convert(const std::string& in) {                             \
+        size_t lastindex;                                                \
+        long double tmp{std::stold(in, &lastindex)};                     \
+        if (lastindex != in.size())                                      \
+            throw std::invalid_argument("Not a number: \"" + in + "\""); \
+        return static_cast<outtype>(tmp);                                \
     }
 
 namespace upp {
