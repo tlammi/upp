@@ -14,7 +14,7 @@ set(CMAKE_CXX_FLAGS "--std=c++17 -Wall -Werror -Wextra -Wno-unused -Wcast-align 
     -Wsign-promo -Wstrict-overflow=5 -Wswitch-default -Wundef -Wabi -Winline \
     -Wzero-as-null-pointer-constant")
 
-set(CMAKE_CXX_FLAGS_DEBUG "-fprofile-arcs -ftest-coverage")
+set(CMAKE_CXX_FLAGS_DEBUG "-fprofile-arcs -ftest-coverage -g")
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
 file(GLOB_RECURSE LIB_SRCS src/**.cpp)

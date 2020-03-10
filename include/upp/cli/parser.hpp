@@ -1,4 +1,6 @@
 #pragma once
+#include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <optional>
 
@@ -14,15 +16,19 @@ class Parser {
  public:
     typedef int (*callback_t)(T*);
 
-    Parser(callback_t callback = nullptr, T* parg = nullptr)
+    Parser(callback_t callback = nullptr, T* parg = nullptr,
+           std::string helpstr = "")
         : _cback{callback},
           _parg{parg},
+          _helpstr{helpstr},
           _boolopts{},
           _opts{},
           _vectopts{},
           _subparsers{},
           _parsed_subcmd{""},
-          _pos_args{} {}
+          _pos_args{} {
+        _boolopts.add('h', "help", "Print this help and exit");
+    }
 
     OptContainer<bool>& boolopts() { return _boolopts; }
     OptContainer<Value>& opts() { return _opts; }
@@ -44,8 +50,16 @@ class Parser {
         while (i < args.size()) {
             std::string arg = args[i];
             if (auto sflag = _as_short_flag(arg)) {
+                if (*sflag == 'h') {
+                    _print_help();
+                    return 1;
+                }
                 i = _handle_sflags(*sflag, i, args);
             } else if (auto lflag = _as_long_flag(arg)) {
+                if (*lflag == "help") {
+                    _print_help();
+                    return 1;
+                }
                 i = _handle_lflags(*lflag, i, args);
             } else {
                 if (_subparsers.size()) {
@@ -109,8 +123,34 @@ class Parser {
         throw std::invalid_argument("Invalid long flag: " + args[curindex]);
     }
 
+    void _print_help() {
+        std::vector<std::tuple<char, std::string, std::string>> help_data{};
+        auto tmp = _boolopts.help_data();
+        help_data.insert(help_data.end(), tmp.begin(), tmp.end());
+        tmp = _opts.help_data();
+        help_data.insert(help_data.end(), tmp.begin(), tmp.end());
+        tmp = _vectopts.help_data();
+        help_data.insert(help_data.end(), tmp.begin(), tmp.end());
+
+        std::sort(help_data.begin(), help_data.end(),
+                  [](const auto& a, const auto& b) {
+                      return std::get<2>(a) < std::get<2>(b);
+                  });
+
+        std::cerr << _helpstr << std::endl
+                  << std::endl
+                  << "Options: " << std::endl;
+
+        for (auto [c, l, h] : help_data) {
+            std::cerr << std::setw(5) << std::right << "-" << c << "    --"
+                      << std::setw(10) << std::left << l << " " << h
+                      << std::endl;
+        }
+    }
+
     callback_t _cback;
     T* _parg;
+    std::string _helpstr;
     OptContainer<bool> _boolopts;
     OptContainer<Value> _opts;
     OptContainer<VectValue> _vectopts;

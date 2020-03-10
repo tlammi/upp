@@ -18,14 +18,41 @@ class OptContainer {
           _lflag_cache{},
           _stol_mapping{},
           _ltov_mapping{},
+          _ltoh_mapping{},
           _caches_up_to_date{true} {}
-    void add(char shortflag, std::string longflag) {
+    void add(char shortflag, std::string longflag, std::string help = "") {
         _stol_mapping[shortflag] = longflag;
-        add(longflag);
+        add(longflag, help);
     }
-    void add(std::string longflag) {
+    void add(std::string longflag, std::string help = "") {
         _ltov_mapping[longflag] = T();
         _caches_up_to_date = false;
+        _ltoh_mapping[longflag] = help;
+    }
+
+    const std::string& helpstr(const std::string& longflag) const {
+        return _ltoh_mapping.at(longflag);
+    }
+    const std::string& helpstr(char shortflag) const {
+        return helpstr(_stol_mapping.at(shortflag));
+    }
+
+    std::vector<std::tuple<char, std::string, std::string>> help_data() {
+        if (!_caches_up_to_date) _refresh_caches();
+
+        std::vector<std::tuple<char, std::string, std::string>> out;
+        for (const auto s : _sflag_cache) {
+            auto l = _stol_mapping.at(s);
+            auto h = _ltoh_mapping.at(l);
+            _lflag_cache.erase(l);
+            out.push_back(std::make_tuple(s, l, h));
+        }
+        _caches_up_to_date = false;
+        return out;
+    }
+
+    const std::string& longflag(char shortflag) const {
+        return _stol_mapping.at(shortflag);
     }
 
     const std::set<char>& shortflags() {
@@ -80,6 +107,7 @@ class OptContainer {
     std::set<std::string> _lflag_cache;
     std::map<char, std::string> _stol_mapping;
     std::map<std::string, T> _ltov_mapping;
+    std::map<std::string, std::string> _ltoh_mapping;
     bool _caches_up_to_date;
 };
 }  // namespace cli
