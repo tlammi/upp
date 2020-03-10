@@ -28,7 +28,7 @@ char convert(const std::string& in) {
 
 template <>
 unsigned char convert(const std::string& in) {
-    return static_cast<unsigned char>(convert<char, std::string>(in));
+    return static_cast<unsigned char>(convert<char>(in));
 }
 
 #define SPECIALIZE_STR_TO_NUMBER(outtype, tmptype, convfunc) \

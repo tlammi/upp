@@ -4,8 +4,13 @@
 namespace upp {
 namespace util {
 
-template <typename To, typename From>
-To convert(const From&);
+template <typename To>
+To convert(const std::string& in);
+
+template <typename To>
+To convert(const char* const in) {
+    return convert<To>(std::string(in));
 }
+}  // namespace util
 
 }  // namespace upp
