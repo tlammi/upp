@@ -43,7 +43,7 @@ class OptContainer {
         return _lflag_cache;
     }
 
-    void clear() {
+    void reset_values() {
         for (auto pair = _ltov_mapping.begin(); pair != _ltov_mapping.end();
              ++pair) {
             pair->second = T();

@@ -15,7 +15,7 @@ TEST(OptContainerTest, BoolContainer) {
     a["B"] = true;
     ASSERT_TRUE(a['a']);
     ASSERT_TRUE(a['b']);
-    a.clear();
+    a.reset_values();
     ASSERT_FALSE(a['a']);
     ASSERT_FALSE(a["B"]);
 }
@@ -30,7 +30,7 @@ TEST(OptContainerTest, StrContainer) {
     c['b'] = "world";
     ASSERT_EQ(c['a'], "hello");
     ASSERT_EQ(c['b'], "world");
-    c.clear();
+    c.reset_values();
     ASSERT_EQ(c['a'], "");
     ASSERT_EQ(c['b'], "");
 }

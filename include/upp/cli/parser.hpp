@@ -22,13 +22,14 @@ class Parser {
     OptContainer<VectValue>& vectopts() { return _vectopts; }
 
     int parse(int argc, char** argv) {
+        _boolopts.reset_values();
+        _opts.reset_values();
+        _vectopts.reset_values();
         for (size_t i = 1; i < argc; ++i) {}
         return 0;
     }
 
  private:
-    void _reset_and_check_containers() {}
-
     callback_t _cback;
     T* _parg;
     OptContainer<bool> _boolopts;
