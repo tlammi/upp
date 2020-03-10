@@ -29,3 +29,47 @@ TEST(ParserTest, VectOpts) {
     auto intvect = p.vectopts()["vect-opt"].as<int>();
     ASSERT_THAT(intvect, ElementsAreArray({169, 168}));
 }
+
+TEST(ParserTest, Parse) {
+    upp::cli::Parser<int> p;
+    const char* argv[] = {"demo", "-f",    "-o",     "option",
+                          "-v",   "value", "--vect", "value"};
+
+    p.boolopts().add('f', "flag");
+    p.opts().add('o', "option");
+    p.vectopts().add('v', "vect");
+    p.parse(sizeof(argv) / sizeof(argv[0]), argv);
+    ASSERT_TRUE(p.boolopts()["flag"]);
+    ASSERT_EQ(p.opts()['o'].as<std::string>(), "option");
+    ASSERT_THAT(p.vectopts()["vect"].as<std::string>(),
+                UnorderedElementsAre("value", "value"));
+}
+
+TEST(ParserTest, Flag) {
+    upp::cli::Parser<int> p;
+    p.boolopts().add('f', "flag");
+    p.parse(std::vector<std::string>({"--flag"}));
+    ASSERT_TRUE(p.boolopts()['f']);
+    p.parse(std::vector<std::string>({}));
+    ASSERT_FALSE(p.boolopts()["flag"]);
+}
+
+TEST(ParserTest, Option) {
+    upp::cli::Parser<int> p;
+    p.opts().add('o', "opt");
+    p.parse(std::vector<std::string>({"-o", "101"}));
+    ASSERT_EQ(p.opts()["opt"].as<int>(), 101);
+    p.parse(std::vector<std::string>({"-o", "102"}));
+    ASSERT_EQ(p.opts()['o'].as<short>(), 102);
+    p.parse(std::vector<std::string>({}));
+    ASSERT_EQ(p.opts()['o'].as<std::string>(), "");
+}
+
+TEST(ParserTest, VectOption) {
+    upp::cli::Parser<short> p;
+    p.vectopts().add('v', "vect");
+    p.parse(std::vector<std::string>({"-v", "0", "--vect", "1", "-v", "2"}));
+    ASSERT_THAT(p.vectopts()["vect"].as<int>(), UnorderedElementsAre(0, 1, 2));
+    p.parse(std::vector<std::string>());
+    ASSERT_EQ(p.vectopts()['v'].size(), 0);
+}
