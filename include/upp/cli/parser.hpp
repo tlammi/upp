@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <optional>
@@ -21,10 +22,10 @@ class Parser {
         VectValue positional_arguments;
     };
 
-    typedef int (*callback_t)(T*);
+    typedef std::function<int(T*, const ParsingData&)> callback_t;
 
-    explicit Parser(callback_t callback = nullptr, T* parg = nullptr,
-                    const std::string& helpstr = "")
+    explicit Parser(const std::string& helpstr, callback_t callback = nullptr,
+                    T* parg = nullptr)
         : _cback{callback},
           _parg{parg},
           _helpstr{helpstr},
@@ -58,9 +59,8 @@ class Parser {
         _parsing_data.vector_options.add(longflag, helpstr);
     }
     void add_subcommand(const std::string& name, const std::string& helpstr,
-                        callback_t, T* parg) {
-        (void)parg;
-        _subparsers[name] = Parser(nullptr, nullptr, helpstr);
+                        callback_t callback) {
+        _subparsers[name] = Parser(helpstr, callback, _parg);
     }
     int parse(int argc, const char** argv) {
         std::vector<std::string> args{argv + 1, argv + argc};
@@ -88,6 +88,7 @@ class Parser {
                 i = _handle_lflags(*lflag, i, args);
             } else {
                 if (_subparsers.size()) {
+                    if (_cback) _cback(_parg, _parsing_data);
                     std::vector<std::string> unparsed{
                         args.begin() + static_cast<int64_t>(i) + 1, args.end()};
                     return _subparsers.at(arg).parse(unparsed);
@@ -97,6 +98,7 @@ class Parser {
             }
             ++i;
         }
+        if (_cback) _cback(_parg, _parsing_data);
         return 0;
     }
 

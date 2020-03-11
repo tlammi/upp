@@ -2,7 +2,13 @@
 using namespace upp::cli;
 
 int main(int argc, const char** argv) {
-    Parser<int> p(nullptr, nullptr, "Demo program");
+    Parser<int> p("Demo program",
+                  [](int* ptr, const Parser<int>::ParsingData& parsed) {
+                      std::cout << "callback called" << std::endl;
+                      return 0;
+                  },
+                  nullptr);
+    // Parser<int> p(nullptr, nullptr, "Demo program");
     p.add_bool_option('f', "flag", "Demo flag");
     p.add_option('a', "aaaaa", "AAA option");
     p.add_vector_option('v', "vector-option", "This is a vector option");
