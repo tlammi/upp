@@ -12,7 +12,6 @@
 namespace upp {
 namespace cli {
 
-template <typename T = void>
 class Parser {
  public:
     struct ParsingData {
@@ -22,12 +21,11 @@ class Parser {
         VectValue positional_arguments;
     };
 
-    typedef std::function<int(T*, const ParsingData&)> callback_t;
+    typedef std::function<int(const ParsingData&)> callback_t;
 
-    explicit Parser(const std::string& helpstr, callback_t callback = nullptr,
-                    T* parg = nullptr)
+    explicit Parser(const std::string& helpstr,
+                    const callback_t& callback = nullptr)
         : _cback{callback},
-          _parg{parg},
           _helpstr{helpstr},
           _parsing_data{},
           _subparsers{},
@@ -102,9 +100,8 @@ class Parser {
     }
 
     void add_subcommand(const std::string& name, const std::string& helpstr,
-                        callback_t callback) {
-        _subparsers.emplace(
-            std::make_pair(name, Parser(helpstr, callback, _parg)));
+                        const callback_t& callback) {
+        _subparsers.emplace(std::make_pair(name, Parser(helpstr, callback)));
     }
     inline int parse(int argc, const char** argv) {
         std::vector<std::string> args{argv, argv + argc};  // NOLINT
@@ -139,7 +136,7 @@ class Parser {
                 i = _handle_lflags(*lflag, i, args);
             } else {
                 if (_subparsers.size()) {
-                    if (_cback) _cback(_parg, _parsing_data);
+                    if (_cback) _cback(_parsing_data);
                     std::vector<std::string> unparsed{
                         args.begin() + static_cast<int64_t>(i), args.end()};
                     return _subparsers.at(arg)._parse(unparsed, cmdstack);
@@ -149,7 +146,7 @@ class Parser {
             }
             ++i;
         }
-        if (_cback) _cback(_parg, _parsing_data);
+        if (_cback) _cback(_parsing_data);
         return 0;
     }
     std::optional<char> _as_short_flag(const std::string& arg) {
@@ -225,7 +222,7 @@ class Parser {
         std::vector<std::string> help_rows{};
         auto tmp = _parsing_data.bool_options.help_data();
         for (const auto& tup : tmp) {
-            auto [s, l, h] = tup;
+            const auto& [s, l, h] = tup;
             if (s != '\0')
                 help_data.push_back(std::make_tuple(std::string(1, s), l, h));
             else
@@ -233,7 +230,7 @@ class Parser {
         }
         tmp = _parsing_data.options.help_data();
         for (auto& tup : tmp) {
-            auto [s, l, h] = tup;
+            const auto& [s, l, h] = tup;
             if (s != '\0')
                 help_data.push_back(std::make_tuple(
                     std::string(1, s) + " VALUE", l + " VALUE", h));
@@ -242,7 +239,7 @@ class Parser {
         }
         tmp = _parsing_data.vector_options.help_data();
         for (auto& tup : tmp) {
-            auto [s, l, h] = tup;
+            const auto& [s, l, h] = tup;
             if (s != '\0')
                 help_data.push_back(
                     std::make_tuple(std::string(1, s) + " VALUE", l + " VALUE",
@@ -259,7 +256,7 @@ class Parser {
     }
 
     void _print_help(const std::vector<std::string>& cmdstack) {
-        auto [short_width, long_width] = _flag_column_widths();
+        const auto& [short_width, long_width] = _flag_column_widths();
 
         std::vector<std::tuple<std::string, std::string, std::string>>
             help_data{_construct_help_vector()};
@@ -310,10 +307,9 @@ class Parser {
     constexpr void add_vector_options() const {}
 
     callback_t _cback;
-    T* _parg;
     std::string _helpstr;
     ParsingData _parsing_data;
-    std::map<std::string, Parser<T>> _subparsers;
+    std::map<std::string, Parser> _subparsers;
     VectValue _pos_args;
 };
 }  // namespace cli
