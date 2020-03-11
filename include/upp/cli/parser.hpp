@@ -212,9 +212,8 @@ class Parser {
         }
         return std::make_tuple(short_width, long_width);
     }
-    void _print_help() {
-        auto [short_width, long_width] = _flag_column_widths();
-
+    std::vector<std::tuple<std::string, std::string, std::string>>
+    _construct_help_vector() {
         std::vector<std::tuple<std::string, std::string, std::string>>
             help_data{};
         std::vector<std::string> help_rows{};
@@ -246,11 +245,18 @@ class Parser {
                 help_data.push_back(std::make_tuple(
                     "", l + " VALUE", h + "(Multiple can be specified)"));
         }
-
         std::sort(help_data.begin(), help_data.end(),
                   [](const auto& a, const auto& b) {
                       return std::get<1>(a) < std::get<1>(b);
                   });
+        return help_data;
+    }
+
+    void _print_help() {
+        auto [short_width, long_width] = _flag_column_widths();
+
+        std::vector<std::tuple<std::string, std::string, std::string>>
+            help_data{_construct_help_vector()};
 
         std::cerr << _helpstr << std::endl
                   << std::endl
