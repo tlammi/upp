@@ -17,5 +17,11 @@ int main(int argc, const char** argv) {
                   "no-short", "This option has no short option");
 
     p.add_vector_options('v', "vector-option", "This is a vector option");
+
+    p.add_subcommand("subcmd", "This is a hepl str",
+                     [](int* ptr, const Parser<int>::ParsingData& parsed) {
+                         std::cout << "Subcommand callback called" << std::endl;
+                         return 0;
+                     });
     p.parse(argc, argv);
 }

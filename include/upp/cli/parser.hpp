@@ -103,7 +103,8 @@ class Parser {
 
     void add_subcommand(const std::string& name, const std::string& helpstr,
                         callback_t callback) {
-        _subparsers[name] = Parser(helpstr, callback, _parg);
+        _subparsers.emplace(
+            std::make_pair(name, Parser(helpstr, callback, _parg)));
     }
     int parse(int argc, const char** argv) {
         std::vector<std::string> args{argv + 1, argv + argc};
@@ -212,7 +213,6 @@ class Parser {
         return std::make_tuple(short_width, long_width);
     }
     void _print_help() {
-        // size_t short_width{0}, long_width{0};
         auto [short_width, long_width] = _flag_column_widths();
 
         std::vector<std::tuple<std::string, std::string, std::string>>
@@ -264,6 +264,18 @@ class Parser {
                 std::cerr << std::setw(short_width + 3) << "";
             std::cerr << "--" << std::setw(long_width + 2) << std::left << l
                       << " " << h << std::endl;
+        }
+
+        size_t cmd_colum_width{0};
+        if (_subparsers.size()) {
+            for (const auto& s : _subparsers) {
+                cmd_colum_width = std::max(cmd_colum_width, s.first.size() + 4);
+            }
+            std::cerr << "Subcommands:" << std::endl;
+            for (const auto& s : _subparsers) {
+                std::cerr << std::setw(4) << "" << std::setw(cmd_colum_width)
+                          << s.first << s.second._helpstr << std::endl;
+            }
         }
     }
     /*
