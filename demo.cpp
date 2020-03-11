@@ -9,9 +9,13 @@ int main(int argc, const char** argv) {
                   },
                   nullptr);
     // Parser<int> p(nullptr, nullptr, "Demo program");
-    p.add_bool_option('f', "flag", "Demo flag");
-    p.add_option('a', "aaaaa", "AAA option");
-    p.add_vector_option('v', "vector-option", "This is a vector option");
-    p.add_option("no-short", "This option has no short flag");
+    p.add_bool_options('f', "flag", "Demo flag",              //
+                       'd', "debug", "Example debug option",  //
+                       "demo", "This is a \"demo\" flag");
+
+    p.add_options('a', "aaaaa", "AAA option",  //
+                  "no-short", "This option has no short option");
+
+    p.add_vector_options('v', "vector-option", "This is a vector option");
     p.parse(argc, argv);
 }

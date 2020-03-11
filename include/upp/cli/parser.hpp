@@ -41,8 +41,21 @@ class Parser {
     }
     void add_bool_option(const std::string& longflag,
                          const std::string& helpstr) {
-        _parsing_data.options.add(longflag, helpstr);
+        _parsing_data.bool_options.add(longflag, helpstr);
     }
+    template <typename... Args>
+    void add_bool_options(char shortflag, const std::string& longflag,
+                          const std::string& helpstr, Args... args) {
+        add_bool_option(shortflag, longflag, helpstr);
+        add_bool_options(args...);
+    }
+    template <typename... Args>
+    void add_bool_options(const std::string& longflag,
+                          const std::string& helpstr, Args... args) {
+        add_bool_option(longflag, helpstr);
+        add_bool_options(args...);
+    }
+
     void add_option(char shortflag, const std::string& longflag,
                     const std::string& helpstr) {
         _parsing_data.options.add(shortflag, longflag, helpstr);
@@ -50,6 +63,21 @@ class Parser {
     void add_option(const std::string& longflag, const std::string& helpstr) {
         _parsing_data.options.add(longflag, helpstr);
     }
+
+    template <typename... Args>
+    void add_options(char shortflag, const std::string& longflag,
+                     const std::string& helpstr, Args... args) {
+        add_option(shortflag, longflag, helpstr);
+        add_options(args...);
+    }
+
+    template <typename... Args>
+    void add_options(const std::string& longflag, const std::string& helpstr,
+                     Args... args) {
+        add_option(longflag, helpstr);
+        add_options(args...);
+    }
+
     void add_vector_option(char shortflag, const std::string& longflag,
                            const std::string& helpstr) {
         _parsing_data.vector_options.add(shortflag, longflag, helpstr);
@@ -58,6 +86,21 @@ class Parser {
                            const std::string& helpstr) {
         _parsing_data.vector_options.add(longflag, helpstr);
     }
+
+    template <typename... Args>
+    void add_vector_options(char shortflag, const std::string& longflag,
+                            const std::string& helpstr, Args... args) {
+        add_vector_option(shortflag, longflag, helpstr);
+        add_vector_options(args...);
+    }
+
+    template <typename... Args>
+    void add_vector_options(const std::string& longflag,
+                            const std::string& helpstr, Args... args) {
+        add_vector_option(longflag, helpstr);
+        add_vector_options(args...);
+    }
+
     void add_subcommand(const std::string& name, const std::string& helpstr,
                         callback_t callback) {
         _subparsers[name] = Parser(helpstr, callback, _parg);
@@ -207,6 +250,12 @@ class Parser {
                       << " " << h << std::endl;
         }
     }
+    /*
+     * Dummy function, used by variadic templates
+     */
+    constexpr void add_bool_options() const {}
+    constexpr void add_options() const {}
+    constexpr void add_vector_options() const {}
 
     callback_t _cback;
     T* _parg;
