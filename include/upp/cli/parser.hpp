@@ -106,13 +106,18 @@ class Parser {
         _subparsers.emplace(
             std::make_pair(name, Parser(helpstr, callback, _parg)));
     }
-    int parse(int argc, const char** argv) {
+    inline int parse(int argc, const char** argv) {
         std::vector<std::string> args{argv, argv + argc};  // NOLINT
-        return parse(args);
+        return _parse(args, {});
     }
 
-    int parse(const std::vector<std::string>& args,
-              std::vector<std::string> cmdstack = {}) {
+    inline int parse(const std::vector<std::string>& args) {
+        return _parse(args, {});
+    }
+
+ private:
+    int _parse(const std::vector<std::string>& args,
+               std::vector<std::string> cmdstack) {
         _parsing_data.bool_options.reset_values();
         _parsing_data.options.reset_values();
         _parsing_data.vector_options.reset_values();
@@ -137,7 +142,7 @@ class Parser {
                     if (_cback) _cback(_parg, _parsing_data);
                     std::vector<std::string> unparsed{
                         args.begin() + static_cast<int64_t>(i), args.end()};
-                    return _subparsers.at(arg).parse(unparsed, cmdstack);
+                    return _subparsers.at(arg)._parse(unparsed, cmdstack);
                 } else {
                     _pos_args.push_back(arg);
                 }
@@ -147,8 +152,6 @@ class Parser {
         if (_cback) _cback(_parg, _parsing_data);
         return 0;
     }
-
- private:
     std::optional<char> _as_short_flag(const std::string& arg) {
         if (arg.size() == 2 && arg[0] == '-' && arg[1] != '-')
             return std::make_optional(arg[1]);
@@ -211,6 +214,7 @@ class Parser {
         if (_parsing_data.options.size() ||
             _parsing_data.vector_options.size()) {
             long_width += 6;
+            short_width += 6;
         }
         return std::make_tuple(short_width, long_width);
     }

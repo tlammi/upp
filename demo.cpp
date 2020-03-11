@@ -8,7 +8,6 @@ int main(int argc, const char** argv) {
                       return 0;
                   },
                   nullptr);
-    // Parser<int> p(nullptr, nullptr, "Demo program");
     p.add_bool_options('f', "flag", "Demo flag",              //
                        'd', "debug", "Example debug option",  //
                        "demo", "This is a \"demo\" flag");
