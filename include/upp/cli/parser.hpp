@@ -192,8 +192,28 @@ class Parser {
         throw std::invalid_argument("Invalid long flag: " + args[curindex]);
     }
 
+    std::tuple<size_t, size_t> _flag_column_widths() {
+        size_t short_width{0};
+        size_t long_width{0};
+        for (const auto& o : _parsing_data.bool_options.help_data()) {
+            long_width = std::max(long_width, std::get<1>(o).size());
+        }
+        for (const auto& o : _parsing_data.options.help_data()) {
+            long_width = std::max(long_width, std::get<1>(o).size());
+        }
+        for (const auto& o : _parsing_data.vector_options.help_data()) {
+            long_width = std::max(long_width, std::get<1>(o).size());
+        }
+
+        if (_parsing_data.options.size() ||
+            _parsing_data.vector_options.size()) {
+            long_width += 6;
+        }
+        return std::make_tuple(short_width, long_width);
+    }
     void _print_help() {
-        size_t short_width{0}, long_width{0};
+        // size_t short_width{0}, long_width{0};
+        auto [short_width, long_width] = _flag_column_widths();
 
         std::vector<std::tuple<std::string, std::string, std::string>>
             help_data{};
@@ -201,7 +221,6 @@ class Parser {
         auto tmp = _parsing_data.bool_options.help_data();
         for (const auto& tup : tmp) {
             auto [s, l, h] = tup;
-            long_width = std::max(long_width, l.size());
             if (s != '\0')
                 help_data.push_back(std::make_tuple(std::string(1, s), l, h));
             else
@@ -209,9 +228,7 @@ class Parser {
         }
         tmp = _parsing_data.options.help_data();
         for (auto& tup : tmp) {
-            long_width = std::max(long_width, std::get<1>(tup).size() + 6);
             auto [s, l, h] = tup;
-            short_width = std::max(short_width, static_cast<size_t>(7));
             if (s != '\0')
                 help_data.push_back(std::make_tuple(
                     std::string(1, s) + " VALUE", l + " VALUE", h));
@@ -221,7 +238,6 @@ class Parser {
         tmp = _parsing_data.vector_options.help_data();
         for (auto& tup : tmp) {
             auto [s, l, h] = tup;
-            long_width = std::max(long_width, l.size() + 6);
             if (s != '\0')
                 help_data.push_back(
                     std::make_tuple(std::string(1, s) + " VALUE", l + " VALUE",

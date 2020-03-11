@@ -81,6 +81,8 @@ class OptContainer {
         }
     }
 
+    size_t size() const { return _ltov_mapping.size(); }
+
     const T& operator[](char shortflag) const {
         return this->operator[](_stol_mapping.at(shortflag));
     }
