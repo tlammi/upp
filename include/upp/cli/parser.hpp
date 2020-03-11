@@ -29,7 +29,6 @@ class Parser {
         : _cback{callback},
           _parg{parg},
           _helpstr{helpstr},
-          _my_name{},
           _parsing_data{},
           _subparsers{},
           _pos_args{} {
@@ -112,23 +111,24 @@ class Parser {
         return parse(args);
     }
 
-    int parse(const std::vector<std::string>& args) {
+    int parse(const std::vector<std::string>& args,
+              std::vector<std::string> cmdstack = {}) {
         _parsing_data.bool_options.reset_values();
         _parsing_data.options.reset_values();
         _parsing_data.vector_options.reset_values();
-        _my_name = args.at(0);
+        cmdstack.push_back(args.at(0));
         size_t i{1};
         while (i < args.size()) {
             std::string arg = args[i];
             if (auto sflag = _as_short_flag(arg)) {
                 if (*sflag == 'h') {
-                    _print_help();
+                    _print_help(cmdstack);
                     return 1;
                 }
                 i = _handle_sflags(*sflag, i, args);
             } else if (auto lflag = _as_long_flag(arg)) {
                 if (*lflag == "help") {
-                    _print_help();
+                    _print_help(cmdstack);
                     return 1;
                 }
                 i = _handle_lflags(*lflag, i, args);
@@ -137,7 +137,7 @@ class Parser {
                     if (_cback) _cback(_parg, _parsing_data);
                     std::vector<std::string> unparsed{
                         args.begin() + static_cast<int64_t>(i), args.end()};
-                    return _subparsers.at(arg).parse(unparsed);
+                    return _subparsers.at(arg).parse(unparsed, cmdstack);
                 } else {
                     _pos_args.push_back(arg);
                 }
@@ -254,13 +254,17 @@ class Parser {
         return help_data;
     }
 
-    void _print_help() {
+    void _print_help(const std::vector<std::string>& cmdstack) {
         auto [short_width, long_width] = _flag_column_widths();
 
         std::vector<std::tuple<std::string, std::string, std::string>>
             help_data{_construct_help_vector()};
 
-        std::cerr << "Usage: " << _my_name << " [OPTIONS] ";
+        std::cerr << "Usage: ";
+        for (size_t i{0}; i < cmdstack.size(); ++i) {
+            std::cerr << cmdstack[i] << " ";
+        }
+        std::cerr << "[OPTIONS] ";
         if (_subparsers.size()) {
             std::cerr << "SUBCOMMAND";
         } else {
@@ -304,7 +308,6 @@ class Parser {
     callback_t _cback;
     T* _parg;
     std::string _helpstr;
-    std::string _my_name;
     ParsingData _parsing_data;
     std::map<std::string, Parser<T>> _subparsers;
     VectValue _pos_args;
