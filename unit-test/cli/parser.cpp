@@ -2,6 +2,7 @@
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <iostream>
 
 using namespace ::testing;
 
@@ -52,4 +53,36 @@ TEST(ParserTest, VectOpts) {
 
     p.parse({"test", "-1", "0", "-1", "1", "-1", "2", "--option2", "100",
              "--option2", "101"});
+}
+
+TEST(ParserTest, SubCommand) {
+    int counter{0};
+    upp::cli::Parser p{"test",
+                       [&](const upp::cli::Parser::ParsingData& parsed) -> int {
+                           EXPECT_EQ(counter, 0);
+                           ++counter;
+                           return 0;
+                       }};
+
+    auto& subcmd = p.add_subcommand(
+        "subcmd", "help",
+        [&](const upp::cli::Parser::ParsingData& parsed) -> int {
+            EXPECT_EQ(counter, 1);
+            ++counter;
+            return 0;
+        });
+    p.add_subcommand("subcmd2", "help2",
+                     [](const upp::cli::Parser::ParsingData& parsed) {
+                         ADD_FAILURE();
+                         return 0;
+                     });
+    subcmd.add_subcommand("subcmd2", "help22",
+                          [&](const upp::cli::Parser::ParsingData& parsed) {
+                              EXPECT_EQ(counter, 2);
+                              ++counter;
+                              return 0;
+                          });
+
+    p.parse({"test", "subcmd", "subcmd2"});
+    EXPECT_EQ(counter, 3);
 }

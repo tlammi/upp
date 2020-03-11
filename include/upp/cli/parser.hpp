@@ -26,6 +26,9 @@ class Parser {
     explicit Parser(const std::string& helpstr,
                     const callback_t& callback = nullptr);
 
+    Parser(const Parser&) = delete;
+    Parser(Parser&&) = default;
+
     void add_bool_option(char shortflag, const std::string& longflag,
                          const std::string& helpstr);
     void add_bool_option(const std::string& longflag,
@@ -80,8 +83,8 @@ class Parser {
         add_vector_options(args...);
     }
 
-    void add_subcommand(const std::string& name, const std::string& helpstr,
-                        const callback_t& callback);
+    Parser& add_subcommand(const std::string& name, const std::string& helpstr,
+                           const callback_t& callback);
 
     inline int parse(int argc, const char** argv) {
         std::vector<std::string> args{argv, argv + argc};  // NOLINT

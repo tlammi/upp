@@ -39,9 +39,11 @@ void Parser::add_vector_option(const std::string& longflag,
     _parsing_data.vector_options.add(longflag, helpstr);
 }
 
-void Parser::add_subcommand(const std::string& name, const std::string& helpstr,
-                            const callback_t& callback) {
+Parser& Parser::add_subcommand(const std::string& name,
+                               const std::string& helpstr,
+                               const callback_t& callback) {
     _subparsers.emplace(std::make_pair(name, Parser(helpstr, callback)));
+    return _subparsers.at(name);
 }
 
 int Parser::_parse(const std::vector<std::string>& args,
