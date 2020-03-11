@@ -12,7 +12,7 @@
 namespace upp {
 namespace cli {
 
-template <typename T>
+template <typename T = void>
 class Parser {
  public:
     struct ParsingData {

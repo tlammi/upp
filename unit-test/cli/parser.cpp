@@ -6,10 +6,11 @@
 using namespace ::testing;
 
 TEST(ParserTest, BoolOpts) {
-    upp::cli::Parser<int> p;
-    p.boolopts().add('h', "help");
-    p.boolopts()['h'] = true;
-    ASSERT_TRUE(p.boolopts()["help"]);
+    struct Struct {};
+    Struct s;
+    upp::cli::Parser p("", [](Struct* ptr, const auto& parsed) { return 0; },
+                       &s);
+    p.add_bool_option('h', "help", "helpstr");
 }
 
 TEST(ParserTest, Opts) {

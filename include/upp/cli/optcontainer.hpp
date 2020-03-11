@@ -20,6 +20,7 @@ class OptContainer {
           _ltov_mapping{},
           _ltoh_mapping{},
           _caches_up_to_date{true} {}
+
     void add(char shortflag, std::string longflag, std::string help = "") {
         _stol_mapping[shortflag] = longflag;
         add(longflag, help);
