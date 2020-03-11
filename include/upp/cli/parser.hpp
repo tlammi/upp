@@ -29,6 +29,7 @@ class Parser {
         : _cback{callback},
           _parg{parg},
           _helpstr{helpstr},
+          _my_name{},
           _parsing_data{},
           _subparsers{},
           _pos_args{} {
@@ -107,7 +108,7 @@ class Parser {
             std::make_pair(name, Parser(helpstr, callback, _parg)));
     }
     int parse(int argc, const char** argv) {
-        std::vector<std::string> args{argv + 1, argv + argc};
+        std::vector<std::string> args{argv, argv + argc};  // NOLINT
         return parse(args);
     }
 
@@ -115,7 +116,8 @@ class Parser {
         _parsing_data.bool_options.reset_values();
         _parsing_data.options.reset_values();
         _parsing_data.vector_options.reset_values();
-        size_t i{0};
+        _my_name = args.at(0);
+        size_t i{1};
         while (i < args.size()) {
             std::string arg = args[i];
             if (auto sflag = _as_short_flag(arg)) {
@@ -134,7 +136,7 @@ class Parser {
                 if (_subparsers.size()) {
                     if (_cback) _cback(_parg, _parsing_data);
                     std::vector<std::string> unparsed{
-                        args.begin() + static_cast<int64_t>(i) + 1, args.end()};
+                        args.begin() + static_cast<int64_t>(i), args.end()};
                     return _subparsers.at(arg).parse(unparsed);
                 } else {
                     _pos_args.push_back(arg);
@@ -258,7 +260,15 @@ class Parser {
         std::vector<std::tuple<std::string, std::string, std::string>>
             help_data{_construct_help_vector()};
 
-        std::cerr << _helpstr << std::endl
+        std::cerr << "Usage: " << _my_name << " [OPTIONS] ";
+        if (_subparsers.size()) {
+            std::cerr << "SUBCOMMAND";
+        } else {
+            std::cerr << "[POS ARGS]";
+        }
+        std::cerr << std::endl
+                  << std::endl
+                  << _helpstr << std::endl
                   << std::endl
                   << "Options: " << std::endl;
 
@@ -294,7 +304,7 @@ class Parser {
     callback_t _cback;
     T* _parg;
     std::string _helpstr;
-
+    std::string _my_name;
     ParsingData _parsing_data;
     std::map<std::string, Parser<T>> _subparsers;
     VectValue _pos_args;
