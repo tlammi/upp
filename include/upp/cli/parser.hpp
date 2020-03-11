@@ -16,8 +16,8 @@ class Parser {
  public:
     typedef int (*callback_t)(T*);
 
-    Parser(callback_t callback = nullptr, T* parg = nullptr,
-           std::string helpstr = "")
+    explicit Parser(callback_t callback = nullptr, T* parg = nullptr,
+                    const std::string& helpstr = "")
         : _cback{callback},
           _parg{parg},
           _helpstr{helpstr},
@@ -64,7 +64,7 @@ class Parser {
             } else {
                 if (_subparsers.size()) {
                     std::vector<std::string> unparsed{
-                        args.begin() + static_cast<long>(i) + 1, args.end()};
+                        args.begin() + static_cast<int64_t>(i) + 1, args.end()};
                     _parsed_subcmd = arg;
                     return _subparsers.at(arg).parse(unparsed);
                 } else {
@@ -171,7 +171,7 @@ class Parser {
                   << std::endl
                   << "Options: " << std::endl;
 
-        for (auto [s, l, h] : help_data) {
+        for (const auto& [s, l, h] : help_data) {
             if (s != "\0")
                 std::cerr << "-" << std::setw(short_width + 2) << std::left
                           << s;
