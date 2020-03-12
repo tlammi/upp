@@ -8,7 +8,7 @@ namespace upp {
 namespace cli {
 
 Value::Value() : Value("") {}
-Value::Value(std::string value) : _value{value} {}
+Value::Value(const std::string& value) : _value{value} {}
 
 Value& Value::operator=(const std::string& value) {
     _value = value;

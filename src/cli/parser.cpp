@@ -14,6 +14,8 @@ Parser::Parser(const std::string& helpstr, const callback_t& callback)
     _parsing_data.bool_options.add('h', "help", "Print this help and exit");
 }
 
+Parser::~Parser() {}
+
 void Parser::add_bool_option(char shortflag, const std::string& longflag,
                              const std::string& helpstr) {
     _assert_no_flags(shortflag, longflag);

@@ -28,6 +28,9 @@ class Parser {
 
     Parser(const Parser&) = delete;
     Parser(Parser&&) = default;
+    Parser& operator=(const Parser&) = delete;
+    Parser& operator=(Parser&&) = default;
+    ~Parser();
 
     void add_bool_option(char shortflag, const std::string& longflag,
                          const std::string& helpstr);

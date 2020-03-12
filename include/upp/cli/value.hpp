@@ -7,7 +7,7 @@ namespace cli {
 class Value {
  public:
     Value();
-    explicit Value(std::string value);
+    explicit Value(const std::string& value);
 
     template <typename T>
     T as() const {
