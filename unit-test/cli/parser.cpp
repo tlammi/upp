@@ -89,3 +89,18 @@ TEST(ParserTest, BoolOptsMultiple) {
     ASSERT_THROW(p.add_bool_option('f', "flag", "help"), std::logic_error);
     ASSERT_THROW(p.add_bool_option("flag", "help string"), std::logic_error);
 }
+
+TEST(ParserTest, OptsMultiple) {
+    Parser p{"test", [](const Parser::ParsingData& parsed) { return 0; }};
+    p.add_option('o', "option", "asdf");
+    ASSERT_THROW(p.add_option('o', "other-option", "asdf"), std::logic_error);
+    ASSERT_THROW(p.add_option("option", "asdf"), std::logic_error);
+}
+
+TEST(ParserTest, VectOptsMultiple) {
+    Parser p{"test", [](const Parser::ParsingData& parsed) { return 0; }};
+    p.add_vector_option('v', "vector-option", "asdf");
+    ASSERT_THROW(p.add_vector_option('v', "vect", "asdfasdf"),
+                 std::logic_error);
+    ASSERT_THROW(p.add_vector_option("vector-option", "a"), std::logic_error);
+}
