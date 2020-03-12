@@ -128,3 +128,9 @@ TEST(ParserTest, SameOptionOnMultipleLevels) {
 
     p.parse({"test", "--option", "1", "subcmd", "--option", "2"});
 }
+
+TEST(ParserTest, InvalidOption) {
+    Parser p{"", [](const auto& param) { return 0; }};
+    p.add_bool_option('d', "debug", "asdfasdf");
+    ASSERT_THROW(p.parse({"bin", "--not-debug"}), std::invalid_argument);
+}
