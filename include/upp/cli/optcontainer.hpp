@@ -22,12 +22,19 @@ class OptContainer {
           _caches_up_to_date{true} {}
 
     void add(char shortflag, std::string longflag, std::string help = "") {
+        using namespace std::string_literals;
+        if (_stol_mapping.count(shortflag))
+            throw std::logic_error(
+                "Key already present: "s.append(&shortflag, 1));
         _stol_mapping[shortflag] = longflag;
         add(longflag, help);
     }
     void add(std::string longflag, std::string help = "") {
-        _ltov_mapping[longflag] = T();
+        using namespace std::string_literals;
+        if (_ltov_mapping.count(longflag))
+            throw std::logic_error("Key already present: "s + longflag);
         _caches_up_to_date = false;
+        _ltov_mapping[longflag] = T();
         _ltoh_mapping[longflag] = help;
     }
 
