@@ -1,5 +1,7 @@
 #include "upp/cli/parser.hpp"
 
+using namespace std::string_literals;
+
 namespace upp {
 namespace cli {
 
@@ -14,28 +16,34 @@ Parser::Parser(const std::string& helpstr, const callback_t& callback)
 
 void Parser::add_bool_option(char shortflag, const std::string& longflag,
                              const std::string& helpstr) {
+    _assert_no_flags(shortflag, longflag);
     _parsing_data.bool_options.add(shortflag, longflag, helpstr);
 }
 void Parser::add_bool_option(const std::string& longflag,
                              const std::string& helpstr) {
+    _assert_no_flags(longflag);
     _parsing_data.bool_options.add(longflag, helpstr);
 }
 
 void Parser::add_option(char shortflag, const std::string& longflag,
                         const std::string& helpstr) {
+    _assert_no_flags(shortflag, longflag);
     _parsing_data.options.add(shortflag, longflag, helpstr);
 }
 void Parser::add_option(const std::string& longflag,
                         const std::string& helpstr) {
+    _assert_no_flags(longflag);
     _parsing_data.options.add(longflag, helpstr);
 }
 
 void Parser::add_vector_option(char shortflag, const std::string& longflag,
                                const std::string& helpstr) {
+    _assert_no_flags(shortflag, longflag);
     _parsing_data.vector_options.add(shortflag, longflag, helpstr);
 }
 void Parser::add_vector_option(const std::string& longflag,
                                const std::string& helpstr) {
+    _assert_no_flags(longflag);
     _parsing_data.vector_options.add(longflag, helpstr);
 }
 
@@ -229,5 +237,29 @@ void Parser::_print_help(const std::vector<std::string>& cmdstack) {
         }
     }
 }
+
+bool Parser::_flag_added(char shortflag) const {
+    return _parsing_data.bool_options.contains(shortflag) ||
+           _parsing_data.options.contains(shortflag) ||
+           _parsing_data.vector_options.contains(shortflag);
+}
+
+bool Parser::_flag_added(const std::string& longflag) const {
+    return _parsing_data.bool_options.contains(longflag) ||
+           _parsing_data.options.contains(longflag) ||
+           _parsing_data.vector_options.contains(longflag);
+}
+
+void Parser::_assert_no_flags(char shortflag,
+                              const std::string& longflag) const {
+    if (shortflag != '\0' && _flag_added(shortflag))
+        throw std::logic_error("Flag already present: "s.append(&shortflag, 1));
+}
+
+void Parser::_assert_no_flags(const std::string& longflag) const {
+    if (_flag_added(longflag))
+        throw std::logic_error("Flag already added: "s + longflag);
+}
+
 }  // namespace cli
 }  // namespace upp

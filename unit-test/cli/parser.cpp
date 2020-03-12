@@ -104,3 +104,10 @@ TEST(ParserTest, VectOptsMultiple) {
                  std::logic_error);
     ASSERT_THROW(p.add_vector_option("vector-option", "a"), std::logic_error);
 }
+
+TEST(ParserTest, OptionConflict) {
+    Parser p{"", [](const auto& parsed) { return 0; }};
+    p.add_bool_option('o', "option", "");
+    ASSERT_THROW(p.add_option('o', "asdf", ""), std::logic_error);
+    ASSERT_THROW(p.add_vector_option("option", "asdfasdf"), std::logic_error);
+}

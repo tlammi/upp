@@ -90,6 +90,12 @@ class OptContainer {
     }
 
     size_t size() const { return _ltov_mapping.size(); }
+    bool contains(char shortflag) const {
+        return static_cast<bool>(_stol_mapping.count(shortflag));
+    }
+    bool contains(const std::string& longflag) const {
+        return static_cast<bool>(_ltov_mapping.count(longflag));
+    }
 
     const T& operator[](char shortflag) const {
         return this->operator[](_stol_mapping.at(shortflag));

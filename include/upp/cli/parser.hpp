@@ -114,6 +114,12 @@ class Parser {
     _construct_help_vector();
 
     void _print_help(const std::vector<std::string>& cmdstack);
+
+    bool _flag_added(char shortflag) const;
+    bool _flag_added(const std::string& longflag) const;
+
+    void _assert_no_flags(char shortflag, const std::string& longflag) const;
+    void _assert_no_flags(const std::string& longflag) const;
     /*
      * Dummy function, used by variadic templates
      */
