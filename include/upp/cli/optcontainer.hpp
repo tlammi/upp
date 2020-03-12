@@ -10,6 +10,12 @@
 namespace upp {
 namespace cli {
 
+/**
+ * \brief Utility class for managing sets of CLI options
+ *
+ * Basically a wrapper on top of multiple std::maps offering
+ * indexing operators for both short and long flags.
+ */
 template <typename T>
 class OptContainer {
  public:
@@ -21,6 +27,13 @@ class OptContainer {
           _ltoh_mapping{},
           _caches_up_to_date{true} {}
 
+    /**
+     * \brief Add a new flag to the container
+     *
+     * \param shortflag Short name of the option
+     * \param longflag Long name of the option
+     * \param help Help string for the option
+     */
     void add(char shortflag, std::string longflag, std::string help = "") {
         using namespace std::string_literals;
         if (_stol_mapping.count(shortflag))
@@ -29,6 +42,13 @@ class OptContainer {
         _stol_mapping[shortflag] = longflag;
         add(longflag, help);
     }
+
+    /**
+     * \brief Add a new flag to the container (no shortflag -variant)
+     *
+     * \param longflag Long name of the option
+     * \param help Help string for the option
+     */
     void add(std::string longflag, std::string help = "") {
         using namespace std::string_literals;
         if (_ltov_mapping.count(longflag))
@@ -38,13 +58,32 @@ class OptContainer {
         _ltoh_mapping[longflag] = help;
     }
 
+    /**
+     * \brief Accessor for the help string
+     *
+     * \param longflag Long flag previously stored in the OptContainer
+     */
     const std::string& helpstr(const std::string& longflag) const {
         return _ltoh_mapping.at(longflag);
     }
+
+    /**
+     * \brief Accessor for the help string
+     *
+     * \param shortflag Short flag previously stored in the OptContainer
+     */
     const std::string& helpstr(char shortflag) const {
         return helpstr(_stol_mapping.at(shortflag));
     }
 
+    /**
+     * \brief Constructs the help data of the container
+     *
+     * \return Vector of tuples where:
+     *  - field 1 is the short flag or '\0' if not present
+     *  - field 2 is the long flag
+     *  - field 3 is the help string
+     */
     std::vector<std::tuple<char, std::string, std::string>> help_data() {
         if (!_caches_up_to_date) _refresh_caches();
 
@@ -63,10 +102,19 @@ class OptContainer {
         return out;
     }
 
+    /**
+     * \brief Access longflag via the shortflag
+     *
+     * \param shortflag Short flag stored earlier in the object
+     * \return Long flag corresponding to the short flag
+     */
     const std::string& longflag(char shortflag) const {
         return _stol_mapping.at(shortflag);
     }
 
+    /**
+     * \brief Set of short flags stored in the object
+     */
     const std::set<char>& shortflags() {
         if (!_caches_up_to_date) {
             _refresh_caches();
@@ -74,6 +122,10 @@ class OptContainer {
         }
         return _sflag_cache;
     }
+
+    /**
+     * \brief Set of long flags stored in the object
+     */
     const std::set<std::string>& longflags() {
         if (!_caches_up_to_date) {
             _refresh_caches();
@@ -82,6 +134,12 @@ class OptContainer {
         return _lflag_cache;
     }
 
+    /**
+     * \brief Resets all of the values stored in the object
+     *
+     * The reset is done by simply calling default constructor for all value
+     * fields
+     */
     void reset_values() {
         for (auto pair = _ltov_mapping.begin(); pair != _ltov_mapping.end();
              ++pair) {
@@ -89,14 +147,37 @@ class OptContainer {
         }
     }
 
+    /**
+     * \brief Number of elements in the object
+     *
+     * The number is calculated as the number of long flags. Short flags are
+     * optional and basically just references to long flags so they are not
+     * used.
+     */
     size_t size() const { return _ltov_mapping.size(); }
+
+    /**
+     * \brief Check if a matching short flag is stored in the object
+     * \return true if present, false otherwise
+     */
     bool contains(char shortflag) const {
         return static_cast<bool>(_stol_mapping.count(shortflag));
     }
+
+    /**
+     * \brief Check if a matching long flag is stored in the object
+     * \return true if present, false otherwise
+     */
     bool contains(const std::string& longflag) const {
         return static_cast<bool>(_ltov_mapping.count(longflag));
     }
 
+    /**
+     * \brief Index operator overloads
+     *
+     * Access values pointed by short or long flags
+     * \{
+     */
     const T& operator[](char shortflag) const {
         return this->operator[](_stol_mapping.at(shortflag));
     }
@@ -109,6 +190,7 @@ class OptContainer {
     T& operator[](const std::string& longflag) {
         return _ltov_mapping.at(longflag);
     }
+    /**\}*/
 
  private:
     void _refresh_caches() {
