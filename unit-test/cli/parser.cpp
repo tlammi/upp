@@ -111,3 +111,20 @@ TEST(ParserTest, OptionConflict) {
     ASSERT_THROW(p.add_option('o', "asdf", ""), std::logic_error);
     ASSERT_THROW(p.add_vector_option("option", "asdfasdf"), std::logic_error);
 }
+
+TEST(ParserTest, SameOptionOnMultipleLevels) {
+    Parser p{"", [](const Parser::ParsingData& parsed) {
+                 EXPECT_EQ(parsed.options["option"].as<int>(), 1);
+                 return 0;
+             }};
+    auto& subcmd =
+        p.add_subcommand("subcmd", "", [](const Parser::ParsingData& parsed) {
+            EXPECT_EQ(parsed.options["option"].as<int>(), 2);
+            return 0;
+        });
+
+    p.add_option("option", "help");
+    subcmd.add_option("option", "help");
+
+    p.parse({"test", "--option", "1", "subcmd", "--option", "2"});
+}
