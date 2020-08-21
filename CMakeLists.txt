@@ -11,7 +11,7 @@ set(CMAKE_CXX_FLAGS "--std=c++17 -Wall -Werror -Wextra -Wno-unused -Wcast-align 
     -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self \
     -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast \
     -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion \
-    -Wsign-promo -Wstrict-overflow=5 -Wswitch-default -Wundef -Wabi -Winline \
+    -Wsign-promo -Wstrict-overflow=5 -Wundef -Wabi -Winline \
     -Wzero-as-null-pointer-constant")
 
 set(CMAKE_CXX_FLAGS_DEBUG "-fprofile-arcs -ftest-coverage -g")
