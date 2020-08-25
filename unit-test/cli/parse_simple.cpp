@@ -13,7 +13,6 @@ TEST(CliTest, Init) {
 
 TEST(CliTest, NoValue) {
 		const char* args[] = {"demo", "-h", "--option"};
-		const char** end = args + 3;
 		Cmd cmd{"asdf"};
 		cmd.opts().create('h', "help");
 		cmd.opts().create("option");
@@ -21,9 +20,20 @@ TEST(CliTest, NoValue) {
 		ASSERT_FALSE(cmd.opts()["help"]);
 		ASSERT_FALSE(cmd.opts()["option"]);
 		ASSERT_FALSE(cmd.opts()['s']);
-		const char** out = parse(cmd, args + 1, end);
-		ASSERT_EQ(out, end);
+		const char** out = parse(cmd, args + 1, args + 3);
+		ASSERT_EQ(out, args + 3);
 		ASSERT_TRUE(cmd.opts()['h']);
 		ASSERT_TRUE(cmd.opts()["option"]);
 		ASSERT_FALSE(cmd.opts()['s']);
+}
+
+TEST(CliTest, SingleValue) {
+		const char* args[] = {"app", "-o", "value"};
+
+		std::string val;
+		Cmd cmd{"app"};
+		cmd.opts().create('o').store_in(val);
+		const char** out = parse(cmd, args + 1, args + 3);
+		ASSERT_EQ(out, args + 3);
+		ASSERT_EQ(val, "value");
 }
