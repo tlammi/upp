@@ -23,7 +23,6 @@ template <typename T>
 class Value {
 public:
 		Value(T& data) : data_{data} {}
-		ParamCount param_count() const;
 
 		void add_value(const char* str);
 
@@ -36,8 +35,14 @@ void Value<std::string>::add_value(const char* str) {
 		data_ = str;
 }
 
+template <typename T>
+ParamCount param_count();
 template <>
-auto Value<std::string>::param_count() const -> ParamCount {
+ParamCount param_count<std::string>() {
+		return ParamCount::One;
+}
+template <>
+ParamCount param_count<char>() {
 		return ParamCount::One;
 }
 
@@ -50,13 +55,14 @@ public:
 		template <typename T>
 		void store_in(T& target) {
 				Value<T> val{target};
-				pcount_ = val.param_count();
+				pcount_ = ::upp::cli::param_count<T>();
 				set_value_func_ =
 					[val = std::move(val)](const char* str) mutable {
 							val.add_value(str);
 					};
 		}
 		ParamCount param_count() const { return pcount_; }
+		void set_value(const char* ptr) { set_value_func_(ptr); }
 
 private:
 		bool parsed_{false};
@@ -114,10 +120,34 @@ inline const char** parse(Cmd& cmd, const char** iter, const char** end) {
 
 		while (iter != end) {
 				if (is_flag(*iter)) {
+						Opt* opt;
 						if (is_long_flag(*iter)) {
-								cmd.opts()[*(iter) + 2].parsed_ = true;
+								opt = &cmd.opts()[*(iter) + 2];
 						} else {
-								cmd.opts()[(*iter)[1]].parsed_ = true;
+								opt = &cmd.opts()[(*iter)[1]];
+						}
+						switch (opt->param_count()) {
+								case ParamCount::None: {
+										opt->parsed_ = true;
+										break;
+								}
+								case ParamCount::One: {
+										if (opt->parsed_)
+												throw std::runtime_error(
+													"Option specified twice");
+										if (iter + 1 >= end)
+												throw std::runtime_error(
+													"No value specfied");
+
+										opt->parsed_ = true;
+										opt->set_value(*(iter + 1));
+										++iter;
+										break;
+								}
+								case ParamCount::Some: {
+										throw std::runtime_error(
+											"Not implemented");
+								}
 						}
 				} else {
 						return iter;
