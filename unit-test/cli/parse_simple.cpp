@@ -37,3 +37,29 @@ TEST(CliTest, SingleValue) {
 		ASSERT_EQ(out, args + 3);
 		ASSERT_EQ(val, "value");
 }
+
+TEST(CliTest, MultipleValues) {
+		const char* args[] = {"app", "-v", "1", "-v", "2", "-v", "4"};
+		Cmd cmd{"app"};
+		std::vector<std::string> vect;
+		cmd.opts().create('v').store_in(vect);
+		const char** out = parse(cmd, args + 1, args + 7);
+
+		ASSERT_EQ(vect.size(), 3);
+		ASSERT_EQ(vect[0], "1");
+		ASSERT_EQ(vect[1], "2");
+		ASSERT_EQ(vect[2], "4");
+}
+
+TEST(CliTest, BoolConversion) {
+		const char* args[] = {"app", "-1", "-2"};
+
+		Cmd cmd{"app"};
+		cmd.opts().create('1');
+		cmd.opts().create('2');
+		cmd.opts().create('3');
+		parse(cmd, args + 1, args + 3);
+		ASSERT_TRUE(cmd.opts()['1']);
+		ASSERT_TRUE(cmd.opts()['2']);
+		ASSERT_FALSE(cmd.opts()['3']);
+}
