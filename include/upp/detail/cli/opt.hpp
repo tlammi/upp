@@ -8,10 +8,12 @@
 namespace upp {
 namespace cli {
 class Cmd;
-const char** parse(Cmd&, const char**, const char**);
+template <typename Iter>
+Iter parse(Cmd&, Iter, Iter);
 
 class Opt {
-		friend const char** parse(Cmd&, const char**, const char**);
+		template <typename Iter>
+		friend Iter parse(Cmd&, Iter, Iter);
 
 public:
 		Opt() {}
@@ -23,7 +25,6 @@ public:
 		}
 
 private:
-		ValueBase* value() { return value_.get(); }
 		bool parsed_{false};
 		std::unique_ptr<ValueBase> value_{nullptr};
 };
