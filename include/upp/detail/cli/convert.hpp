@@ -24,17 +24,24 @@ using ret_type_t = typename ret_type<T>::type;
 template <typename T>
 struct converter {
 		static ret_type_t<T> convert(const char* str) {
-				std::stringstream ss;
-				ss << str;
-				T ret;
-				ss >> ret;
-				if constexpr (std::is_integral_v<ret_type_t<T>>) {
-						if (ret == 0 && (str[0] != '0' || str[1] != '\0'))
-								throw std::logic_error(
-									std::string("Invalid integer value \"") +
-									str + '"');
+				if constexpr (std::is_same_v<T, ret_type_t<std::string>>) {
+						return str;
+				} else {
+						std::stringstream ss;
+						ss << str;
+						T ret;
+						ss >> ret;
+						if constexpr (std::is_integral_v<ret_type_t<T>>) {
+								if (ret == 0 &&
+									(str[0] != '0' || str[1] != '\0'))
+										throw std::logic_error(
+											std::string(
+												"Invalid integer value \"") +
+											str + '"');
+						}
+
+						return ret;
 				}
-				return ret;
 		}
 
 		static void run_integer_checks(const ret_type_t<T>& val) {}

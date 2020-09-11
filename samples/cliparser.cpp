@@ -5,6 +5,13 @@
 namespace cli = upp::cli;
 
 int main(int argc, char** argv) {
+		char** iter = argv;
+		std::cerr << "Arguments: \n";
+		while (iter != argv + argc) {
+				std::cerr << '\t' << *iter << '\n';
+				++iter;
+		}
+
 		enum class Enumeration {
 				A,
 				B,
@@ -17,12 +24,16 @@ int main(int argc, char** argv) {
 								 {Enumeration::C, "C"}};
 
 		std::vector<int> ints{};
+		std::string str{};
 		cmd.opts().create('v', "vector").store_in(ints);
 		cmd.opts().create("enum").store_in(e);
+		cmd.opts().create("string").store_in(str);
+
 		cli::parse(cmd, argv + 1, argv + argc);
-		std::cerr << "Vector values:";
+		if (cmd.opts()['v']) std::cerr << "Vector values:";
 		for (const auto& i : ints) { std::cerr << ' ' << i; }
-		std::cerr << '\n';
+		if (cmd.opts()["vector"]) std::cerr << '\n';
 
 		if (cmd.opts()["enum"]) std::cerr << "Enumeration: " << e.str() << '\n';
+		if (cmd.opts()["string"]) std::cerr << "String: " << str << '\n';
 }
