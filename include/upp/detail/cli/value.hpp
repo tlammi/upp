@@ -20,7 +20,7 @@ public:
 				if (value_count_ > 0)
 						throw std::invalid_argument(
 							"Argument specified multiple times");
-				data_ = convert_to<T>(str);
+				data_ = converter<T>::convert(str);
 		}
 
 private:
@@ -33,7 +33,9 @@ class Value<std::vector<T>> : public ValueBase {
 public:
 		explicit Value(std::vector<T>& data) : data_{data} {}
 
-		void add_value(const char* str) { data_.push_back(convert_to<T>(str)); }
+		void add_value(const char* str) {
+				data_.emplace_back(converter<T>::convert(str));
+		}
 
 private:
 		std::vector<T>& data_;

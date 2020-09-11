@@ -51,15 +51,19 @@ TEST(CliTest, MultipleValues) {
 		ASSERT_EQ(vect[2], "4");
 }
 
-TEST(CliTest, BoolConversion) {
-		const char* args[] = {"app", "-1", "-2"};
+TEST(CliTest, Enum) {
+		enum class Demo {
+				A,
+				B,
+				C,
+		};
+		Enum<Demo> e{{Demo::A, "A"}, {Demo::B, "B"}, {Demo::C, "C"}};
+		const char* args[] = {"app", "--flag", "C"};
 
 		Cmd cmd{"app"};
-		cmd.opts().create('1');
-		cmd.opts().create('2');
-		cmd.opts().create('3');
+		cmd.opts().create("flag").store_in(e);
 		parse(cmd, args + 1, args + 3);
-		ASSERT_TRUE(cmd.opts()['1']);
-		ASSERT_TRUE(cmd.opts()['2']);
-		ASSERT_FALSE(cmd.opts()['3']);
+
+		ASSERT_EQ(e, Demo::C);
+		ASSERT_NE(e, Demo::B);
 }
