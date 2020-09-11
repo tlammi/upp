@@ -1,8 +1,9 @@
 #pragma once
 
+#include <algorithm>
 #include <initializer_list>
+#include <string_view>
 #include <unordered_map>
-
 namespace upp {
 namespace cli {
 
@@ -28,13 +29,24 @@ public:
 		bool operator!=(T rhs) const { return value_ != rhs; }
 
 		Enum& operator=(const char* str) {
+				if (!map_.count(str)) {
+						throw std::logic_error("Invalid enumeration");
+				}
 				value_ = map_.at(str);
 				return *this;
 		}
+
 		Enum& operator=(T rhs) { value_ = rhs; }
 
+		std::string_view str() {
+				auto iter = std::find_if(
+					map_.begin(), map_.end(),
+					[&](const auto& pair) { return value_ == pair.second; });
+				if (iter != map_.end()) { return iter->first; }
+		}
+
 private:
-		std::unordered_map<const char*, T> map_{};
+		std::unordered_map<std::string_view, T> map_{};
 		T value_{};
 };
 }  // namespace cli

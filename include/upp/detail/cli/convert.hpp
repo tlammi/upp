@@ -1,15 +1,12 @@
 #pragma once
 
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
 #include "upp/detail/cli/enum.hpp"
 namespace upp {
 namespace cli {
-/*
-template <typename T>
-T convert_to(const char* str);
-*/
 
 template <typename T>
 struct ret_type {
@@ -26,39 +23,21 @@ using ret_type_t = typename ret_type<T>::type;
 
 template <typename T>
 struct converter {
-		static ret_type_t<T> convert(const char* rhs);
-};
-
-template <>
-struct converter<const char*> {
-		static const char* convert(const char* str) { return str; }
-};
-
-template <>
-struct converter<std::string> {
-		static std::string convert(const char* str) { return str; }
-};
-
-template <>
-struct converter<int8_t> {
-		static int8_t convert(const char* str) {
-				if (str[0] == '\0')
-						throw std::logic_error(
-							"Cannot convert nullstr to char");
-				if (str[1] != '\0') throw std::logic_error("Too long string");
-				return str[0];
+		static ret_type_t<T> convert(const char* str) {
+				std::stringstream ss;
+				ss << str;
+				T ret;
+				ss >> ret;
+				if constexpr (std::is_integral_v<ret_type_t<T>>) {
+						if (ret == 0 && (str[0] != '0' || str[1] != '\0'))
+								throw std::logic_error(
+									std::string("Invalid integer value \"") +
+									str + '"');
+				}
+				return ret;
 		}
-};
 
-template <>
-struct converter<uint8_t> {
-		static uint8_t convert(const char* str) {
-				if (str[0] == '\0')
-						throw std::logic_error(
-							"Cannot convert nullstr to char");
-				if (str[1] != '\0') throw std::logic_error("Too long string");
-				return str[0];
-		}
+		static void run_integer_checks(const ret_type_t<T>& val) {}
 };
 
 template <typename T>

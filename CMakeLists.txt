@@ -20,3 +20,4 @@ add_library(upp ${LIB_SRCS})
 target_include_directories(upp PUBLIC include)
 
 add_subdirectory(unit-test EXCLUDE_FROM_ALL)
+add_subdirectory(samples EXCLUDE_FROM_ALL)

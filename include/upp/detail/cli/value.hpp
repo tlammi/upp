@@ -17,15 +17,16 @@ public:
 		explicit Value(T& data) : data_{data} {}
 
 		void add_value(const char* str) {
-				if (value_count_ > 0)
+				if (value_set_)
 						throw std::invalid_argument(
 							"Argument specified multiple times");
 				data_ = converter<T>::convert(str);
+				value_set_ = true;
 		}
 
 private:
 		T& data_;
-		size_t value_count_{0};
+		bool value_set_{false};
 };
 
 template <typename T>
