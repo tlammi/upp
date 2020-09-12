@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
 		cmd.opts().create("string").store_in(str);
 		cmd.opts().create('f', "float").store_in(floating);
 
-		cli::parse(cmd, argv + 1, argv + argc);
+		cmd.parse(argv + 1, argv + argc);
 		if (cmd.opts()['v']) std::cerr << "Vector values:";
 		for (const auto& i : ints) { std::cerr << ' ' << i; }
 		if (cmd.opts()["vector"]) std::cerr << '\n';

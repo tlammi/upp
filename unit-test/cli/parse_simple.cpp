@@ -20,7 +20,7 @@ TEST(CliTest, NoValue) {
 		ASSERT_FALSE(cmd.opts()["help"]);
 		ASSERT_FALSE(cmd.opts()["option"]);
 		ASSERT_FALSE(cmd.opts()['s']);
-		const char** out = parse(cmd, args + 1, args + 3);
+		const char** out = cmd.parse(args + 1, args + 3);
 		ASSERT_EQ(out, args + 3);
 		ASSERT_TRUE(cmd.opts()['h']);
 		ASSERT_TRUE(cmd.opts()["option"]);
@@ -33,7 +33,7 @@ TEST(CliTest, SingleValue) {
 		std::string val;
 		Cmd cmd{"app"};
 		cmd.opts().create('o').store_in(val);
-		const char** out = parse(cmd, args + 1, args + 3);
+		const char** out = cmd.parse(args + 1, args + 3);
 		ASSERT_EQ(out, args + 3);
 		ASSERT_EQ(val, "value");
 }
@@ -43,7 +43,7 @@ TEST(CliTest, MultipleValues) {
 		Cmd cmd{"app"};
 		std::vector<std::string> vect;
 		cmd.opts().create('v').store_in(vect);
-		const char** out = parse(cmd, args + 1, args + 7);
+		const char** out = cmd.parse(args + 1, args + 7);
 
 		ASSERT_EQ(vect.size(), 3);
 		ASSERT_EQ(vect[0], "1");
@@ -62,7 +62,7 @@ TEST(CliTest, Enum) {
 
 		Cmd cmd{"app"};
 		cmd.opts().create("flag").store_in(e);
-		parse(cmd, args + 1, args + 3);
+		cmd.parse(args + 1, args + 3);
 
 		ASSERT_EQ(e, Demo::C);
 		ASSERT_NE(e, Demo::B);

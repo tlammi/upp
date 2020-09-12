@@ -9,12 +9,9 @@ namespace upp {
 namespace detail {
 namespace cli {
 class Cmd;
-template <typename Iter>
-Iter parse(Cmd&, Iter, Iter);
 
 class Opt {
-		template <typename Iter>
-		friend Iter parse(Cmd&, Iter, Iter);
+		friend class Cmd;
 
 public:
 		Opt() {}
