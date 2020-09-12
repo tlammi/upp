@@ -24,10 +24,13 @@ int main(int argc, char** argv) {
 								 {Enumeration::C, "C"}};
 
 		std::vector<int> ints{};
+
+		double floating;
 		std::string str{};
 		cmd.opts().create('v', "vector").store_in(ints);
 		cmd.opts().create("enum").store_in(e);
 		cmd.opts().create("string").store_in(str);
+		cmd.opts().create('f', "float").store_in(floating);
 
 		cli::parse(cmd, argv + 1, argv + argc);
 		if (cmd.opts()['v']) std::cerr << "Vector values:";
@@ -36,4 +39,6 @@ int main(int argc, char** argv) {
 
 		if (cmd.opts()["enum"]) std::cerr << "Enumeration: " << e.str() << '\n';
 		if (cmd.opts()["string"]) std::cerr << "String: " << str << '\n';
+		if (cmd.opts()['f'])
+				std::cerr << "Floating point: " << floating << '\n';
 }
