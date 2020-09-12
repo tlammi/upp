@@ -3,6 +3,7 @@
 
 #include "upp/detail/cli/convert.hpp"
 namespace upp {
+namespace detail {
 namespace cli {
 class ValueBase {
 public:
@@ -42,4 +43,5 @@ private:
 		std::vector<T>& data_;
 };
 }  // namespace cli
+}  // namespace detail
 }  // namespace upp

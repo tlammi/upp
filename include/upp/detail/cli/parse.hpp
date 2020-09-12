@@ -3,6 +3,7 @@
 #include "upp/detail/cli/cmd.hpp"
 
 namespace upp {
+namespace detail {
 namespace cli {
 template <typename Iter>
 Iter parse(Cmd& cmd, Iter iter, Iter end) {
@@ -42,4 +43,5 @@ Iter parse(Cmd& cmd, Iter iter, Iter end) {
 		return end;
 }
 }  // namespace cli
+}  // namespace detail
 }  // namespace upp

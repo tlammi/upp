@@ -2,6 +2,7 @@
 
 #include "upp/detail/cli/opt.hpp"
 namespace upp {
+namespace detail {
 namespace cli {
 
 class Cmd {
@@ -14,4 +15,5 @@ private:
 		Opts opts_{};
 };
 }  // namespace cli
+}  // namespace detail
 }  // namespace upp

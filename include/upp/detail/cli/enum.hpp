@@ -5,6 +5,7 @@
 #include <string_view>
 #include <unordered_map>
 namespace upp {
+namespace detail {
 namespace cli {
 
 template <typename T>
@@ -50,4 +51,5 @@ private:
 		T value_{};
 };
 }  // namespace cli
+}  // namespace detail
 }  // namespace upp

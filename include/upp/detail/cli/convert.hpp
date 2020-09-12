@@ -6,6 +6,7 @@
 
 #include "upp/detail/cli/enum.hpp"
 namespace upp {
+namespace detail {
 namespace cli {
 
 template <typename T>
@@ -21,18 +22,22 @@ struct ret_type<Enum<T>> {
 template <typename T>
 using ret_type_t = typename ret_type<T>::type;
 
+template <auto A, typename...>
+auto asserting_value = A;
+
 template <typename T>
 struct converter {
 		static ret_type_t<T> convert(const char* str) {
 				if constexpr (std::is_same_v<std::string, ret_type_t<T>> ||
 							  std::is_same_v<const char*, ret_type_t<T>>) {
 						return str;
-				} else if (std::is_floating_point_v<ret_type_t<T>>) {
+				} else if constexpr (std::is_floating_point_v<ret_type_t<T>>) {
 						return handle_floating(str);
-				} else if (std::is_integral_v<ret_type_t<T>>) {
+				} else if constexpr (std::is_integral_v<ret_type_t<T>>) {
 						return handle_integer(str);
 				} else {
-						std::runtime_error("Unsupported conversion");
+						static_assert(asserting_value<false, T>,
+									  "Unsupported conversion");
 				}
 		}
 		static ret_type_t<T> handle_floating(const char* str) {
@@ -41,14 +46,12 @@ struct converter {
 						if (*c == '.') {
 								if (dot)
 										throw std::logic_error(
-											"Invalid floating point "
-											"value");
+											"Invalid floating point");
 								dot = true;
 						} else {
 								if (!std::isdigit(*c))
 										throw std::logic_error(
-											"Invalid floating point "
-											"value");
+											"Invalid floating point");
 						}
 				}
 				std::stringstream ss;
@@ -93,4 +96,5 @@ struct converter<Enum<T>> {
 };
 
 }  // namespace cli
+}  // namespace detail
 }  // namespace upp
