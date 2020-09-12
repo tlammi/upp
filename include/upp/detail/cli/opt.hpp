@@ -19,7 +19,6 @@ public:
 		template <typename T>
 		void store_in(T& target) {
 				value_ = std::make_unique<Value<T>>(target);
-				Value<T> val{target};
 		}
 
 private:

@@ -27,10 +27,13 @@ int main(int argc, char** argv) {
 
 		double floating;
 		std::string str{};
+
+		std::vector<std::string> pos_args{};
 		cmd.opts().create('v', "vector").store_in(ints);
 		cmd.opts().create("enum").store_in(e);
 		cmd.opts().create("string").store_in(str);
 		cmd.opts().create('f', "float").store_in(floating);
+		cmd.pos_args().store_in(pos_args);
 
 		cmd.parse(argv + 1, argv + argc);
 		if (cmd.opts()['v']) std::cerr << "Vector values:";
@@ -41,4 +44,6 @@ int main(int argc, char** argv) {
 		if (cmd.opts()["string"]) std::cerr << "String: " << str << '\n';
 		if (cmd.opts()['f'])
 				std::cerr << "Floating point: " << floating << '\n';
+				std::cerr << "Positional arguments:\n";
+		for (const auto& arg : pos_args) { std::cerr << '\t' << arg << '\n'; }
 }

@@ -5,9 +5,12 @@
 namespace upp {
 namespace detail {
 namespace cli {
+
 class ValueBase {
 public:
+		virtual ~ValueBase() {}
 		virtual void add_value(const char* str) = 0;
+		virtual bool full() const = 0;
 
 private:
 };
@@ -25,6 +28,8 @@ public:
 				value_set_ = true;
 		}
 
+		bool full() const { return value_set_; }
+
 private:
 		T& data_;
 		bool value_set_{false};
@@ -38,6 +43,8 @@ public:
 		void add_value(const char* str) {
 				data_.emplace_back(converter<T>::convert(str));
 		}
+
+		bool full() const { return false; }
 
 private:
 		std::vector<T>& data_;
