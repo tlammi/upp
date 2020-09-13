@@ -5,6 +5,7 @@
 #include <string>
 
 #include "upp/detail/cli/enum.hpp"
+#include "upp/detail/cli/exception.hpp"
 namespace upp {
 namespace detail {
 namespace cli {
@@ -45,12 +46,12 @@ struct converter {
 				for (const char* c = str; *c != '\0'; ++c) {
 						if (*c == '.') {
 								if (dot)
-										throw std::logic_error(
+										throw ParsingError(
 											"Invalid floating point");
 								dot = true;
 						} else {
 								if (!std::isdigit(*c))
-										throw std::logic_error(
+										throw ParsingError(
 											"Invalid floating point");
 						}
 				}
@@ -69,16 +70,14 @@ struct converter {
 								} else if (*c >= 'A' && *c <= 'F') {
 								} else if (*c >= 'a' && *c <= 'f') {
 								} else {
-										throw std::logic_error(
-											"Invalid integer");
+										throw ParsingError("Invalid integer");
 								}
 						}
 						ss << std::hex << str;
 				} else {
 						for (const char* c = str; *c != '\0'; ++c) {
 								if (!std::isdigit(*c))
-										throw std::logic_error(
-											"Invalid integer");
+										throw ParsingError("Invalid integer");
 						}
 						ss << str;
 				}

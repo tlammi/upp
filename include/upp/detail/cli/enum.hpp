@@ -4,6 +4,8 @@
 #include <initializer_list>
 #include <string_view>
 #include <unordered_map>
+
+#include "upp/detail/cli/exception.hpp"
 namespace upp {
 namespace detail {
 namespace cli {
@@ -20,7 +22,7 @@ public:
 		Enum(std::initializer_list<EnumEntry<T>> args) {
 				for (const auto& e : args) {
 						if (map_.count(e.str))
-								throw std::runtime_error(
+								throw ParsingError(
 									"Enum string already exists");
 						map_[e.str] = e.val;
 				}
@@ -31,7 +33,7 @@ public:
 
 		Enum& operator=(const char* str) {
 				if (!map_.count(str)) {
-						throw std::logic_error("Invalid enumeration");
+						throw ParsingError("Invalid enumeration");
 				}
 				value_ = map_.at(str);
 				return *this;

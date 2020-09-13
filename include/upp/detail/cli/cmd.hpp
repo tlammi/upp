@@ -1,5 +1,6 @@
 #pragma once
 
+#include "upp/detail/cli/exception.hpp"
 #include "upp/detail/cli/opt.hpp"
 #include "upp/detail/cli/posargs.hpp"
 namespace upp {
@@ -35,8 +36,7 @@ public:
 						opt->parsed_ = true;
 						if (opt->value_) {
 								if (iter + 1 >= end)
-										throw std::invalid_argument(
-											"Too few arguments");
+										throw ParsingError("Too few arguments");
 								opt->value_->add_value(*(iter + 1));
 								++iter;
 						}

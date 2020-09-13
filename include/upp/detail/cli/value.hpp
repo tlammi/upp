@@ -22,8 +22,7 @@ public:
 
 		void add_value(const char* str) {
 				if (value_set_)
-						throw std::invalid_argument(
-							"Argument specified multiple times");
+						throw ParsingError("Argument specified multiple times");
 				data_ = converter<T>::convert(str);
 				value_set_ = true;
 		}
