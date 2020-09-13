@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <unordered_map>
 
@@ -17,13 +18,19 @@ public:
 		Opt() {}
 		explicit operator bool() const { return parsed_; }
 		template <typename T>
-		void store_in(T& target) {
+		Opt& store_in(T& target) {
 				value_ = std::make_unique<Value<T>>(target);
+				return *this;
+		}
+		template <typename Func>
+		Opt& callback(Func&& func) {
+				cb_ = func;
 		}
 
 private:
 		bool parsed_{false};
 		std::unique_ptr<ValueBase> value_{nullptr};
+		std::function<void()> cb_{nullptr};
 };
 
 class Opts {

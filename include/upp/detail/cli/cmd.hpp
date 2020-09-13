@@ -40,6 +40,7 @@ public:
 								opt->value_->add_value(*(iter + 1));
 								++iter;
 						}
+						if (opt->cb_) opt->cb_();
 						++iter;
 				}
 				if (pos_args_.value_) {
