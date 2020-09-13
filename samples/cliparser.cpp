@@ -22,28 +22,41 @@ int main(int argc, char** argv) {
 		std::string str{};
 
 		std::vector<std::string> pos_args{};
-		cmd.opts().create('v', "vector").store_in(ints);
-		cmd.opts().create("enum").store_in(e);
-		cmd.opts().create("string").store_in(str);
-		cmd.opts().create('f', "float").store_in(floating);
-		cmd.opts().create('h', "help").callback([&]() {
-				std::cerr << "A program demostrating upp command line "
-							 "parser\n"
-						  << "\n"
-						  << "Usage: " << argv[0]
-						  << " [options] [positional arguments]\n"
-						  << '\n'
-						  << "Options:\n"
-						  << '\t' << "-f --float    A floating point value\n"
-						  << '\t' << "   --enum     An enumeration value\n"
-						  << '\t' << "-h --help     Print this help and exit\n"
-						  << '\t' << "   --string   String value\n"
-						  << '\t'
-						  << "-v --vector   Int option that can be specified "
-							 "multiple times\n";
+		cmd.opts()
+			.create('v', "vector")
+			.store_in(ints)
+			.set_help("Vector option");
+		cmd.opts().create("enum").store_in(e).set_help("Demo enumeration");
+		cmd.opts().create("string").store_in(str).set_help("Demo string");
+		cmd.opts()
+			.create('f', "float")
+			.store_in(floating)
+			.set_help("Demo floating point");
+		cmd.opts()
+			.create('h', "help")
+			.callback([&]() {
+					std::cerr << "A program demostrating upp command line "
+								 "parser\n"
+							  << "\n"
+							  << "Usage: " << argv[0]
+							  << " [options] [positional arguments]\n"
+							  << '\n'
+							  << "Options:\n";
+					for (const auto& conf : cmd.opts()) {
+							std::cerr << '\t';
+							if (conf.short_flag)
+									std::cerr << "-" << conf.short_flag;
+							std::cerr << '\t';
+							if (conf.long_flag)
+									std::cerr << "--" << conf.long_flag;
+							std::cerr << '\t';
+							std::cerr << conf.opt.help() << '\n';
+					}
 
-				throw cli::HelpException("");
-		});
+					throw cli::HelpException("");
+			})
+			.set_help("Print this help");
+
 		cmd.pos_args().store_in(pos_args);
 		try {
 				cmd.parse(argv + 1, argv + argc);
