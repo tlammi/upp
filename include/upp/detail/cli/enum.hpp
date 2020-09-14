@@ -48,6 +48,9 @@ public:
 				if (iter != map_.end()) { return iter->first; }
 				return "";
 		}
+
+		operator T() const { return value_; }
+
 		template <typename Iter>
 		class ConstEnumIterator {
 		public:

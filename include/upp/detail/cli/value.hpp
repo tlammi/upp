@@ -76,7 +76,7 @@ public:
 				value_set_ = true;
 		}
 
-		bool full() const { return false; }
+		bool full() const { return value_set_; }
 
 		std::string_view help() const { return help_; }
 
