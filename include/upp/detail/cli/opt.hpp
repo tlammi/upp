@@ -22,7 +22,6 @@ public:
 		template <typename T>
 		Opt& store_in(T& target) {
 				value_ = std::make_unique<Value<T>>(target);
-				if (help_ != "") help_ += value_->help();
 				return *this;
 		}
 		template <typename Func>
@@ -33,8 +32,17 @@ public:
 
 		Opt& set_help(std::string_view help_str) {
 				help_ = help_str;
-				if (value_) help_ += value_->help();
 				return *this;
+		}
+
+		std::vector<std::string_view> value_restrictions() const {
+				if (value_) return value_->value_restrictions();
+				return {};
+		}
+
+		bool support_multiple_values() const {
+				if (value_) return value_->support_multiple_values();
+				return false;
 		}
 
 		std::string_view help() const { return help_; }
@@ -128,6 +136,8 @@ public:
 
 		ConstOptIter begin() const { return ConstOptIter(this, 0); }
 		ConstOptIter end() const { return ConstOptIter(this, opts_.size()); }
+
+		size_t size() const { return opts_.size(); }
 
 private:
 		std::vector<Opt> opts_{};

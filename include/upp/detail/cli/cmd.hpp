@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string_view>
+
 #include "upp/detail/cli/exception.hpp"
 #include "upp/detail/cli/opt.hpp"
 #include "upp/detail/cli/posargs.hpp"
@@ -9,10 +11,25 @@ namespace cli {
 
 class Cmd {
 public:
-		explicit Cmd(const char* name = nullptr) : name_{name} {}
-		Opts& opts() { return opts_; }
-		PosArgs& pos_args() { return pos_args_; }
+		explicit Cmd(std::string_view name = "", std::string_view help = "")
+			: name_{name}, help_{help} {}
 
+		Opts& opts() { return opts_; }
+		const Opts& opts() const { return opts_; }
+		PosArgs& pos_args() { return pos_args_; }
+		const PosArgs& pos_args() const { return pos_args_; }
+
+		std::string_view help() const { return help_; }
+		std::string usage() const {
+				std::stringstream ss;
+				ss << name_;
+				if (opts_.size()) ss << " [options]";
+				if (pos_args_.support_multiple_values())
+						ss << " [arguments]";
+				else if (pos_args_.value_restrictions().size())
+						ss << " subcmd";
+				return ss.str();
+		}
 		template <typename Iter>
 		Iter parse(Iter iter, Iter end) {
 				auto is_flag = [](const char* str) {
@@ -54,7 +71,8 @@ public:
 		}
 
 private:
-		const char* name_;
+		std::string_view name_;
+		std::string_view help_;
 		Opts opts_{};
 		PosArgs pos_args_{};
 };

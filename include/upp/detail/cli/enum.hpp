@@ -41,7 +41,7 @@ public:
 
 		Enum& operator=(T rhs) { value_ = rhs; }
 
-		std::string_view str() {
+		std::string_view str() const {
 				auto iter = std::find_if(
 					map_.begin(), map_.end(),
 					[&](const auto& pair) { return value_ == pair.second; });

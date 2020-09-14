@@ -23,11 +23,26 @@ int main(int argc, char** argv) {
 		cli::Enum<SubCmd> subcmd{{SubCmd::SubCmd1, "subcmd1"},
 								 {SubCmd::SubCmd2, "subcmd2"}};
 
-		upp::cli::Cmd cmd{};
-		cmd.opts().create('h', "help").callback([]() {
-				std::cerr << "Demo program.\n\n"
-						  << "Supported commands:\n"
-						  << "\tsubcmd1\n\tsubcmd2\n";
+		enum class EnumVal {
+				A,
+				B,
+				C,
+		};
+		cli::Enum<EnumVal> enumeration{
+			{EnumVal::A, "A"}, {EnumVal::B, "B"}, {EnumVal::C, "C"}};
+
+		upp::cli::Cmd cmd{argv[0], "Demo CLI argument parser"};
+		std::vector<int> vect;
+		cmd.opts()
+			.create('v', "vector")
+			.set_help("Vector option")
+			.store_in(vect);
+		cmd.opts()
+			.create('e', "enum")
+			.set_help("Sample enumeration")
+			.store_in(enumeration);
+		cmd.opts().create('h', "help").callback([&]() {
+				std::cerr << upp::cli::helpgen(cmd);
 				throw upp::cli::HelpException("");
 		});
 		cmd.pos_args().store_in(subcmd);
