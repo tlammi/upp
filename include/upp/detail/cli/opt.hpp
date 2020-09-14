@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <string_view>
 
 #include "upp/detail/cli/value.hpp"
 
@@ -21,6 +22,7 @@ public:
 		template <typename T>
 		Opt& store_in(T& target) {
 				value_ = std::make_unique<Value<T>>(target);
+				if (help_ != "") help_ += value_->help();
 				return *this;
 		}
 		template <typename Func>
@@ -29,18 +31,19 @@ public:
 				return *this;
 		}
 
-		Opt& set_help(const char* help_str) {
+		Opt& set_help(std::string_view help_str) {
 				help_ = help_str;
+				if (value_) help_ += value_->help();
 				return *this;
 		}
 
-		const char* help() const { return help_; }
+		std::string_view help() const { return help_; }
 
 private:
 		bool parsed_{false};
 		std::unique_ptr<ValueBase> value_{nullptr};
+		std::string help_{};
 		std::function<void()> cb_{nullptr};
-		const char* help_{""};
 };
 
 class Opts {

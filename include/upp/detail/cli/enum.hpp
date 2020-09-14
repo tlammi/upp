@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <initializer_list>
+#include <map>
 #include <string_view>
-#include <unordered_map>
 
 #include "upp/detail/cli/exception.hpp"
 namespace upp {
@@ -46,10 +46,47 @@ public:
 					map_.begin(), map_.end(),
 					[&](const auto& pair) { return value_ == pair.second; });
 				if (iter != map_.end()) { return iter->first; }
+				return "";
+		}
+		template <typename Iter>
+		class ConstEnumIterator {
+		public:
+				explicit ConstEnumIterator(Iter iter) : iter_{iter} {}
+
+				bool operator==(const ConstEnumIterator& rhs) const {
+						return iter_ == rhs.iter_;
+				}
+
+				bool operator!=(const ConstEnumIterator& rhs) const {
+						return !(*this == rhs);
+				}
+
+				ConstEnumIterator& operator++() {
+						++iter_;
+						return *this;
+				}
+
+				const auto& operator*() const { return *iter_; }
+				const auto* operator-> () const { return &*iter_; }
+
+		private:
+				Iter iter_;
+		};
+
+		ConstEnumIterator<
+			typename std::map<std::string_view, T>::const_iterator>
+		begin() const {
+				return ConstEnumIterator(map_.begin());
+		}
+
+		ConstEnumIterator<
+			typename std::map<std::string_view, T>::const_iterator>
+		end() const {
+				return ConstEnumIterator(map_.end());
 		}
 
 private:
-		std::unordered_map<std::string_view, T> map_{};
+		std::map<std::string_view, T> map_{};
 		T value_{};
 };
 }  // namespace cli
