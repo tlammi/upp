@@ -25,6 +25,8 @@ public:
 				return false;
 		}
 
+		bool supported() const { return value_.get(); }
+
 private:
 		std::unique_ptr<ValueBase> value_{nullptr};
 };

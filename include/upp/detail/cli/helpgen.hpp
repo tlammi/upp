@@ -22,6 +22,15 @@ std::string helpgenimpl(const Cmd& cmd) {
 				if (rest.size()) out << ')';
 				out << '\n';
 		}
+		if (cmd.pos_args().support_multiple_values()) {
+				out << "\nPositional Arguments:\n";
+		} else if (cmd.pos_args().value_restrictions().size()) {
+				out << "\nSubcommands:\n";
+				for (const auto& value : cmd.pos_args().value_restrictions()) {
+						out << '\t' << value << '\n';
+				}
+		}
+		out << '\n';
 		return out.str();
 }
 }  // namespace cli
