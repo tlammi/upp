@@ -75,7 +75,7 @@ public:
 
 		std::vector<std::string_view> value_restrictions() const {
 				std::vector<std::string_view> out;
-				for (const auto& pair : data_) { out.push_back(pair.first); }
+				for (const auto& pair : data_) { out.push_back(pair.str); }
 				return out;
 		}
 

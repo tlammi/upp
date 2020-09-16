@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <initializer_list>
-#include <map>
+#include <set>
 #include <string_view>
 
 #include "upp/detail/cli/exception.hpp"
@@ -13,29 +13,41 @@ namespace cli {
 template <typename T>
 struct EnumEntry {
 		T val;
-		const char* str;
+		std::string_view str;
+		std::string_view help{""};
+};
+
+template <typename T>
+struct EnumEntryCmp {
+		bool operator()(const EnumEntry<T>& lhs,
+						const EnumEntry<T>& rhs) const {
+				return lhs.str < rhs.str;
+		}
 };
 
 template <typename T>
 class Enum {
 public:
+		using Set = std::set<EnumEntry<T>, EnumEntryCmp<T>>;
 		Enum(std::initializer_list<EnumEntry<T>> args) {
 				for (const auto& e : args) {
-						if (map_.count(e.str))
+						if (set_.count(e))
 								throw ParsingError(
 									"Enum string already exists");
-						map_[e.str] = e.val;
+						set_.insert(e);
 				}
 		}
 
 		bool operator==(T rhs) const { return value_ == rhs; }
 		bool operator!=(T rhs) const { return value_ != rhs; }
 
-		Enum& operator=(const char* str) {
-				if (!map_.count(str)) {
+		Enum& operator=(std::string_view str) {
+				auto iter = std::find_if(
+					set_.begin(), set_.end(),
+					[&](const auto& elem) { return elem.str == str; });
+				if (iter == set_.end())
 						throw ParsingError("Invalid enumeration");
-				}
-				value_ = map_.at(str);
+				value_ = *iter;
 				return *this;
 		}
 
@@ -43,13 +55,13 @@ public:
 
 		std::string_view str() const {
 				auto iter = std::find_if(
-					map_.begin(), map_.end(),
-					[&](const auto& pair) { return value_ == pair.second; });
-				if (iter != map_.end()) { return iter->first; }
+					set_.begin(), set_.end(),
+					[&](const auto& e) { return value_.val == e.val; });
+				if (iter != set_.end()) { return iter->first; }
 				return "";
 		}
 
-		operator T() const { return value_; }
+		operator T() const { return value_.val; }
 
 		template <typename Iter>
 		class ConstEnumIterator {
@@ -76,21 +88,17 @@ public:
 				Iter iter_;
 		};
 
-		ConstEnumIterator<
-			typename std::map<std::string_view, T>::const_iterator>
-		begin() const {
-				return ConstEnumIterator(map_.begin());
+		ConstEnumIterator<typename Set::const_iterator> begin() const {
+				return ConstEnumIterator(set_.begin());
 		}
 
-		ConstEnumIterator<
-			typename std::map<std::string_view, T>::const_iterator>
-		end() const {
-				return ConstEnumIterator(map_.end());
+		ConstEnumIterator<typename Set::const_iterator> end() const {
+				return ConstEnumIterator(set_.end());
 		}
 
 private:
-		std::map<std::string_view, T> map_{};
-		T value_{};
+		Set set_{};
+		EnumEntry<T> value_{};
 };
 }  // namespace cli
 }  // namespace detail
