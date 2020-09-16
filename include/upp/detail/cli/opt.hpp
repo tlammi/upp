@@ -56,93 +56,70 @@ private:
 
 class Opts {
 public:
-		Opt& create(char sflag, const std::string& lflag) {
-				opts_.emplace_back();
-				stoo_[sflag] = opts_.size() - 1;
-				ltoo_[lflag] = opts_.size() - 1;
-				return opts_.back();
-		}
-		Opt& create(const std::string& lflag) {
-				opts_.emplace_back();
-				ltoo_[lflag] = opts_.size() - 1;
-				return opts_.back();
-		}
-		Opt& create(char sflag) {
-				opts_.emplace_back();
-				stoo_[sflag] = opts_.size() - 1;
-				return opts_.back();
-		}
-		bool exists(char c) { return stoo_.count(c); }
-		bool exists(const std::string& str) { return ltoo_.count(str); }
-		Opt& operator[](char c) { return opts_.at(stoo_.at(c)); }
-		Opt& operator[](const std::string& str) {
-				return opts_.at(ltoo_.at(str));
-		}
-
-		class ConstOptIter {
-		public:
-				struct OptSet {
-						OptSet(char sflag, const char* lflag, const Opt& opt)
-							: short_flag{sflag}, long_flag{lflag}, opt{opt} {}
-						char short_flag;
-						const char* long_flag;
-						const Opt& opt;
-				};
-
-				ConstOptIter(const Opts* opts, size_t index)
-					: opts_{opts}, index_{index} {}
-
-				bool operator==(const ConstOptIter& rhs) const {
-						return opts_ == rhs.opts_ && index_ == rhs.index_;
-				}
-
-				bool operator!=(const ConstOptIter& rhs) const {
-						return !(*this == rhs);
-				}
-
-				ConstOptIter& operator++() {
-						++index_;
-						return *this;
-				}
-
-				const OptSet& operator*() const {
-						auto short_iter = std::find_if(
-							opts_->stoo_.begin(), opts_->stoo_.end(),
-							[&](const auto& pair) {
-									return pair.second == index_;
-							});
-						auto long_iter = std::find_if(
-							opts_->ltoo_.begin(), opts_->ltoo_.end(),
-							[&](const auto& pair) {
-									return pair.second == index_;
-							});
-
-						char c = short_iter == opts_->stoo_.end()
-									 ? '\0'
-									 : short_iter->first;
-						const char* str = long_iter == opts_->ltoo_.end()
-											  ? ""
-											  : long_iter->first.c_str();
-
-						opt_set_.emplace(c, str, opts_->opts_.at(index_));
-						return *opt_set_;
-				}
-
-		private:
-				const Opts* opts_;
-				size_t index_;
-				mutable std::optional<OptSet> opt_set_{};
+		struct OptMeta {
+				char short_flag;
+				std::string long_flag;
 		};
 
-		ConstOptIter begin() const { return ConstOptIter(this, 0); }
-		ConstOptIter end() const { return ConstOptIter(this, opts_.size()); }
+		struct OptMetaCmp {
+				bool operator()(const OptMeta& lhs, const OptMeta& rhs) const {
+						return lhs.long_flag < rhs.long_flag;
+				}
+		};
+
+		using Map = std::map<OptMeta, Opt, OptMetaCmp>;
+
+		Opt& create(char sflag, const std::string& lflag) {
+				if (key_exists(sflag, lflag))
+						throw std::invalid_argument("Option exists");
+				return opts_[{sflag, lflag}] = {};
+		}
+
+		Opt& create(const std::string& lflag) {
+				if (key_exists('\0', lflag))
+						throw std::invalid_argument("Option exists");
+				return opts_[{'\0', lflag}] = {};
+		}
+		Opt& create(char sflag) {
+				if (key_exists(sflag, ""))
+						throw std::invalid_argument("Option exists");
+				return opts_[{sflag, ""}] = {};
+		}
+		bool exists(char c) { return key_exists(c, ""); }
+		bool exists(const std::string& str) { return key_exists('\0', str); }
+		Opt& operator[](char c) {
+				auto iter = std::find_if(
+					opts_.begin(), opts_.end(), [&](const auto& pair) {
+							return pair.first.short_flag == c;
+					});
+				if (iter != opts_.end()) return iter->second;
+				throw std::invalid_argument("Option does not exist");
+		}
+		Opt& operator[](const std::string& str) {
+				auto iter = std::find_if(
+					opts_.begin(), opts_.end(), [&](const auto& pair) {
+							return pair.first.long_flag == str;
+					});
+				if (iter != opts_.end()) return iter->second;
+				throw std::invalid_argument("Option does not exist");
+		}
+
+		Map::const_iterator begin() const { return opts_.begin(); }
+		Map::const_iterator end() const { return opts_.end(); }
 
 		size_t size() const { return opts_.size(); }
 
 private:
-		std::vector<Opt> opts_{};
-		std::map<char, size_t> stoo_{};
-		std::map<std::string, size_t> ltoo_{};
+		bool key_exists(char sflag, std::string_view lflag) const {
+				return std::find_if(
+						   opts_.begin(), opts_.end(), [&](const auto& pair) {
+								   return (sflag != '\0' &&
+										   pair.first.short_flag == sflag) ||
+										  (lflag != "" &&
+										   pair.first.long_flag == lflag);
+						   }) != opts_.end();
+		}
+		Map opts_{};
 };
 }  // namespace cli
 }  // namespace detail
