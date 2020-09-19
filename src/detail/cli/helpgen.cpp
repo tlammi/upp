@@ -11,7 +11,10 @@ struct PrintPair {
 void print_columnized(std::stringstream& ss,
 					  const std::vector<PrintPair>& vect) {
 		for (const auto& [w, str] : vect) {
-				ss << std::setw(w) << std::left << str;
+				if (w > 0)
+						ss << std::setw(w) << std::left << str;
+				else
+						ss << str << '\n';
 		}
 }
 
@@ -135,6 +138,7 @@ void print_pos_args(std::stringstream& ss, const PosArgs& pargs,
 				max_arg_len =
 					std::max(max_arg_len, static_cast<int>(pair.first.size()));
 		}
+		const int SUBCMD_COL = max_arg_len + 2;
 		if (pargs.value()->restrictions().size()) {
 				ss << "Subcommands:\n";
 				for (const auto& pair : pargs.value()->restrictions()) {
@@ -145,32 +149,31 @@ void print_pos_args(std::stringstream& ss, const PosArgs& pargs,
 								print_columnized(
 									ss, {
 											{INDENTATION, " "},
-											{max_arg_len + 2,
+											{SUBCMD_COL,
 											 std::string(pair.first) + ": "},
 											{terminal_width - INDENTATION -
-												 max_arg_len - 2,
+												 SUBCMD_COL,
 											 helps[0]},
 										});
 						else
 								print_columnized(
 									ss, {
 											{INDENTATION, " "},
-											{max_arg_len + 2,
+											{SUBCMD_COL,
 											 std::string(pair.first) + ": "},
 											{terminal_width - INDENTATION -
-												 max_arg_len - 2,
+												 SUBCMD_COL,
 											 " "},
 										});
 						helps.pop_front();
 						for (const auto& help : helps) {
 								print_columnized(
-									ss,
-									{
-										{INDENTATION + max_arg_len + 2, " "},
-										{terminal_width - INDENTATION -
-											 max_arg_len - 2,
-										 help},
-									});
+									ss, {
+											{INDENTATION + SUBCMD_COL, " "},
+											{terminal_width - INDENTATION -
+												 SUBCMD_COL,
+											 help},
+										});
 						}
 				}
 		}
