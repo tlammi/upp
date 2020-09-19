@@ -15,17 +15,7 @@ public:
 				value_ = std::make_unique<Value<T>>(value);
 		}
 
-		std::vector<std::string_view> value_restrictions() const {
-				if (value_) return value_->value_restrictions();
-				return {};
-		}
-
-		bool support_multiple_values() const {
-				if (value_) return value_->support_multiple_values();
-				return false;
-		}
-
-		bool supported() const { return value_.get(); }
+		const ValueBase* value() const { return value_.get(); }
 
 private:
 		std::unique_ptr<ValueBase> value_{nullptr};

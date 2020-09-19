@@ -13,10 +13,11 @@ public:
 		virtual ~ValueBase() {}
 		virtual void add_value(const char* str) = 0;
 		virtual bool full() const = 0;
-		virtual std::vector<std::string_view> value_restrictions() const {
+		virtual std::vector<std::pair<std::string_view, std::string_view>>
+		value_restrictions() const {
 				return {};
 		}
-		virtual bool support_multiple_values() const { return false; }
+		virtual bool support_multiple() const { return false; }
 
 private:
 };
@@ -52,7 +53,7 @@ public:
 
 		bool full() const { return false; }
 
-		bool support_multiple_values() const { return true; }
+		bool support_multiple() const { return true; }
 
 private:
 		std::vector<T>& data_;
@@ -73,9 +74,12 @@ public:
 
 		bool full() const { return value_set_; }
 
-		std::vector<std::string_view> value_restrictions() const {
-				std::vector<std::string_view> out;
-				for (const auto& pair : data_) { out.push_back(pair.str); }
+		std::vector<std::pair<std::string_view, std::string_view>>
+		value_restrictions() const {
+				std::vector<std::pair<std::string_view, std::string_view>> out;
+				for (const auto& pair : data_) {
+						out.push_back({pair.str, pair.help});
+				}
 				return out;
 		}
 

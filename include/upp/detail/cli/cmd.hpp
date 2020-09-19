@@ -24,9 +24,10 @@ public:
 				std::stringstream ss;
 				ss << name_;
 				if (opts_.size()) ss << " [options]";
-				if (pos_args_.support_multiple_values())
+				if (!pos_args_.value()) return ss.str();
+				if (pos_args_.value()->support_multiple())
 						ss << " [arguments]";
-				else if (pos_args_.value_restrictions().size())
+				else if (pos_args_.value()->value_restrictions().size())
 						ss << " subcmd";
 				return ss.str();
 		}

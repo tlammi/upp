@@ -10,24 +10,31 @@ std::string helpgenimpl(const Cmd& cmd) {
 		std::stringstream out{};
 		out << cmd.help() << "\n\nUsage: " << cmd.usage() << '\n' << '\n';
 		if (cmd.opts().size()) out << "Options:\n";
-		for (const auto& [sflag, lflag, opt] : cmd.opts()) {
+		for (const auto& [meta, opt] : cmd.opts()) {
+				const auto& [sflag, lflag] = meta;
 				out << " -" << sflag << " --" << lflag << "  " << opt.help();
-				if (opt.support_multiple_values())
-						out << " (Multiple values can be specified)";
+				if (opt.support_multiple())
+						out << " (Can be specified multiple times)";
 				const auto rest = opt.value_restrictions();
 				if (rest.size()) { out << " (Supported values:"; }
-				for (const auto& limit : opt.value_restrictions()) {
-						out << " \"" << limit << '"';
+				for (const auto& pair : opt.value_restrictions()) {
+						out << " \"" << pair.first << '"';
 				}
 				if (rest.size()) out << ')';
 				out << '\n';
 		}
-		if (cmd.pos_args().support_multiple_values()) {
+
+		if (cmd.pos_args().value() &&
+			cmd.pos_args().value()->support_multiple()) {
 				out << "\nPositional Arguments:\n";
-		} else if (cmd.pos_args().value_restrictions().size()) {
+		} else if (cmd.pos_args().value() &&
+				   cmd.pos_args().value()->value_restrictions().size()) {
 				out << "\nSubcommands:\n";
-				for (const auto& value : cmd.pos_args().value_restrictions()) {
-						out << '\t' << value << '\n';
+				for (const auto& pair :
+					 cmd.pos_args().value()->value_restrictions()) {
+						out << '\t' << pair.first;
+						if (pair.second != "") { out << ": " << pair.second; }
+						out << '\n';
 				}
 		}
 		out << '\n';
