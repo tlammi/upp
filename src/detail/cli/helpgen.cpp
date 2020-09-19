@@ -1,13 +1,9 @@
-#pragma once
-#include <deque>
-#include <iomanip>
-#include <string>
+#include "upp/detail/cli/helpgen.hpp"
 
-#include "upp/detail/cli/cmd.hpp"
-#include "upp/detail/cli/opt.hpp"
 namespace upp {
 namespace cli {
-/*
+
+namespace {
 struct PrintPair {
 		int w;
 		std::string_view str;
@@ -179,10 +175,10 @@ void print_pos_args(std::stringstream& ss, const PosArgs& pargs,
 				}
 		}
 }
-*/
-std::string helpgen(const Cmd& cmd, std::string brief_help = "",
-					std::string_view usage = "", int terminal_width = 0);
-/*{
+}  // namespace
+
+std::string helpgen(const Cmd& cmd, std::string brief_help,
+					std::string_view usage, int terminal_width) {
 		std::stringstream out{};
 		print_brief(out, brief_help);
 		print_usage(out, usage);
@@ -190,7 +186,7 @@ std::string helpgen(const Cmd& cmd, std::string brief_help = "",
 		out << '\n';
 		print_pos_args(out, cmd.pos_args(), terminal_width);
 		return out.str();
-}*/
+}
 
 }  // namespace cli
 }  // namespace upp
