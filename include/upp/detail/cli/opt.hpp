@@ -84,15 +84,16 @@ public:
 							return pair.first.short_flag == c;
 					});
 				if (iter != opts_.end()) return iter->second;
-				throw std::invalid_argument("Option does not exist");
+				throw ParsingError("Option does not exist");
 		}
+
 		Opt& operator[](const std::string& str) {
 				auto iter = std::find_if(
 					opts_.begin(), opts_.end(), [&](const auto& pair) {
 							return pair.first.long_flag == str;
 					});
 				if (iter != opts_.end()) return iter->second;
-				throw std::invalid_argument("Option does not exist");
+				throw ParsingError("Option does not exist");
 		}
 
 		Map::const_iterator begin() const { return opts_.begin(); }

@@ -19,19 +19,26 @@ public:
 
 		template <typename Iter>
 		Iter parse(Iter iter, Iter end) {
-				auto is_flag = [](const char* str) {
-						return str[0] == '-' && str[1] != '\0';
+				auto is_short_flag = [](const char* str) {
+						return str[0] == '-' && str[1] != '\0' &&
+							   str[1] != '-' && str[2] == '\0';
 				};
 				auto is_long_flag = [](const char* str) {
-						return str[1] == '-' && str[2] != '\0';
+						return str[0] == '-' && str[1] == '-' &&
+							   str[2] != '-' && str[2] != '\0';
 				};
+				auto is_flag = [&](const char* str) { return str[0] == '-'; };
 
 				auto get_opt = [&](auto iter) -> Opt* {
 						Opt* opt;
 						if (is_long_flag(*iter)) {
 								opt = &opts()[*(iter) + 2];
-						} else {
+						} else if (is_short_flag(*iter)) {
 								opt = &opts()[(*iter)[1]];
+						} else {
+								std::stringstream ss;
+								ss << "Invalid flag: " << *iter;
+								throw ParsingError(ss.str());
 						}
 						return opt;
 				};
