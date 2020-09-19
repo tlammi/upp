@@ -5,7 +5,6 @@
 
 #include "upp/detail/cli/convert.hpp"
 namespace upp {
-namespace detail {
 namespace cli {
 
 class ValueBase {
@@ -88,5 +87,4 @@ private:
 		Enum<T>& data_;
 };
 }  // namespace cli
-}  // namespace detail
 }  // namespace upp

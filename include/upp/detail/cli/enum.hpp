@@ -7,7 +7,6 @@
 
 #include "upp/detail/cli/exception.hpp"
 namespace upp {
-namespace detail {
 namespace cli {
 
 template <typename T>
@@ -82,7 +81,7 @@ public:
 				}
 
 				const auto& operator*() const { return *iter_; }
-				const auto* operator-> () const { return &*iter_; }
+				const auto* operator->() const { return &*iter_; }
 
 		private:
 				Iter iter_;
@@ -101,5 +100,4 @@ private:
 		EnumEntry<T> value_{};
 };
 }  // namespace cli
-}  // namespace detail
 }  // namespace upp

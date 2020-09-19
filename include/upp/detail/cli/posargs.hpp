@@ -3,7 +3,6 @@
 
 #include "upp/detail/cli/value.hpp"
 namespace upp {
-namespace detail {
 namespace cli {
 class Cmd;
 class PosArgs {
@@ -21,5 +20,4 @@ private:
 		std::unique_ptr<ValueBase> value_{nullptr};
 };
 }  // namespace cli
-}  // namespace detail
 }  // namespace upp

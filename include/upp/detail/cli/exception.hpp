@@ -1,7 +1,6 @@
 #pragma once
 #include <stdexcept>
 namespace upp {
-namespace detail {
 namespace cli {
 
 class Exception : public std::runtime_error {
@@ -18,5 +17,4 @@ public:
 		using Exception::Exception;
 };
 }  // namespace cli
-}  // namespace detail
 }  // namespace upp

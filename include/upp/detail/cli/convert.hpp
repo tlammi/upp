@@ -7,7 +7,6 @@
 #include "upp/detail/cli/enum.hpp"
 #include "upp/detail/cli/exception.hpp"
 namespace upp {
-namespace detail {
 namespace cli {
 
 template <typename T>
@@ -95,5 +94,4 @@ struct converter<Enum<T>> {
 };
 
 }  // namespace cli
-}  // namespace detail
 }  // namespace upp

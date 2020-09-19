@@ -9,7 +9,6 @@
 #include "upp/detail/cli/value.hpp"
 
 namespace upp {
-namespace detail {
 namespace cli {
 class Cmd;
 
@@ -123,5 +122,4 @@ private:
 		Map opts_{};
 };
 }  // namespace cli
-}  // namespace detail
 }  // namespace upp

@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 		cli::Enum<EnumVal> enumeration{
 			{EnumVal::A, "A"}, {EnumVal::B, "B"}, {EnumVal::C, "C"}};
 
-		upp::cli::Cmd cmd{argv[0], "Demo CLI argument parser"};
+		upp::cli::Cmd cmd{};
 		std::vector<int> vect;
 		cmd.opts()
 			.create('v', "vector")

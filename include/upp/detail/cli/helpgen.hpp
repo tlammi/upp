@@ -3,12 +3,14 @@
 
 #include "upp/detail/cli/cmd.hpp"
 namespace upp {
-namespace detail {
 namespace cli {
 
-std::string helpgenimpl(const Cmd& cmd) {
+std::string helpgen(const Cmd& cmd, std::string brief_help = "",
+					std::string_view usage = "") {
 		std::stringstream out{};
-		out << cmd.help() << "\n\nUsage: " << cmd.usage() << '\n' << '\n';
+
+		if (brief_help != "") out << brief_help << "\n\n";
+		if (usage != "") out << "Usage: " << usage << "\n\n";
 		if (cmd.opts().size()) out << "Options:\n";
 		for (const auto& [meta, opt] : cmd.opts()) {
 				const auto& [sflag, lflag] = meta;
@@ -41,5 +43,4 @@ std::string helpgenimpl(const Cmd& cmd) {
 		return out.str();
 }
 }  // namespace cli
-}  // namespace detail
 }  // namespace upp
