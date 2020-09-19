@@ -8,15 +8,52 @@
 namespace upp {
 namespace cli {
 
+/**
+ * @brief Main part of the CLI parser
+ *
+ * Represents an option on CLI, i.e. <cmd> in <cmd> [options] [arguments].
+ *
+ */
 class Cmd {
 public:
 		Cmd() {}
 
+		/**
+		 * @brief Access Opt container
+		 *
+		 * @return Opts& Reference to options part of the command:
+		 */
 		Opts& opts() { return opts_; }
+
+		/**
+		 * @brief Const variant for opts()
+		 *
+		 */
 		const Opts& opts() const { return opts_; }
+
+		/**
+		 * @brief Access positional arguments collection
+		 *
+		 * @return PosArgs& Reference to positional arguments handler of the
+		 * object
+		 */
 		PosArgs& pos_args() { return pos_args_; }
+
+		/**
+		 * @brief Const variant for pos_args()
+		 *
+		 */
 		const PosArgs& pos_args() const { return pos_args_; }
 
+		/**
+		 * @brief Parse command line arguments to populate the command
+		 *
+		 * @tparam Iter Iterator, mainly a const char* const *
+		 * @param iter Pointer to first arugment, normally argv+1
+		 * @param end Pointer to end of the argumetns, normally argv+argc
+		 * @return Iter First iterator NOT handled. That can then be used to
+		 * parse sub commands
+		 */
 		template <typename Iter>
 		Iter parse(Iter iter, Iter end) {
 				auto is_short_flag = [](const char* str) {

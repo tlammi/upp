@@ -1,3 +1,15 @@
+/**
+ * @file cliparser.cpp Example for using upp::cli for parsing command line
+ * arguments
+ *
+ * @author tlammi (tlammi@github.com)
+ * @brief
+ * @version 0.1
+ * @date 2020-09-19
+ *
+ * @copyright Copyright (c) 2020
+ *
+ */
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
