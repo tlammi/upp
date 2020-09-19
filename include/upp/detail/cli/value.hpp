@@ -13,7 +13,7 @@ public:
 		virtual void add_value(const char* str) = 0;
 		virtual bool full() const = 0;
 		virtual std::vector<std::pair<std::string_view, std::string_view>>
-		value_restrictions() const {
+		restrictions() const {
 				return {};
 		}
 		virtual bool support_multiple() const { return false; }
@@ -74,7 +74,7 @@ public:
 		bool full() const { return value_set_; }
 
 		std::vector<std::pair<std::string_view, std::string_view>>
-		value_restrictions() const {
+		restrictions() const {
 				std::vector<std::pair<std::string_view, std::string_view>> out;
 				for (const auto& pair : data_) {
 						out.push_back({pair.str, pair.help});

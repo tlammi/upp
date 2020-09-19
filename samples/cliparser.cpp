@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
 #include <iostream>
 
 #include "upp/cli.hpp"
@@ -18,11 +22,16 @@ int main(int argc, char** argv) {
 		enum class SubCmd {
 				SubCmd1,
 				SubCmd2,
+				SubCmd3,
 		};
 
 		cli::Enum<SubCmd> subcmd{
 			{SubCmd::SubCmd1, "subcmd1", "Run subcommand 1"},
 			{SubCmd::SubCmd2, "subcmd2", "Run subcommand 2"},
+			{SubCmd::SubCmd3, "subcmd3",
+			 "This subcommand has a really long "
+			 "help........................................."
+			 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..........."},
 		};
 
 		enum class EnumVal {
@@ -31,7 +40,9 @@ int main(int argc, char** argv) {
 				C,
 		};
 		cli::Enum<EnumVal> enumeration{
-			{EnumVal::A, "A"}, {EnumVal::B, "B"}, {EnumVal::C, "C"}};
+			{EnumVal::A, "A", "An option that has a help"},
+			{EnumVal::B, "B"},
+			{EnumVal::C, "C"}};
 
 		upp::cli::Cmd cmd{};
 		std::vector<int> vect;
@@ -44,9 +55,21 @@ int main(int argc, char** argv) {
 			.set_help("Sample enumeration")
 			.store_in(enumeration);
 		cmd.opts().create('h', "help").callback([&]() {
-				std::cerr << upp::cli::helpgen(cmd);
+				winsize ws;
+				ioctl(STDIN_FILENO, TIOCGWINSZ, &ws);
+				std::cerr << upp::cli::helpgen(cmd, "Example CLI parser",
+											   "[options] <subcmd>", ws.ws_col);
 				throw upp::cli::HelpException("");
 		});
+
+		cmd.opts()
+			.create('l', "long")
+			.set_help(
+				"Option with realllllllllllly long "
+				"flag.................................................."
+				"........"
+				"....................................................."
+				".");
 		cmd.pos_args().store_in(subcmd);
 		char** iter;
 		try {

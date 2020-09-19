@@ -34,16 +34,7 @@ public:
 				return *this;
 		}
 
-		std::vector<std::pair<std::string_view, std::string_view>>
-		value_restrictions() const {
-				if (value_) return value_->value_restrictions();
-				return {};
-		}
-
-		bool support_multiple() const {
-				if (value_) return value_->support_multiple();
-				return false;
-		}
+		const ValueBase* value() const { return value_.get(); }
 
 		std::string_view help() const { return help_; }
 

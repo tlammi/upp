@@ -10,7 +10,7 @@ namespace cli {
 
 class Cmd {
 public:
-		explicit Cmd() {}
+		Cmd() {}
 
 		Opts& opts() { return opts_; }
 		const Opts& opts() const { return opts_; }
