@@ -2,11 +2,14 @@ Import("env")
 
 
 testenv = env.Clone()
-test_flags = {"LIBS": ["gtest", "upp"]}
+test_flags = {"LIBS": ["gtest", "upp", "pthread"]}
 testenv.MergeFlags(test_flags)
 
 test = testenv.Program(
-    "testbin", ["main.cpp", "cli/parse_simple.cpp"])
+    "testbin", ["main.cpp", 
+                "cli/parse_simple.cpp",
+                "async/job.cpp"])
+
 Help("    testbin           Only build tests\n")
 
 test_exec = testenv.Alias('test', [test], test[0].path)
