@@ -10,3 +10,4 @@ srcs = [
 env.Library("upp", srcs)
 env.Default("libupp.a")
 env.Append(LIBPATH=Dir('.').get_abspath())
+Help("    upp               Build libupp (This is the default)\n")

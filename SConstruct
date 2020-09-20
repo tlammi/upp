@@ -1,8 +1,35 @@
 
 import os
 import multiprocessing as mp
-env = Environment(CPPPATH=["#include"], CXXFLAGS=[
-                  "--std=c++17"])
+
+AddOption("--build-debug", dest="debug",
+          action="store_true", help="Debug build")
+
+AddOption("--build-cov", dest="cov", action="store_true",
+          help="Produce coverage information")
+
+Help("""
+Options:
+    --build-debug   Build with debug instead of release options
+    --build-cov     Build with coverage support
+
+Targets:
+""")
+
+cpppath = ["#include"]
+cxxflags = ["--std=c++17"]
+libs = []
+
+if GetOption("debug"):
+    cxxflags += ["-O0", "-g"]
+else:
+    cxxflags += ["-Os", "-Wall", "-Wextra"]
+
+if GetOption("cov"):
+    cxxflags += ["-fprofile-arcs", "-ftest-coverage"]
+    libs += ["gcov"]
+
+env = Environment(CPPPATH=cpppath, CXXFLAGS=cxxflags, LIBS=libs)
 
 # This enables color prints from subprocesses
 env['ENV']['TERM'] = os.environ['TERM']

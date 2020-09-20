@@ -1,8 +1,35 @@
 Import("env")
 
 
-test = env.Program(
-    "testbin", ["main.cpp", "cli/parse_simple.cpp"], LIBS=["gtest", "upp"])
+testenv = env.Clone()
+test_flags = {"LIBS": ["gtest", "upp"]}
+testenv.MergeFlags(test_flags)
 
-test_exec = env.Alias('test', [test], test[0].path)
-env.AlwaysBuild(test_exec)
+test = testenv.Program(
+    "testbin", ["main.cpp", "cli/parse_simple.cpp"])
+Help("    testbin           Only build tests\n")
+
+test_exec = testenv.Alias('test', [test], test[0].path)
+Help("    test              Build and run tests.\n")
+
+# same as Makefile .PHONY
+testenv.AlwaysBuild(test_exec)
+
+curdir = Dir('.').get_abspath()
+rootdir = Dir('#').get_abspath()
+
+# Clean and recreate coverage directory
+coverage_dir = testenv.Command(
+    f"{rootdir}/cov", "", f"rm -rf {rootdir}/cov && mkdir -p {rootdir}/cov"
+)
+
+# Create coverage report. NOTE: coverage files are created by running tests with coverage flags
+coverage = testenv.Command(
+    'upp.html', "", f"cd {curdir} && gcovr . --root {rootdir} --html --html-details -o {rootdir}/cov/upp.html")
+
+coverage_report = testenv.Alias("coverage-report", [coverage_dir, coverage])
+
+Help(
+    "    coverage-report   Populate coverate report from gcov output.\n"
+    "                      This requires manual 'scons --build-debug --build-cov test'\n"
+    "                      run to output a valid report.\n")
