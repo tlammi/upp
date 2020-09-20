@@ -14,6 +14,9 @@ struct EnumEntry {
 		T val;
 		std::string_view str;
 		std::string_view help{""};
+
+		bool operator==(const T& rhs) const { return val == rhs; }
+		bool operator!=(const T& rhs) const { return val != rhs; }
 };
 
 template <typename T>

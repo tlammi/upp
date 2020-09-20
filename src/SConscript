@@ -1,0 +1,12 @@
+import glob
+
+Import("env")
+
+srcs = [
+    "impl/cli/helpgen.cpp",
+    "impl/cli/opt.cpp",
+]
+
+env.Library("upp", srcs)
+env.Default("libupp.a")
+env.Append(LIBPATH=Dir('.').get_abspath())

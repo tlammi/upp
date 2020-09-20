@@ -1,0 +1,8 @@
+Import("env")
+
+
+test = env.Program(
+    "testbin", ["main.cpp", "cli/parse_simple.cpp"], LIBS=["gtest", "upp"])
+
+test_exec = env.Alias('test', [test], test[0].path)
+env.AlwaysBuild(test_exec)
