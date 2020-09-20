@@ -1,4 +1,4 @@
-#include "upp/detail/cli/helpgen.hpp"
+#include "upp/impl/cli/helpgen.hpp"
 
 namespace upp {
 namespace cli {

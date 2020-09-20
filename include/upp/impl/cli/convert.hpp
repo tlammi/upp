@@ -4,8 +4,8 @@
 #include <stdexcept>
 #include <string>
 
-#include "upp/detail/cli/enum.hpp"
-#include "upp/detail/cli/exception.hpp"
+#include "upp/impl/cli/enum.hpp"
+#include "upp/impl/cli/exception.hpp"
 namespace upp {
 namespace cli {
 

@@ -3,8 +3,8 @@
 #include <iomanip>
 #include <string>
 
-#include "upp/detail/cli/cmd.hpp"
-#include "upp/detail/cli/opt.hpp"
+#include "upp/impl/cli/cmd.hpp"
+#include "upp/impl/cli/opt.hpp"
 namespace upp {
 namespace cli {
 std::string helpgen(const Cmd& cmd, std::string brief_help = "",

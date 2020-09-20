@@ -5,7 +5,7 @@
 #include <set>
 #include <string_view>
 
-#include "upp/detail/cli/exception.hpp"
+#include "upp/impl/cli/exception.hpp"
 namespace upp {
 namespace cli {
 

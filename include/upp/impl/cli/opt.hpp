@@ -6,7 +6,7 @@
 #include <optional>
 #include <string_view>
 
-#include "upp/detail/cli/value.hpp"
+#include "upp/impl/cli/value.hpp"
 
 namespace upp {
 namespace cli {

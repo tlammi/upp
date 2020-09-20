@@ -1,9 +1,9 @@
 #pragma once
 
-#include "upp/detail/cli/cmd.hpp"
-#include "upp/detail/cli/convert.hpp"
-#include "upp/detail/cli/enum.hpp"
-#include "upp/detail/cli/exception.hpp"
-#include "upp/detail/cli/helpgen.hpp"
-#include "upp/detail/cli/opt.hpp"
-#include "upp/detail/cli/value.hpp"
+#include "upp/impl/cli/cmd.hpp"
+#include "upp/impl/cli/convert.hpp"
+#include "upp/impl/cli/enum.hpp"
+#include "upp/impl/cli/exception.hpp"
+#include "upp/impl/cli/helpgen.hpp"
+#include "upp/impl/cli/opt.hpp"
+#include "upp/impl/cli/value.hpp"

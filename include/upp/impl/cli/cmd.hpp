@@ -2,9 +2,9 @@
 
 #include <string_view>
 
-#include "upp/detail/cli/exception.hpp"
-#include "upp/detail/cli/opt.hpp"
-#include "upp/detail/cli/posargs.hpp"
+#include "upp/impl/cli/exception.hpp"
+#include "upp/impl/cli/opt.hpp"
+#include "upp/impl/cli/posargs.hpp"
 namespace upp {
 namespace cli {
 

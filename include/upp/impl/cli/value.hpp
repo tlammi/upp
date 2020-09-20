@@ -3,7 +3,7 @@
 #include <string_view>
 #include <vector>
 
-#include "upp/detail/cli/convert.hpp"
+#include "upp/impl/cli/convert.hpp"
 namespace upp {
 namespace cli {
 

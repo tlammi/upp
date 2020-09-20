@@ -1,7 +1,7 @@
 /**
  * @file cliparser.cpp Example for using upp::cli for parsing command line
  * arguments
- *
+
  * @author tlammi (tlammi@github.com)
  * @brief
  * @version 0.1
