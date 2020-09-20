@@ -16,27 +16,26 @@ class Opt {
 		friend class Cmd;
 
 public:
-		Opt() {}
-		explicit operator bool() const { return parsed_; }
+		Opt();
+		explicit operator bool() const;
+
 		template <typename T>
 		Opt& store_in(T& target) {
 				value_ = std::make_unique<Value<T>>(target);
 				return *this;
 		}
+
 		template <typename Func>
 		Opt& callback(Func&& func) {
 				cb_ = func;
 				return *this;
 		}
 
-		Opt& set_help(std::string_view help_str) {
-				help_ = help_str;
-				return *this;
-		}
+		Opt& set_help(std::string_view help_str);
 
-		const ValueBase* value() const { return value_.get(); }
+		const ValueBase* value() const;
 
-		std::string_view help() const { return help_; }
+		std::string_view help() const;
 
 private:
 		bool parsed_{false};
