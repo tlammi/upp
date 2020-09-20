@@ -59,58 +59,25 @@ public:
 
 		using Map = std::map<OptMeta, Opt, OptMetaCmp>;
 
-		Opt& create(char sflag, const std::string& lflag) {
-				if (key_exists(sflag, lflag))
-						throw std::invalid_argument("Option exists");
-				return opts_[{sflag, lflag}] = {};
-		}
+		Opt& create(char sflag, const std::string& lflag);
 
-		Opt& create(const std::string& lflag) {
-				if (key_exists('\0', lflag))
-						throw std::invalid_argument("Option exists");
-				return opts_[{'\0', lflag}] = {};
-		}
-		Opt& create(char sflag) {
-				if (key_exists(sflag, ""))
-						throw std::invalid_argument("Option exists");
-				return opts_[{sflag, ""}] = {};
-		}
-		bool exists(char c) { return key_exists(c, ""); }
-		bool exists(const std::string& str) { return key_exists('\0', str); }
-		Opt& operator[](char c) {
-				auto iter = std::find_if(
-					opts_.begin(), opts_.end(), [&](const auto& pair) {
-							return pair.first.short_flag == c;
-					});
-				if (iter != opts_.end()) return iter->second;
-				throw ParsingError("Option does not exist");
-		}
+		Opt& create(const std::string& lflag);
+		Opt& create(char sflag);
+		bool exists(char c);
+		bool exists(const std::string& str);
+		Opt& operator[](char c);
 
-		Opt& operator[](const std::string& str) {
-				auto iter = std::find_if(
-					opts_.begin(), opts_.end(), [&](const auto& pair) {
-							return pair.first.long_flag == str;
-					});
-				if (iter != opts_.end()) return iter->second;
-				throw ParsingError("Option does not exist");
-		}
+		Opt& operator[](const std::string& str);
 
-		Map::const_iterator begin() const { return opts_.begin(); }
-		Map::const_iterator end() const { return opts_.end(); }
+		Map::const_iterator begin() const;
+		Map::const_iterator end() const;
 
-		size_t size() const { return opts_.size(); }
+		size_t size() const;
 
 private:
-		bool key_exists(char sflag, std::string_view lflag) const {
-				return std::find_if(
-						   opts_.begin(), opts_.end(), [&](const auto& pair) {
-								   return (sflag != '\0' &&
-										   pair.first.short_flag == sflag) ||
-										  (lflag != "" &&
-										   pair.first.long_flag == lflag);
-						   }) != opts_.end();
-		}
+		bool key_exists(char sflag, std::string_view lflag) const;
 		Map opts_{};
 };
+
 }  // namespace cli
 }  // namespace upp
