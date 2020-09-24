@@ -24,6 +24,11 @@ struct callable_traits<Ret (Class::*)(Args...) const> {
 		using ret_t = Ret;
 		using arg_tuple_t = std::tuple<Args...>;
 };
+template <typename Ret, typename Class, typename... Args>
+struct callable_traits<Ret (Class::*)(Args...)> {
+		using ret_t = Ret;
+		using arg_tuple_t = std::tuple<Args...>;
+};
 
 template <typename Callable>
 struct ApplyWrapper {
@@ -35,7 +40,7 @@ struct ApplyWrapper {
 				return f_(std::forward<Args>(args)...);
 		}
 
-		Callable f_;
+		Callable& f_;
 };
 }  // namespace detail
 
@@ -46,14 +51,15 @@ public:
 		using Tuple = typename detail::callable_traits<Callable>::arg_tuple_t;
 
 		Job(Executor* exec, Callable&& f) : f_{f}, exec_{exec} {}
-		Job(Executor* exec, Callable& f) : f_{f}, exec_{exec} {}
+		Job(Executor* exec, const Callable& f) : f_{f}, exec_{exec} {}
 
 		template <typename... Args>
 		std::future<Ret> operator()(Args... args) {
 				prom_ = std::promise<Ret>();
 				auto fut = prom_.get_future();
 				args_ = std::make_tuple(std::forward<Args>(args)...);
-				if (exec_) exec_->schedule(this);
+				if (exec_) exec_->schedule(*this, 0);
+				return fut;
 		}
 
 		void run() final {
