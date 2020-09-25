@@ -41,3 +41,6 @@ SConscript("src/SConscript",
 
 SConscript("unit-test/SConscript",
            variant_dir="build/unit-test", duplicate=0, exports="env")
+
+SConscript("samples/SConscript",
+           variant_dir="build/samples", duplicate=0, exports="env")

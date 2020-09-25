@@ -12,15 +12,6 @@ namespace async {
 template <size_t S>
 class FifoExecutor : public Executor {
 public:
-		struct SchedMeta {
-				int prio;
-				Schedulable* sched;
-
-				bool operator<(const SchedMeta& rhs) const {
-						return prio < rhs.prio;
-				}
-		};
-
 		FifoExecutor() {}
 
 		~FifoExecutor() { stop(); }
@@ -104,7 +95,7 @@ private:
 		}
 		std::mutex mut_{};
 		std::unordered_set<Schedulable*> registered_{};
-		std::multiset<SchedMeta> queue_{};
+		std::multiset<detail::SchedMeta> queue_{};
 		std::array<Worker, S> workers_{};
 		std::condition_variable cv_{};
 		bool operate_{true};

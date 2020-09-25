@@ -1,19 +1,18 @@
 #pragma once
 
+#include <atomic>
+
 #include "upp/impl/async/executor.hpp"
 #include "upp/impl/util/defer.hpp"
-
 namespace upp {
 namespace async {
+
+/**
+ * \brief Executor not spawning any additional threads.
+ *
+ */
 class FiberExecutor : public Executor {
 public:
-		struct SchedMeta {
-				int priority;
-				Schedulable* sched;
-				bool operator<(const SchedMeta& rhs) const {
-						return priority < rhs.priority;
-				}
-		};
 		FiberExecutor() {}
 		~FiberExecutor() {}
 		void schedule(Schedulable& sched, int priority) final {
@@ -42,6 +41,10 @@ public:
 				run_cv_.wait(lk, [&]() { return sched_ != &sched; });
 		}
 
+		/**
+		 *  \brief Run executor until \ref stop() is called or an exception is
+		 * thrown
+		 */
 		void run() {
 				operate_ = true;
 				while (true) {
@@ -57,6 +60,10 @@ public:
 				}
 		}
 
+		/**
+		 * \brief Run Schedulables from the internal buffer until the buffer is
+		 * empty
+		 */
 		void run_all() {
 				operate_ = true;
 				while (operate_) {
@@ -70,13 +77,19 @@ public:
 				}
 		}
 
+		/**
+		 * \brief Stop a running Executor
+		 */
 		void stop() {
-				std::unique_lock lk{mut_};
-				operate_ = false;
+				{
+						std::unique_lock lk{mut_};
+						operate_ = false;
+				}
 				cv_.notify_one();
 		}
 
 private:
+		/// Get next schedulable. Caller should hold \ref mut_
 		Schedulable* next_schedulable() {
 				if (q_.size()) {
 						std::unique_lock lk2{run_mut_};
@@ -84,6 +97,8 @@ private:
 				}
 				return nullptr;
 		}
+
+		/// Run current schedulable and clean up
 		void run_current_schedulable() {
 				util::Defer defer{[&]() noexcept {
 						{
@@ -99,7 +114,7 @@ private:
 		std::mutex mut_{};
 		std::mutex run_mut_{};
 		Schedulable* sched_{nullptr};
-		std::multiset<SchedMeta> q_{};
+		std::multiset<detail::SchedMeta> q_{};	///< Internal buffer
 		std::condition_variable cv_{};
 		std::condition_variable run_cv_{};
 };

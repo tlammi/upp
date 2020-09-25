@@ -1,11 +1,15 @@
 #pragma once
 
+#include "upp/impl/async/schedulable.hpp"
 #include "upp/impl/traits/callable_traits.hpp"
 
 namespace upp {
 namespace async {
 namespace detail {
 
+/**
+ * \brief Helper to allow to call std::apply without move
+ */
 template <typename Callable>
 struct ApplyWrapper {
 		using Ret = typename traits::callable_traits<Callable>::ret_t;
@@ -17,6 +21,16 @@ struct ApplyWrapper {
 		}
 
 		Callable& f_;
+};
+/**
+ * \brief Container struct for internal multimap
+ */
+struct SchedMeta {
+		int priority;  ///< Used for sorting only
+		Schedulable* sched;
+		bool operator<(const SchedMeta& rhs) const {
+				return priority < rhs.priority;
+		}
 };
 }  // namespace detail
 }  // namespace async
