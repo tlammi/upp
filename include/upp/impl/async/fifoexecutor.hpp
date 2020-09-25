@@ -9,6 +9,11 @@
 
 namespace upp {
 namespace async {
+/**
+ * \brief Executor spawning background threads for executing the spawned jobs
+ *
+ * \tparam S Number of worker threads.
+ */
 template <size_t S>
 class FifoExecutor : public Executor {
 public:
@@ -16,6 +21,9 @@ public:
 
 		~FifoExecutor() { stop(); }
 
+		/**
+		 * \brief Start the executor
+		 */
 		void start() {
 				for (auto& w : workers_) {
 						w.thread =
@@ -23,6 +31,9 @@ public:
 				}
 		}
 
+		/**
+		 * \brief Stop the executor
+		 */
 		void stop() {
 				{
 						std::unique_lock lk{mut_};

@@ -8,6 +8,14 @@
 namespace upp {
 namespace async {
 
+/**
+ * \brief Job for scheduling a job continuously
+ *
+ * The wrapped callable will be rescheduled after each invocation.
+ * NOTE: As this job type does not return futures, exceptions are not caught
+ * which will cause an abort if e.g. FifoExecutor is used.
+ * \tparam Callable Wrapped callable
+ */
 template <typename Callable>
 class ContinuousJob : public Schedulable {
 public:

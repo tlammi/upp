@@ -11,6 +11,19 @@
 namespace upp {
 namespace async {
 
+/**
+ * \brief Standard job type
+ *
+ * Calling \ref operator() schedules the object to the given Executor's queue
+ * and stores the arguments in an intenal buffer. Later when the Executor
+ * calls the Job, those arguments are passed to the callable the Job has been
+ * configured in ctor.
+ *
+ * \tparam Callable Callable type to wrap
+ * \tparam ForwardExc If true, forward exceptions to std::future, else throw
+ *         NOTE: Not forwarding exceptions and running e.g. FifoExecutor will
+ *         cause an abort. Since there is no way to handle the exceptions.
+ */
 template <typename Callable, bool ForwardExc = false>
 class Job : public Schedulable {
 public:
