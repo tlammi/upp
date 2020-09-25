@@ -57,7 +57,16 @@ public:
 													 .sched;
 								}
 						}
-						sched_->run();
+						try {
+								sched_->run();
+						} catch (...) {
+								{
+										std::unique_lock lk{run_mut_};
+										sched_ = nullptr;
+								}
+								run_cv_.notify_all();
+								throw;
+						}
 						{
 								std::unique_lock lk{run_mut_};
 								sched_ = nullptr;
@@ -77,9 +86,19 @@ public:
 										sched_ = q_.extract(q_.begin())
 													 .value()
 													 .sched;
-								}
+								} else
+										break;
 						}
-						sched_->run();
+						try {
+								sched_->run();
+						} catch (...) {
+								{
+										std::unique_lock lk{run_mut_};
+										sched_ = nullptr;
+								}
+								run_cv_.notify_all();
+								throw;
+						}
 						{
 								std::unique_lock lk{run_mut_};
 								sched_ = nullptr;

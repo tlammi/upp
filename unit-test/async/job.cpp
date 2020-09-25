@@ -2,9 +2,10 @@
 
 #include <gtest/gtest.h>
 
+#include "upp/impl/async/continuousjob.hpp"
 #include "upp/impl/async/fiberexecutor.hpp"
 #include "upp/impl/async/fifoexecutor.hpp"
-
+#include "upp/impl/async/overridingjob.hpp"
 using namespace upp::async;
 using namespace std::literals::chrono_literals;
 
@@ -17,6 +18,12 @@ TEST(AsyncJobTest, Ctor) {
 		Job j0{exec, intf};
 		Job j1{exec, [](double d) { return d * d; }};
 		Job j2{exec, voidf};
+
+		ContinuousJob j3{exec, voidf};
+
+		OverridingJob j4{exec, intf};
+		OverridingJob j5{exec, [](float f) { return f * f; }};
+		OverridingJob j6{exec, voidf};
 }
 
 TEST(AsyncJobTest, Run) {
@@ -90,4 +97,11 @@ TEST(AsyncJobTest, ContinuousJob) {
 		exec.stop();
 
 		ASSERT_GT(i, 0);
+}
+
+TEST(AsyncJobTest, ThrowException) {
+		FiberExecutor exec{};
+		Job j{exec, []() { throw std::runtime_error("hello"); }};
+		j();
+		ASSERT_ANY_THROW(exec.run_all());
 }

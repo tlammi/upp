@@ -6,9 +6,10 @@ test_flags = {"LIBS": ["gtest", "upp", "pthread"]}
 testenv.MergeFlags(test_flags)
 
 test = testenv.Program(
-    "testbin", ["main.cpp", 
+    "testbin", ["main.cpp",
                 "cli/parse_simple.cpp",
-                "async/job.cpp"])
+                "async/job.cpp",
+                "util/defer.cpp"])
 
 Help("    testbin           Only build tests\n")
 
