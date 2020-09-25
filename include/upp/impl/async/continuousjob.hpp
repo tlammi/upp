@@ -16,19 +16,21 @@ public:
 		using Tuple = typename traits::callable_traits<Callable>::arg_tuple_t;
 		static_assert(std::is_same_v<Tuple, std::tuple<>>);
 
-		ContinuousJob(Executor& exec, Callable&& f) : f_{f}, exec_{exec} {
+		ContinuousJob(Executor& exec, Callable&& f, int priority = 0)
+			: f_{f}, exec_{exec}, prio_{priority} {
 				exec_.schedule(*this, 0);
 		}
 		~ContinuousJob() { exec_.cancel(*this); }
 
 		void run() final {
 				f_();
-				exec_.schedule(*this, 0);
+				exec_.schedule(*this, prio_);
 		}
 
 private:
 		Callable f_;
 		Executor& exec_;
+		int prio_;
 };
 template <typename Ret, typename... Args>
 ContinuousJob(Executor&, Ret(Args...)) -> ContinuousJob<Ret (*)(Args...)>;

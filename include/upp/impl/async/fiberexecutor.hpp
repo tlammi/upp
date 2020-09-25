@@ -1,6 +1,7 @@
 #pragma once
 
 #include "upp/impl/async/executor.hpp"
+#include "upp/impl/util/defer.hpp"
 
 namespace upp {
 namespace async {
@@ -50,28 +51,9 @@ public:
 										return q_.size() || !operate_;
 								});
 								if (!operate_) break;
-								if (q_.size()) {
-										std::unique_lock lk2{run_mut_};
-										sched_ = q_.extract(q_.begin())
-													 .value()
-													 .sched;
-								}
+								sched_ = next_schedulable();
 						}
-						try {
-								sched_->run();
-						} catch (...) {
-								{
-										std::unique_lock lk{run_mut_};
-										sched_ = nullptr;
-								}
-								run_cv_.notify_all();
-								throw;
-						}
-						{
-								std::unique_lock lk{run_mut_};
-								sched_ = nullptr;
-						}
-						run_cv_.notify_all();
+						run_current_schedulable();
 				}
 		}
 
@@ -79,31 +61,12 @@ public:
 				operate_ = true;
 				while (operate_) {
 						{
-								std::unique_lock lk{mut_};
 								if (!operate_) break;
-								if (q_.size()) {
-										std::unique_lock lk2{run_mut_};
-										sched_ = q_.extract(q_.begin())
-													 .value()
-													 .sched;
-								} else
-										break;
+								std::unique_lock lk{mut_};
+								sched_ = next_schedulable();
+								if (!sched_) break;
 						}
-						try {
-								sched_->run();
-						} catch (...) {
-								{
-										std::unique_lock lk{run_mut_};
-										sched_ = nullptr;
-								}
-								run_cv_.notify_all();
-								throw;
-						}
-						{
-								std::unique_lock lk{run_mut_};
-								sched_ = nullptr;
-						}
-						run_cv_.notify_all();
+						run_current_schedulable();
 				}
 		}
 
@@ -114,6 +77,24 @@ public:
 		}
 
 private:
+		Schedulable* next_schedulable() {
+				if (q_.size()) {
+						std::unique_lock lk2{run_mut_};
+						return q_.extract(q_.begin()).value().sched;
+				}
+				return nullptr;
+		}
+		void run_current_schedulable() {
+				util::Defer defer{[&]() noexcept {
+						{
+								std::unique_lock lk{run_mut_};
+								sched_ = nullptr;
+						}
+						run_cv_.notify_all();
+				}};
+				sched_->run();
+		}
+
 		std::atomic_bool operate_{true};
 		std::mutex mut_{};
 		std::mutex run_mut_{};
