@@ -10,6 +10,11 @@
 namespace upp {
 namespace timer {
 
+/**
+ * \brief Timer queueing individual events
+ *
+ * All time points managed by this object are approximations.
+ */
 template <typename Clock = std::chrono::steady_clock>
 class OneShot {
 public:
@@ -23,6 +28,12 @@ public:
 				t_.join();
 		}
 
+		/**
+		 * \brief Schedule an event after given duration
+		 *
+		 * \param dur Duration from this time to sleep for
+		 * \param f Callable to invoke after duration
+		 */
 		template <typename Rep, typename Period, typename Callable>
 		void after(const std::chrono::duration<Rep, Period>& dur,
 				   Callable&& f) {
@@ -33,6 +44,12 @@ public:
 				cv_.notify_one();
 		}
 
+		/**
+		 * \brief Schedule an event at given time point
+		 *
+		 * \param time Time point to wake up at
+		 * \param f Callable void() to invoke after the time point
+		 */
 		template <typename Clock2, typename Duration, typename Callable>
 		void at(const std::chrono::time_point<Clock2, Duration>& time,
 				Callable&& f) {
@@ -45,12 +62,6 @@ public:
 
 private:
 		void work() {
-				auto get_next_item = [&]() {
-						std::unique_lock lk{mut_};
-						auto tmp = std::move(*wakeups_.begin());
-						wakeups_.erase(wakeups_.begin());
-						return tmp;
-				};
 				while (true) {
 						{
 								std::unique_lock lk{mut_};
@@ -59,9 +70,17 @@ private:
 								});
 						}
 						if (!operate_) break;
-						auto pair = get_next_item();
-						std::this_thread::sleep_until(pair.first);
-						pair.second();
+						while (true) {
+								std::unique_lock lk{mut_};
+								if (cv_.wait_until(lk,
+												   wakeups_.begin()->first) ==
+									std::cv_status::timeout) {
+										wakeups_.begin()->second();
+										wakeups_.erase(wakeups_.begin());
+										break;
+								}
+								if (!operate_) break;
+						}
 				}
 		}
 		std::thread t_;

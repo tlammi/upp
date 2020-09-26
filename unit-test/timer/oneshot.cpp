@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include <mutex>
+
 using namespace upp::timer;
 
 using namespace std::literals::chrono_literals;
@@ -31,4 +33,27 @@ TEST(OneShotTimer, At) {
 
 		std::this_thread::sleep_for(200ms);
 		ASSERT_EQ(i, 2);
+}
+
+TEST(OneShotTimer, InverseOrder) {
+		OneShot t{};
+
+		std::mutex mut{};
+		int i = 0;
+
+		t.after(100ms, [&]() {
+				std::unique_lock lk{mut};
+				i += 10;
+		});
+		t.after(10ms, [&]() {
+				std::unique_lock lk{mut};
+				i += 9;
+		});
+		t.after(50ms, [&]() {
+				std::unique_lock lk{mut};
+				i *= 8;
+		});
+
+		std::this_thread::sleep_for(200ms);
+		ASSERT_EQ(i, 82);
 }
