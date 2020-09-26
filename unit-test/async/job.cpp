@@ -9,63 +9,21 @@
 using namespace upp::async;
 using namespace std::literals::chrono_literals;
 
-int intf(int i) { return i * 2; }
+void intf(int i) { (void)i; }
 
 void voidf() {}
 
 TEST(AsyncJobTest, Ctor) {
 		FifoExecutor<1> exec{};
 		Job j0{exec, intf};
-		Job j1{exec, [](double d) { return d * d; }};
+		Job j1{exec, [](double d) { (void)d; }};
 		Job j2{exec, voidf};
 
 		ContinuousJob j3{exec, voidf};
 
 		OverridingJob j4{exec, intf};
-		OverridingJob j5{exec, [](float f) { return f * f; }};
+		OverridingJob j5{exec, [](float f) { (void)f; }};
 		OverridingJob j6{exec, voidf};
-}
-
-TEST(AsyncJobTest, Run) {
-		FifoExecutor<1> exec{};
-
-		int i = 1;
-		Job j0{exec, [&](int j) mutable {
-					   i = j;
-					   return j * 2;
-			   }};
-		Job j1{exec, [&](int j) { return i + j; }};
-		exec.start();
-		auto fut0 = j0(100);
-		auto fut1 = j1(1000);
-
-		fut0.wait();
-		fut1.wait();
-
-		ASSERT_EQ(i, 100);
-		ASSERT_EQ(fut0.get(), 200);
-		ASSERT_EQ(fut1.get(), 1100);
-}
-
-TEST(AsyncJobTest, RunFiberExecutor) {
-		FiberExecutor exec{};
-		int i = 0;
-		Job j0{exec, [&](int j) mutable {
-					   i = j * 2;
-					   return j * 3;
-			   }};
-		Job j1{exec, [&](int j) mutable { return i + j; }};
-
-		auto f0 = j0(10);
-		auto f1 = j1(2);
-
-		exec.run_all();
-
-		ASSERT_TRUE(f0.valid());
-		ASSERT_TRUE(f1.valid());
-		ASSERT_EQ(i, 20);
-		ASSERT_EQ(f0.get(), 30);
-		ASSERT_EQ(f1.get(), 22);
 }
 
 TEST(AsyncJobTest, OverridingJob) {
@@ -98,7 +56,6 @@ TEST(AsyncJobTest, ContinuousJob) {
 
 		ASSERT_GT(i, 0);
 }
-
 TEST(AsyncJobTest, ThrowException) {
 		FiberExecutor exec{};
 		Job j{exec, []() { throw std::runtime_error("hello"); }};

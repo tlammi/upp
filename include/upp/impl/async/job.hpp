@@ -28,6 +28,7 @@ template <typename Callable, bool ForwardExc = false>
 class Job : public Schedulable {
 public:
 		using Ret = typename traits::callable_traits<Callable>::ret_t;
+		static_assert(std::is_same_v<Ret, void>);
 		using Tuple = typename traits::callable_traits<Callable>::arg_tuple_t;
 
 		Job(Executor& exec, Callable&& f, int priority = 0)
@@ -38,43 +39,23 @@ public:
 		~Job() { exec_.cancel(*this); }
 
 		template <typename... Args>
-		std::future<Ret> operator()(Args... args) {
+		void operator()(Args... args) {
 				std::future<Ret> fut;
 				{
 						std::unique_lock lk{mut_};
-						proms_.emplace_back();
-						fut = proms_.back().get_future();
 						args_.emplace_back(std::forward<Args>(args)...);
 				}
 				exec_.schedule(*this, prio_);
-				return fut;
 		}
 
 		void run() final {
-				std::promise<Ret> prom;
-				try {
-						Tuple args;
-						{
-								std::unique_lock lk{mut_};
-								args = args_.front();
-								args_.pop_front();
-								prom = std::move(proms_.front());
-								proms_.pop_front();
-						}
-						if constexpr (!std::is_same_v<Ret, void>) {
-								prom.set_value(std::apply(
-									detail::ApplyWrapper(f_), std::move(args)));
-						} else {
-								std::apply(detail::ApplyWrapper(f_),
-										   std::move(args));
-								prom.set_value();
-						}
-				} catch (...) {
-						if constexpr (ForwardExc)
-								prom.set_exception(std::current_exception());
-						else
-								throw;
+				Tuple args;
+				{
+						std::unique_lock lk{mut_};
+						args = std::move(args_.front());
+						args_.pop_front();
 				}
+				std::apply(detail::ApplyWrapper(f_), std::move(args));
 		}
 
 private:
@@ -82,7 +63,6 @@ private:
 		Executor& exec_;
 		int prio_;
 		std::mutex mut_{};
-		std::deque<std::promise<Ret>> proms_{};
 		std::deque<Tuple> args_{};
 };
 
