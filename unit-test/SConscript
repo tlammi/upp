@@ -9,7 +9,9 @@ test = testenv.Program(
     "testbin", ["main.cpp",
                 "cli/parse_simple.cpp",
                 "async/job.cpp",
-                "util/defer.cpp"])
+                "util/defer.cpp",
+                "timer/oneshot.cpp",
+                ])
 
 Help("    testbin           Only build tests\n")
 
