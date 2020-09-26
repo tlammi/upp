@@ -5,7 +5,9 @@
 #include "upp/impl/async/continuousjob.hpp"
 #include "upp/impl/async/fiberexecutor.hpp"
 #include "upp/impl/async/fifoexecutor.hpp"
+#include "upp/impl/async/intervaljob.hpp"
 #include "upp/impl/async/overridingjob.hpp"
+#include "upp/impl/timer/oneshot.hpp"
 using namespace upp::async;
 using namespace std::literals::chrono_literals;
 
@@ -61,4 +63,15 @@ TEST(AsyncJobTest, ThrowException) {
 		Job j{exec, []() { throw std::runtime_error("hello"); }};
 		j();
 		ASSERT_ANY_THROW(exec.run_all());
+}
+
+TEST(AsyncJobTest, IntervalJob) {
+		FifoExecutor<1> exec{};
+		exec.start();
+		upp::timer::OneShot timer{};
+		std::atomic<int> i = 0;
+		IntervalJob interval_job{exec, timer, 10ms, 0, [&]() { ++i; }};
+
+		std::this_thread::sleep_for(100ms);
+		ASSERT_GT(i, 7);
 }
