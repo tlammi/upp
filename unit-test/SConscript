@@ -11,6 +11,7 @@ test = testenv.Program(
                 "async/job.cpp",
                 "util/defer.cpp",
                 "timer/oneshot.cpp",
+                "timer/interval.cpp",
                 ])
 
 Help("    testbin           Only build tests\n")
