@@ -4,6 +4,13 @@
 #include "upp/impl/traits/callable_traits.hpp"
 namespace upp {
 namespace async {
+
+/**
+ * \brief Interval job, executed continuously with sleeps in between
+ *
+ * The job starts automatically in constructor and is rescheduled after each
+ * execution.
+ */
 template <typename Callable, typename Rep, typename Period>
 class IntervalJob : public Schedulable {
 public:
@@ -12,6 +19,15 @@ public:
 		using Tuple = typename traits::callable_traits<Callable>::arg_tuple_t;
 		static_assert(std::is_same_v<Tuple, std::tuple<>>);
 
+		/**
+		 * \brief Create and start an IntervalJob
+		 *
+		 * \param exec Executor used for executing the wrapped Callable
+		 * \param timer Timer used for sleeping
+		 * \param dur Duration slept after each invocation
+		 * \param priority Job priority. Inverted
+		 * \param f Callable invoked after each interval
+		 */
 		IntervalJob(Executor& exec,
 					timer::OneShot<std::chrono::steady_clock>& timer,
 					const std::chrono::duration<Rep, Period>& dur, int priority,
