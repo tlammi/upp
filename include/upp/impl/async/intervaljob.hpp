@@ -38,7 +38,13 @@ public:
 				exec_.schedule(*this, prio_);
 		}
 
+		IntervalJob(const IntervalJob&) = delete;
+		IntervalJob(IntervalJob&&) = delete;
+
 		~IntervalJob() { exec_.cancel(*this); }
+
+		IntervalJob& operator=(const IntervalJob&) = delete;
+		IntervalJob& operator=(IntervalJob&&) = delete;
 
 		void run() {
 				f_();

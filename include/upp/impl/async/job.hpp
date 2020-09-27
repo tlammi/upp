@@ -38,11 +38,16 @@ public:
 		Job(Executor& exec, const Callable& f, int priority = 0)
 			: f_{f}, exec_{exec}, prio_{priority} {}
 
+		Job(const Job&) = delete;
+		Job(Job&&) = delete;
+
 		~Job() { exec_.cancel(*this); }
+
+		Job& operator=(const Job&) = delete;
+		Job& operator=(Job&&) = delete;
 
 		template <typename... Args>
 		void operator()(Args... args) {
-				std::future<Ret> fut;
 				{
 						std::unique_lock lk{mut_};
 						args_.emplace_back(std::forward<Args>(args)...);

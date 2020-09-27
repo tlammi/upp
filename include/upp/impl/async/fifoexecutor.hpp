@@ -21,7 +21,13 @@ class FifoExecutor : public Executor {
 public:
 		FifoExecutor() {}
 
+		FifoExecutor(const FifoExecutor&) = delete;
+		FifoExecutor(FifoExecutor&&) = delete;
+
 		~FifoExecutor() { stop(); }
+
+		FifoExecutor& operator=(const FifoExecutor&) = delete;
+		FifoExecutor& operator=(FifoExecutor&&) = delete;
 
 		/**
 		 * \brief Start the executor

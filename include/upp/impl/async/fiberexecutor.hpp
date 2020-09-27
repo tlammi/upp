@@ -16,7 +16,14 @@ namespace async {
 class FiberExecutor : public Executor {
 public:
 		FiberExecutor() {}
+
+		FiberExecutor(const FiberExecutor&) = delete;
+		FiberExecutor(FiberExecutor&&) = delete;
 		~FiberExecutor() {}
+
+		FiberExecutor& operator=(const FiberExecutor&) = delete;
+		FiberExecutor& operator=(FiberExecutor&&) = delete;
+
 		void schedule(Schedulable& sched, int priority) final {
 				{
 						std::unique_lock lk{mut_};
