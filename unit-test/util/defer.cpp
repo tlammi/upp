@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright @ 2020 Toni Lammi */
 #include "upp/impl/util/defer.hpp"
 
 #include <gtest/gtest.h>

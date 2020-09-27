@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright @ 2020 Toni Lammi */
 #pragma once
 #include "upp/impl/async/executor.hpp"
 #include "upp/impl/timer/oneshot.hpp"

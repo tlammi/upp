@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright @ 2020 Toni Lammi */
 /**
  * @file cliparser.cpp Example for using upp::cli for parsing command line
  * arguments

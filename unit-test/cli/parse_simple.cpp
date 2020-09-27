@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright @ 2020 Toni Lammi */
 #include <gtest/gtest.h>
 
 #include "upp/cli.hpp"
