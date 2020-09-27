@@ -30,8 +30,8 @@ public:
 		 */
 		IntervalJob(Executor& exec,
 					timer::OneShot<std::chrono::steady_clock>& timer,
-					const std::chrono::duration<Rep, Period>& dur, int priority,
-					Callable&& f)
+					const std::chrono::duration<Rep, Period>& dur, Callable&& f,
+					int priority = 0)
 			: exec_{exec}, f_{f}, dur_{dur}, timer_{timer}, prio_{priority} {
 				exec_.schedule(*this, prio_);
 		}

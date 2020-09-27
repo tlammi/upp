@@ -70,7 +70,7 @@ TEST(AsyncJobTest, IntervalJob) {
 		exec.start();
 		upp::timer::OneShot timer{};
 		std::atomic<int> i = 0;
-		IntervalJob interval_job{exec, timer, 10ms, 0, [&]() { ++i; }};
+		IntervalJob interval_job{exec, timer, 10ms, [&]() { ++i; }};
 
 		std::this_thread::sleep_for(100ms);
 		ASSERT_GT(i, 7);
@@ -82,7 +82,7 @@ TEST(AsyncJobTest, Synchronization) {
 		upp::timer::OneShot timer{};
 		std::mutex mut{};
 		int i = 0;
-		IntervalJob ijob{exec, timer, 10ms, 0, [&]() {
+		IntervalJob ijob{exec, timer, 10ms, [&]() {
 								 EXPECT_TRUE(mut.try_lock());
 								 ++i;
 								 mut.unlock();
