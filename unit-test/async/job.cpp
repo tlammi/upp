@@ -75,3 +75,34 @@ TEST(AsyncJobTest, IntervalJob) {
 		std::this_thread::sleep_for(100ms);
 		ASSERT_GT(i, 7);
 }
+
+/// Test that all jobs are executed sequentially
+TEST(AsyncJobTest, Synchronization) {
+		FifoExecutor<1> exec{};
+		upp::timer::OneShot timer{};
+		std::mutex mut{};
+		int i = 0;
+		IntervalJob ijob{exec, timer, 10ms, 0, [&]() {
+								 EXPECT_TRUE(mut.try_lock());
+								 ++i;
+								 mut.unlock();
+						 }};
+
+		Job j{exec, [&]() {
+					  EXPECT_TRUE(mut.try_lock());
+					  ++i;
+					  mut.unlock();
+			  }};
+
+		exec.start();
+		std::array<std::thread, 20> threads{};
+		for (auto& t : threads) {
+				t = std::thread([&]() {
+						for (size_t i = 0; i < 100; ++i) { j(); }
+				});
+		}
+
+		std::this_thread::sleep_for(100ms);
+
+		for (auto& t : threads) { t.join(); }
+}
