@@ -9,6 +9,7 @@
 #include "upp/impl/async/fifoexecutor.hpp"
 #include "upp/impl/async/intervaljob.hpp"
 #include "upp/impl/async/overridingjob.hpp"
+#include "upp/impl/async/syncjob.hpp"
 #include "upp/impl/timer/oneshot.hpp"
 using namespace upp::async;
 using namespace std::literals::chrono_literals;
@@ -107,4 +108,17 @@ TEST(AsyncJobTest, Synchronization) {
 		std::this_thread::sleep_for(100ms);
 
 		for (auto& t : threads) { t.join(); }
+}
+
+TEST(AsyncJobTest, SyncJob) {
+		FifoExecutor<1> exec{};
+		int i = 0;
+		ContinuousJob cjob{exec, [&]() { ++i; }};
+		SyncJob sjob{exec, [&]() { return i; }};
+		exec.start();
+		int j = sjob();
+		std::this_thread::sleep_for(100ms);
+		int k = sjob();
+		ASSERT_GT(k, j);
+		exec.stop();
 }

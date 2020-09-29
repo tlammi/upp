@@ -11,3 +11,4 @@
 #include "upp/impl/async/job.hpp"
 #include "upp/impl/async/overridingjob.hpp"
 #include "upp/impl/async/schedulable.hpp"
+#include "upp/impl/async/syncjob.hpp"
