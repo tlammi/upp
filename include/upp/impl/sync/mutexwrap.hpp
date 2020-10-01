@@ -4,8 +4,8 @@
 
 #include <mutex>
 
-#include "upp/sync/mutexguard.hpp"
-#include "upp/sync/mutextryguard.hpp"
+#include "upp/impl/sync/mutexguard.hpp"
+#include "upp/impl/sync/mutextryguard.hpp"
 
 namespace upp {
 namespace sync {
