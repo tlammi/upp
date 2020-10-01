@@ -52,6 +52,17 @@ public:
 		ReadGuard<T> read_lock() const { return ReadGuard(mut_, t_); }
 		WriteGuard<T> write_lock() { return WriteGuard(mut_, t_); }
 
+		template <typename Callable>
+		void with_read_lock(Callable&& c) const {
+				std::shared_lock lk{mut_};
+				c(t_);
+		}
+		template <typename Callable>
+		void with_write_lock(Callable&& c) {
+				std::unique_lock lk{mut_};
+				c(t_);
+		}
+
 private:
 		T t_;
 		mutable std::shared_mutex mut_{};

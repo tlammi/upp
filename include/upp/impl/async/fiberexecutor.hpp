@@ -116,7 +116,7 @@ private:
 						}
 						run_cv_.notify_all();
 				}};
-				sched_->run();
+				sched_->execute();
 		}
 
 		std::atomic_bool operate_{true};

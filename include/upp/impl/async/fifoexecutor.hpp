@@ -104,7 +104,7 @@ private:
 												.sched;
 								}
 						}
-						worker->sched->run();
+						worker->sched->execute();
 						{
 								std::unique_lock lk{worker->mutex};
 								worker->sched = nullptr;

@@ -46,12 +46,12 @@ public:
 		IntervalJob& operator=(const IntervalJob&) = delete;
 		IntervalJob& operator=(IntervalJob&&) = delete;
 
-		void run() {
+
+private:
+		void run() final {
 				f_();
 				timer_.after(dur_, [&]() { exec_.schedule(*this, prio_); });
 		}
-
-private:
 		Executor& exec_;
 		Callable f_;
 		std::chrono::duration<Rep, Period> dur_;

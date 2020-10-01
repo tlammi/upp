@@ -8,6 +8,17 @@
 
 namespace upp {
 namespace timer {
+
+/**
+ * \brief Interval timer
+ *
+ * Firing the callable with given interval slept after invocation and before
+ * next one
+ * 
+ * \tparam Callable Callable to call
+ * \tparam Rep For duration
+ * \tparam Period for duration
+ */
 template <typename Callable, typename Rep, typename Period>
 class Interval {
 public:

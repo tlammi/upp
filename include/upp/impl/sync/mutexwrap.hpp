@@ -13,15 +13,21 @@ namespace sync {
 template <typename T>
 class MutexWrap {
 public:
-		explicit MutexWrap(T&& val) : _mut{}, _val{std::forward<T>(val)} {}
+		explicit MutexWrap(T&& val) : mut_{}, val_{std::forward<T>(val)} {}
 		MutexWrap() {}
 
-		MutexGuard<T> lock() { return MutexGuard<T>(_mut, _val); }
-		MutexTryGuard<T> try_lock() { return MutexTryGuard<T>(_mut, _val); }
+		MutexGuard<T> lock() { return MutexGuard<T>(mut_, val_); }
+		MutexTryGuard<T> try_lock() { return MutexTryGuard<T>(mut_, val_); }
+
+		template <typename Callable>
+		void with_lock(Callable&& c) {
+				std::unique_lock lk{mut_};
+				c(val_);
+		}
 
 private:
-		std::mutex _mut{};
-		T _val{};
+		std::mutex mut_{};
+		T val_{};
 };
 
 }  // namespace sync

@@ -23,6 +23,9 @@ public:
 		Schedulable& operator=(Schedulable&&) = delete;
 		/**\}*/
 
+		void execute() { run(); }
+
+private:
 		/**
 		 * \brief Run the schedulable
 		 *

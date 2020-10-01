@@ -32,12 +32,11 @@ public:
 		}
 		~ContinuousJob() { exec_.cancel(*this); }
 
+private:
 		void run() final {
 				f_();
 				exec_.schedule(*this, prio_);
 		}
-
-private:
 		Callable f_;
 		Executor& exec_;
 		int prio_;

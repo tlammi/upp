@@ -55,6 +55,7 @@ public:
 				exec_.schedule(*this, prio_);
 		}
 
+private:
 		void run() final {
 				Tuple args;
 				{
@@ -64,8 +65,6 @@ public:
 				}
 				std::apply(detail::ApplyWrapper(f_), std::move(args));
 		}
-
-private:
 		Callable f_;
 		Executor& exec_;
 		int prio_;

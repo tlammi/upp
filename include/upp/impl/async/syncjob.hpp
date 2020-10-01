@@ -46,6 +46,7 @@ public:
 						return f_(std::forward<Args>(args)...);
 		}
 
+private:
 		void run() final {
 				{
 						std::unique_lock lk{mut0_};
@@ -54,8 +55,6 @@ public:
 				cv_.notify_one();
 				std::unique_lock lk{mut1_};
 		}
-
-private:
 		Executor& exec_;
 		Callable f_;
 		int prio_;
