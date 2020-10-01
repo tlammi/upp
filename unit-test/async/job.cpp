@@ -122,3 +122,16 @@ TEST(AsyncJobTest, SyncJob) {
 		ASSERT_GT(k, j);
 		exec.stop();
 }
+
+TEST(AsyncJobTest, Priority) {
+		FiberExecutor exec{};
+		int i = 10;
+		Job j0{exec, [&](int j) { i += j; }, 0};
+		Job j1{exec, [&](int j) { i *= j; }, -1};
+
+		j0(100);
+		j1(100);
+
+		exec.run_all();
+		ASSERT_EQ(i, 10 * 100 + 100);
+}
