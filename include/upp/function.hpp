@@ -29,17 +29,20 @@ struct CallableImpl<C, Ret, std::tuple<Args...>>
 };
 }  // namespace detail
 
-template <typename C>
+template <typename C, size_t S = 32>
 struct Func {};
 
-template <typename Ret, typename... Args>
-class Func<Ret(Args...)> {
+template <typename Ret, size_t S, typename... Args>
+class Func<Ret(Args...), S> {
 public:
 		Func() {}
 		template <typename C>
 		Func(C&& c) : valid_{true} {
-				static_assert(sizeof(c) <= sizeof(buf_),
-							  "Object too large to store in Func");
+				static_assert(
+					sizeof(detail::CallableImpl<C, Ret, std::tuple<Args...>>) <=
+						sizeof(buf_),
+					"Object too large to store in Func");
+
 				new ((void*)buf_)
 					detail::CallableImpl<C, Ret, std::tuple<Args...>>(
 						std::forward<C>(c));
@@ -76,7 +79,7 @@ public:
 		explicit operator bool() const { return valid_; }
 
 private:
-		char buf_[32] = {0};
+		char buf_[S] = {0};
 		bool valid_ = false;
 };
 }  // namespace upp
