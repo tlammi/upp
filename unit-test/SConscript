@@ -4,7 +4,6 @@ Import("env")
 testenv = env.Clone()
 test_flags = {"LIBS": ["gtest", "upp", "pthread"]}
 testenv.MergeFlags(test_flags)
-
 test = testenv.Program(
     "testbin", ["main.cpp",
                 "cli/parse_simple.cpp",
@@ -12,7 +11,8 @@ test = testenv.Program(
                 "util/defer.cpp",
                 "timer/oneshot.cpp",
                 "timer/interval.cpp",
-                "sync/rwwrap.cpp"
+                "sync/rwwrap.cpp",
+                "function/function.cpp",
                 ])
 
 Help("    testbin           Only build tests\n")
