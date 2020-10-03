@@ -131,6 +131,24 @@ public:
 				return *this;
 		}
 
+		template <typename C, typename Enable = std::enable_if_t<
+								  !detail::is_function<C>::value>>
+		Function& operator=(C&& c) {
+				constexpr size_t size =
+					sizeof(detail::CallableImpl<C, Ret, std::tuple<Args...>>);
+				static_assert(size <= sizeof(buf_),
+							  "Object too large to store in Func");
+				if (size_) {
+						detail::Callable<Ret, std::tuple<Args...>>* ptr =
+							(detail::Callable<Ret, std::tuple<Args...>>*)buf_;
+						ptr->~Callable();
+				}
+				size_ = size;
+				new ((void*)buf_)
+					detail::CallableImpl<C, Ret, std::tuple<Args...>>(
+						std::forward<C>(c));
+		}
+
 		Ret operator()(Args... args) {
 				if (!size_) throw std::runtime_error("Func::operator()");
 				detail::Callable<Ret, std::tuple<Args...>>* ptr =

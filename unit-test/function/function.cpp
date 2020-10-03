@@ -39,3 +39,9 @@ TEST(FunctionTest, BiggerToSmaller) {
 		upp::Function<void()> f1{std::move(f0)};
 		ASSERT_EQ(sizeof(f1) - sizeof(size_t), 32);
 }
+
+TEST(FunctionTest, Assign) {
+		upp::Function<int(double), 32> f{
+			[](double d) -> int { return d + 100; }};
+		f = [](double d) -> int { return d * 100; };
+}
