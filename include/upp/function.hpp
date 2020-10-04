@@ -45,6 +45,17 @@ template <typename Ret, size_t S, typename... Args>
 struct is_function<Function<Ret(Args...), S>> : std::true_type {};
 }  // namespace detail
 
+/**
+ * \brief Wrapper for callable types
+ *
+ * Acts as std::function but is guaranteed to not to allocate memory
+ * dynamically. Instead, the object is stored in an internal buffer.
+ *
+ * \tparam Ret Return type
+ * \tparam S Size of internal buffer in bytes. Has to be a multiple of 32.
+ *         This is done to save space
+ * \tparam Args Arguments passed to the callable
+ */
 template <typename Ret, size_t S, typename... Args>
 class Function<Ret(Args...), S> {
 		template <typename C, size_t S2>
@@ -54,8 +65,18 @@ public:
 		static_assert(S % detail::FUNCTION_SIZE_RESOLUTION == 0,
 					  "upp::Function size should be a multiple of 32");
 
+		/**
+		 * @{
+		 * \brief Construct a function that is not usable
+		 */
 		Function() {}
 
+		/**
+		 * \brief Construct a Function that owns the given callable
+		 *
+		 * \tparam C Callable type
+		 * \param c Callable to be owned
+		 */
 		template <typename C, typename Enable = std::enable_if_t<
 								  !detail::is_function<C>::value>>
 		Function(C&& c) {
@@ -71,7 +92,25 @@ public:
 
 		Function(const Function&) = default;
 		Function(Function&&) noexcept = default;
-
+		/** @}*/
+		/**
+		 * \brief Construct a Function by copying an another specialization
+		 *
+		 * This can be used to transfer callable ownerships between Functions
+		 * with different size internal buffers. The transfer only succeeds
+		 * if the contained object can be stored in both, the new and old
+		 * objects. If the rhs has smaller or equal buffer size than the lhs,
+		 * this will always succeed. Otherwise checks are performed and
+		 * an exception will be thrown if the target buffer is too small.
+		 *
+		 * \tparam S2 Buffer size of the rhs argument
+		 * \param rhs Argument for the ctor
+		 *
+		 * \throw std::runtime_error if the callable from rhs cannot be stored
+		 * in the Function
+		 * @{
+		 *
+		 */
 		template <size_t S2, typename Enable = std::enable_if_t<S != S2>>
 		explicit Function(const Function<Ret(Args...), S2>& rhs) {
 				if constexpr (S < S2) {
@@ -82,7 +121,6 @@ public:
 						std::copy(rhs.buf_, rhs.buf_ + rhs.size_, buf_);
 				size_ = rhs.size_;
 		}
-
 		template <size_t S2, typename Enable = std::enable_if_t<S != S2>>
 		explicit Function(Function<Ret(Args...), S2>&& rhs) {
 				if constexpr (S < S2) {
@@ -94,7 +132,9 @@ public:
 				size_ = rhs.size_;
 				rhs.size_ = 0;
 		}
+		/** @} */
 
+		/**@{*/
 		~Function() {
 				if (size_) {
 						detail::Callable<Ret, std::tuple<Args...>>* ptr =
@@ -102,7 +142,9 @@ public:
 						ptr->~Callable();
 				}
 		}
+		/**@}*/
 
+		/**@{*/
 		Function& operator=(const Function&) = default;
 		Function& operator=(Function&&) noexcept = default;
 
@@ -148,6 +190,7 @@ public:
 					detail::CallableImpl<C, Ret, std::tuple<Args...>>(
 						std::forward<C>(c));
 		}
+		/**@}*/
 
 		Ret operator()(Args... args) {
 				if (!size_) throw std::runtime_error("Func::operator()");
