@@ -4,10 +4,16 @@
 
 int func(double d, float f) { return d + f; }
 TEST(FunctionTest, Ctor) {
-		upp::Function<void()> f0{[]() {}};
+		upp::Function f0{[]() {}};
+		static_assert(
+			std::is_same_v<decltype(f0)::prototype_t, void()>
+		);
 		upp::Function<int(int, double), 32> f1{
 			[](int i, double d) -> int { return i * d; }};
-		upp::Function<int(double, float)> f2{func};
+		upp::Function f2{func};
+		static_assert(
+			std::is_same_v<decltype(f2)::prototype_t, int(double, float)>
+		);
 }
 
 TEST(FunctionTest, Invoke) {

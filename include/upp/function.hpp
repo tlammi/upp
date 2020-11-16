@@ -4,7 +4,7 @@
 #include <new>
 #include <stdexcept>
 
-#include "upp/impl/traits/callable_traits.hpp"
+#include "upp/impl/traits/callable_prototype.hpp"
 
 namespace upp {
 namespace detail {
@@ -42,6 +42,8 @@ class Function<Ret(Args...), Size, Align>{
 public:
 	using return_type = Ret;
 	static constexpr size_t max_size = Size;
+
+	typedef Ret(prototype_t)(Args...);
 
 	Function(){}
 
@@ -123,5 +125,12 @@ private:
 	void(*dtor_)(void*){nullptr};
 	alignas(Align) char blob_[Size]{0,};
 };
+
+
+template<typename C, typename = std::enable_if_t<!std::is_lvalue_reference_v<C>>>
+Function(C&&) -> Function<typename traits::callable_prototype<C>::type>;
+
+template<typename C>
+Function(const C&) -> Function<typename traits::callable_prototype<C>::type>;
 
 }  // namespace upp
