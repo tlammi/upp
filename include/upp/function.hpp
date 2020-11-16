@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <new>
 #include <stdexcept>
-#include <iostream>
 
 #include "upp/impl/traits/callable_prototype.hpp"
 
