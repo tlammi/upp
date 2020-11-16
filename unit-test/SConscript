@@ -13,6 +13,7 @@ test = testenv.Program(
                 "timer/interval.cpp",
                 "sync/rwwrap.cpp",
                 "function/function.cpp",
+		"traits/traits.cpp"
                 ])
 
 Help("    testbin           Only build tests\n")

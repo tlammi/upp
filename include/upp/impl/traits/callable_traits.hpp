@@ -26,5 +26,6 @@ struct callable_traits<Ret (Class::*)(Args...)> {
 		using ret_t = Ret;
 		using arg_tuple_t = std::tuple<Args...>;
 };
+
 }  // namespace traits
 }  // namespace upp
