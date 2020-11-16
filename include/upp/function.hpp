@@ -98,6 +98,13 @@ public:
 		std::copy(rhs.blob_, rhs.blob_ + size_, blob_);
 	}
 
+	template<
+		typename OtherFunc,
+		typename = std::enable_if_t<detail::is_function<OtherFunc>::value>,
+		typename = std::enable_if_t<!std::is_same_v<
+			OtherFunc, Function<Ret(Args...), Size, Align>>>
+		>
+	Function(const OtherFunc&) = delete;
 
 	~Function(){
 		if(size_ && dtor_)
