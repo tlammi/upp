@@ -14,6 +14,7 @@ R do_invoke(void* blob, A... args){
 	return (*static_cast<C*>(blob))(std::forward<A>(args)...);
 }
 
+
 template<typename C>
 void do_dtor(void* blob){
 	static_cast<C*>(blob)->~C();
@@ -47,9 +48,18 @@ public:
 	template<typename C,
 		typename = std::enable_if_t<!detail::is_function<C>::value>>
 	Function(C&& c){
+		static_assert(sizeof(c) <= Size, "Object too large");
 		invoke_ = &detail::do_invoke<C, Ret, Args...>;
 		dtor_ = &detail::do_dtor<C>;
 		new(static_cast<C*>(static_cast<void*>(blob_)))C(std::forward<C>(c));
+		size_ = sizeof(c);
+	}
+
+	Function(Ret(*func)(Args...)){
+		static_assert(sizeof(func) <= Size, "Object too large");
+		invoke_ = &detail::do_invoke<Ret(*)(Args...), Ret, Args...>;
+		*static_cast<Ret(**)(Args...)>(static_cast<void*>(blob_)) = func;
+		size_ = 0;
 	}
 
 	Function(const Function&) = default;
@@ -88,10 +98,10 @@ public:
 		std::copy(rhs.blob_, rhs.blob_ + size_, blob_);
 	}
 
+
 	~Function(){
-		if(size_){
+		if(size_ && dtor_)
 			dtor_(static_cast<void*>(blob_));
-		}
 	}
 
 
