@@ -1,4 +1,4 @@
-#include "upp/impl/traits/callable_prototype.hpp"
+#include "upp/traits.hpp"
 
 #include <gtest/gtest.h>
 
