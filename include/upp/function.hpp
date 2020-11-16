@@ -5,241 +5,106 @@
 #include <stdexcept>
 
 #include "upp/impl/traits/callable_traits.hpp"
+
 namespace upp {
 namespace detail {
 
-template <typename Ret, typename ArgTuple>
-struct Callable {};
+template<typename C, typename R, typename... A>
+R do_invoke(void* blob, A... args){
+	return (*static_cast<C*>(blob))(std::forward<A>(args)...);
+}
 
-template <typename Ret, typename... Args>
-struct Callable<Ret, std::tuple<Args...>> {
-		virtual ~Callable() {}
-		virtual Ret operator()(Args...) = 0;
-};
+template<typename C>
+void do_dtor(void* blob){
+	static_cast<C*>(blob)->~C();
+}
 
-template <typename C, typename Ret, typename ArgTuple>
-struct CallableImpl {};
+}// namespace detail
 
-template <typename C, typename Ret, typename... Args>
-struct CallableImpl<C, Ret, std::tuple<Args...>>
-	: Callable<Ret, std::tuple<Args...>> {
-		CallableImpl(C&& c) : c_{c} {}
-		Ret operator()(Args... args) final {
-				return c_(std::forward<Args>(args)...);
-		}
-		C c_;
-};
-
-constexpr size_t FUNCTION_SIZE_RESOLUTION = 32;
-
-}  // namespace detail
-
-template <typename C, size_t S = detail::FUNCTION_SIZE_RESOLUTION>
-struct Function {};
+template<typename C, size_t Size=32, size_t Align=alignof(int)>
+class Function{};
 
 namespace detail {
 template <typename T>
 struct is_function : public std::false_type {};
 
-template <typename Ret, size_t S, typename... Args>
-struct is_function<Function<Ret(Args...), S>> : std::true_type {};
+template <typename Ret, size_t S, size_t A, typename... Args>
+struct is_function<Function<Ret(Args...), S, A>> : std::true_type {};
+
 }  // namespace detail
 
-/**
- * \brief Wrapper for callable types
- *
- * Acts as std::function but is guaranteed to not to allocate memory
- * dynamically. Instead, the object is stored in an internal buffer.
- *
- * \tparam Ret Return type
- * \tparam S Size of internal buffer in bytes. Has to be a multiple of 32.
- *         This is done to save space
- * \tparam Args Arguments passed to the callable
- */
-template <typename Ret, size_t S, typename... Args>
-class Function<Ret(Args...), S> {
-		template <typename C, size_t S2>
-		friend class Function;
+template<typename Ret, size_t Size, size_t Align, typename... Args>
+class Function<Ret(Args...), Size, Align>{
 
+	template<typename C, size_t Size2, size_t Align2>
+	friend class Function;
 public:
-		static_assert(S % detail::FUNCTION_SIZE_RESOLUTION == 0,
-					  "upp::Function size should be a multiple of 32");
+	using return_type = Ret;
+	static constexpr size_t max_size = Size;
 
-		/**
-		 * @{
-		 * \brief Construct a function that is not usable
-		 */
-		Function() {}
+	Function(){}
 
-		/**
-		 * \brief Construct a Function that owns the given callable
-		 *
-		 * \tparam C Callable type
-		 * \param c Callable to be owned
-		 */
-		template <typename C, typename Enable = std::enable_if_t<
-								  !detail::is_function<C>::value>>
-		Function(C&& c) {
-				constexpr size_t size =
-					sizeof(detail::CallableImpl<C, Ret, std::tuple<Args...>>);
-				static_assert(size <= sizeof(buf_),
-							  "Object too large to store in Func");
-				size_ = size;
-				new ((void*)buf_)
-					detail::CallableImpl<C, Ret, std::tuple<Args...>>(
-						std::forward<C>(c));
+	template<typename C,
+		typename = std::enable_if_t<!detail::is_function<C>::value>>
+	Function(C&& c){
+		invoke_ = &detail::do_invoke<C, Ret, Args...>;
+		dtor_ = &detail::do_dtor<C>;
+		new(static_cast<C*>(static_cast<void*>(blob_)))C(std::forward<C>(c));
+	}
+
+	Function(const Function&) = default;
+	Function& operator=(const Function&) = default;
+	Function(Function&& rhs) noexcept {
+		std::swap(size_, rhs.size_);
+		std::swap(invoke_, rhs.invoke_);
+		std::swap(dtor_, rhs.dtor_);
+		std::swap(blob_, rhs.blob_);
+	}
+
+	Function& operator=(Function&& rhs) noexcept {
+		size_ = 0;
+		std::swap(size_, rhs.size_);
+		std::swap(invoke_, rhs.invoke_);
+		std::swap(dtor_, rhs.dtor_);
+		std::swap(blob_, rhs.blob_);
+		return *this;
+	}
+
+	template<
+		typename OtherFunc,
+		typename = std::enable_if_t<detail::is_function<OtherFunc>::value>,
+		typename = std::enable_if_t<
+			!std::is_same_v<OtherFunc, Function<Ret(Args...), Size, Align>>>
+		>
+	Function(OtherFunc&& rhs){
+		if constexpr (OtherFunc::max_size > max_size)
+			if(rhs.size_ > max_size)
+				throw std::runtime_error("Function object too large");
+		
+		size_ = 0;
+		std::swap(size_, rhs.size_);
+		std::swap(invoke_, rhs.invoke_);
+		std::swap(dtor_, rhs.dtor_);
+		std::copy(rhs.blob_, rhs.blob_ + size_, blob_);
+	}
+
+	~Function(){
+		if(size_){
+			dtor_(static_cast<void*>(blob_));
 		}
+	}
 
-		Function(const Function&) = default;
-		Function(Function&&) noexcept = default;
-		/** @}*/
-		/**
-		 * \brief Construct a Function by copying an another specialization
-		 *
-		 * This can be used to transfer callable ownerships between Functions
-		 * with different size internal buffers. The transfer only succeeds
-		 * if the contained object can be stored in both, the new and old
-		 * objects. If the rhs has smaller or equal buffer size than the lhs,
-		 * this will always succeed. Otherwise checks are performed and
-		 * an exception will be thrown if the target buffer is too small.
-		 *
-		 * \tparam S2 Buffer size of the rhs argument
-		 * \param rhs Argument for the ctor
-		 *
-		 * \throw std::runtime_error if the callable from rhs cannot be stored
-		 * in the Function
-		 * @{
-		 *
-		 */
-		template <size_t S2, typename Enable = std::enable_if_t<S != S2>>
-		explicit Function(const Function<Ret(Args...), S2>& rhs) {
-				if constexpr (S < S2) {
-						if (rhs.size_ > S)
-								throw std::runtime_error("Object too large");
-				}
-				if (rhs.size_ != 0)
-						std::copy(rhs.buf_, rhs.buf_ + rhs.size_, buf_);
-				size_ = rhs.size_;
-		}
-		template <size_t S2, typename Enable = std::enable_if_t<S != S2>>
-		explicit Function(Function<Ret(Args...), S2>&& rhs) {
-				if constexpr (S < S2) {
-						if (rhs.size_ > S)
-								throw std::runtime_error("Object too large");
-				}
-				if (rhs.size_ != 0)
-						std::copy(rhs.buf_, rhs.buf_ + rhs.size_, buf_);
-				size_ = rhs.size_;
-				rhs.size_ = 0;
-		}
-		/** @} */
 
-		/**@{*/
-		~Function() {
-				if (size_) {
-						detail::Callable<Ret, std::tuple<Args...>>* ptr =
-							(detail::Callable<Ret, std::tuple<Args...>>*)buf_;
-						ptr->~Callable();
-				}
-		}
-		/**@}*/
-
-		/**@{*/
-		Function& operator=(const Function&) = default;
-		Function& operator=(Function&&) noexcept = default;
-
-		template <size_t S2, typename Enable = std::enable_if_t<S != S2>>
-		Function& operator=(const Function<Ret(Args...), S2>& rhs) {
-				if constexpr (S < S2) {
-						if (rhs.size_ > S)
-								throw std::runtime_error("Object too large");
-				}
-				if (rhs.size_ != 0)
-						std::copy(rhs.buf_, rhs.buf_ + rhs.size_, buf_);
-				size_ = rhs.size_;
-				return *this;
-		}
-
-		template <size_t S2, typename Enable = std::enable_if_t<S != S2>>
-		Function& operator=(Function<Ret(Args...), S2>&& rhs) {
-				if constexpr (S < S2) {
-						if (rhs.size_ > S)
-								throw std::runtime_error("Object too large");
-				}
-				if (rhs.size_ != 0)
-						std::copy(rhs.buf_, rhs.buf_ + rhs.size_, buf_);
-				size_ = rhs.size_;
-				rhs.size_ = 0;
-				return *this;
-		}
-
-		template <typename C, typename Enable = std::enable_if_t<
-								  !detail::is_function<C>::value>>
-		Function& operator=(C&& c) {
-				constexpr size_t size =
-					sizeof(detail::CallableImpl<C, Ret, std::tuple<Args...>>);
-				static_assert(size <= sizeof(buf_),
-							  "Object too large to store in Func");
-				if (size_) {
-						detail::Callable<Ret, std::tuple<Args...>>* ptr =
-							(detail::Callable<Ret, std::tuple<Args...>>*)buf_;
-						ptr->~Callable();
-				}
-				size_ = size;
-				new ((void*)buf_)
-					detail::CallableImpl<C, Ret, std::tuple<Args...>>(
-						std::forward<C>(c));
-		}
-		/**@}*/
-
-		Ret operator()(Args... args) {
-				if (!size_) throw std::runtime_error("Func::operator()");
-				detail::Callable<Ret, std::tuple<Args...>>* ptr =
-					(detail::Callable<Ret, std::tuple<Args...>>*)buf_;
-				return (*ptr)(std::forward<Args>(args)...);
-		}
-
-		Ret operator()(Args... args) const {
-				if (!size_) throw std::runtime_error("Func::operator()");
-				const detail::Callable<Ret, std::tuple<Args...>>* ptr =
-					(const detail::Callable<Ret, std::tuple<Args...>>*)buf_;
-				return (*ptr)(std::forward<Args>(args)...);
-		}
-
-		explicit operator bool() const { return size_; }
-
+	template<typename... Args2>
+	Ret operator()(Args2... args){
+		return invoke_(static_cast<void*>(blob_), std::forward<Args2>(args)...);
+	}
+	
 private:
-		size_t size_{0};
-		alignas(alignof(size_t)) char buf_[S] = {0};
+	size_t size_{0};
+	Ret(*invoke_)(void*, Args...){nullptr};
+	void(*dtor_)(void*){nullptr};
+	alignas(Align) char blob_[Size]{0,};
 };
-
-namespace detail {
-
-template <typename C>
-struct function_deducer {};
-
-template <typename Ret, typename Class, typename... Args>
-struct function_deducer<Ret (Class::*)(Args...) const> {
-		using type = Ret(Args...);
-};
-template <typename Ret, typename Class, typename... Args>
-struct function_deducer<Ret (Class::*)(Args...)> {
-		using type = Ret(Args...);
-};
-}  // namespace detail
-
-template <typename Ret, typename... Args>
-Function(Ret (*)(Args...)) -> Function<Ret(Args...)>;
-
-template <typename C>
-Function(C) -> Function<
-	typename detail::function_deducer<decltype(&C::operator())>::type>;
-
-template <typename C>
-auto make_function(C&& c) {
-		return Function<
-			typename detail::function_deducer<decltype(&C::operator())>::type,
-			((sizeof(c) + 31) / 32) * 32>(std::forward<C>(c));
-}
 
 }  // namespace upp
