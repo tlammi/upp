@@ -24,14 +24,13 @@ constexpr std::string_view strip(std::string_view str) {
 		size_t f = str.find_first_not_of(detail::WHITESPACES);
 		if (f == std::string_view::npos) return "";
 		size_t l = str.find_last_not_of(detail::WHITESPACES);
-		return str.substr(f, l - f);
+		return str.substr(f, l - f + 1);
 }
 
 namespace detail {
 template <typename T>
 constexpr T tonum_before_dot(std::string_view& str) {
 		T out{0};
-		str = strip(str);
 		while (str.size() && str[0] != '.') {
 				char d = todigit(str[0]);
 				out *= 10;
@@ -52,12 +51,12 @@ constexpr T tonum_after_dot(std::string_view& str) {
 				return 0;
 		}
 		T out{0};
-		str = strip(str);
-		while (str.size() && str[0] != '.') {
+		double base = 10;
+		while (str.size()) {
 				if (!isdigit(str[0])) throw std::runtime_error("Not a digit");
-				char d = str[0] - '0';
-				out *= 10;
-				out += d;
+				T d = str[0] - '0';
+				out += d / base;
+				base *= 10;
 				str.remove_prefix(1);
 		}
 		return out;
@@ -68,6 +67,7 @@ template <typename T>
 constexpr T tonum(std::string_view str) {
 		str = strip(str);
 		T out = detail::tonum_before_dot<T>(str);
+		if (str.size() && str[0] == '.') str.remove_prefix(1);
 		out += detail::tonum_after_dot<T>(str);
 		return out;
 }
