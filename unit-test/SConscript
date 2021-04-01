@@ -14,7 +14,8 @@ test = testenv.Program(
                 "sync/rwwrap.cpp",
                 "function/function.cpp",
                 "strutil/strutil.cpp",
-		        "traits/traits.cpp"
+		"traits/traits.cpp",
+		"property_tree/property_tree.cpp"
                 ])
 
 Help("    testbin           Only build tests\n")
