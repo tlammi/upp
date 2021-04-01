@@ -7,11 +7,19 @@
 
 namespace upp{
 namespace property_tree{
+namespace detail{
+
+}
 
 class Node;
 
-class Value: public std::variant<int, double, std::string>{
+using ValueBase = std::variant<int, double, std::string>;
+
+class Value: public ValueBase {
 public:
+
+	using ValueBase::ValueBase;
+
 	template<class T>
 	T& get(){
 		return std::get<T>(*this);
@@ -22,10 +30,21 @@ public:
 		return std::get<T>(*this);
 	}
 
-
 	template<class T>
 	T cast() const;
 
+
+	bool operator==(int i) const {
+		if(std::holds_alternative<int>(*this))
+			return std::get<int>(*this) == i;
+		return false;
+	}
+
+	bool operator==(std::string_view str) const {
+		if(std::holds_alternative<std::string>(*this))
+			return std::get<std::string>(*this) == str;
+		return false;
+	}
 };
 
 
@@ -66,6 +85,7 @@ using List = std::vector<Node>;
 using Dict = std::map<std::string, Node, std::less<>>;
 
 using NodeBase = std::variant<Value, List, Dict>;
+
 class Node: public NodeBase{
 public:
 
@@ -75,6 +95,7 @@ public:
 		Dict,
 	};
 
+	using NodeBase::NodeBase;
 
 	constexpr Type type() const {
 		return static_cast<Type>(index());
@@ -130,6 +151,25 @@ public:
 	const Value* operator->() const {
 		return &std::get<Value>(*this);
 	}
+
+
+	List& list() {
+		return std::get<List>(*this);
+	}
+
+
+	const List& list() const {
+		return std::get<List>(*this);
+	}
+
+	Dict& dict() {
+		return std::get<Dict>(*this);
+	}
+
+	const Dict& dict() const {
+		return std::get<Dict>(*this);
+	}
+
 };
 
 }
