@@ -2,4 +2,5 @@
 
 #include "upp/impl/parser/regex.hpp"
 #include "upp/impl/parser/joined.hpp"
+#include "upp/impl/parser/or.hpp"
 #include "upp/impl/parser/factory.hpp"

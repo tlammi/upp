@@ -60,3 +60,27 @@ TEST(Parser, JoinedMove){
 	ASSERT_EQ(match.iter, str.end());
 
 }
+
+TEST(Parser, Or){
+	
+	std::string int_str{"420"};
+	std::string str_str{R"("hello")"};
+	std::string nomatch{"asdasdf"};
+	auto factory = p::factory(int_str.begin());
+	
+	auto int_or_str = factory.regex(R"(0|[1-9][0-9]*)") | factory.regex(R"(".*?[^\\]")");
+
+	auto match = int_or_str.match(int_str.begin(), int_str.end());
+	ASSERT_TRUE(match);
+	ASSERT_EQ(match.iter, int_str.end());
+	
+	match = int_or_str.match(str_str.begin(), str_str.end());
+
+	ASSERT_TRUE(match);
+	ASSERT_EQ(match.iter, str_str.end());
+
+
+	match = int_or_str.match(nomatch.begin(), nomatch.end());
+	ASSERT_FALSE(match);
+	ASSERT_EQ(match.iter, nomatch.begin());
+}
