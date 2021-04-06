@@ -15,7 +15,7 @@ public:
 	Regex(std::string_view re): re_{re.begin(), re.end()}{}
 
 	Result<Iter> match(Iter begin, Iter end) const final {	
-		auto reiter = std::regex_iterator<Iter>(begin, end, re_);
+		auto reiter = std::regex_iterator<Iter>(begin, end, re_, std::regex_constants::match_continuous);
 		if(reiter != std::regex_iterator<Iter>())
 			return {begin + reiter->str().size(), true};
 		return {begin, false};

@@ -27,14 +27,36 @@ TEST(Parser, RegexNumber){
 }
 
 
-TEST(Parser, Joined){
+TEST(Parser, JoinedRef){
 	std::string str{R"("hello""world")"};
 	auto factory = p::factory(str.begin());
+
+	std::string match1;
+	std::string match2;
 	
-	auto quoted = factory.regex(R"(".*?[^\\]")");
+	auto quoted = factory.regex(R"(".*?[^\\]")", [&](auto begin, auto end){
+		if(match1 == "") match1 = std::string{begin, end};
+		else match2 = std::string{begin, end};
+	});
+
 	auto two_strs = (quoted , quoted);
 
 	auto match = two_strs.match(str.begin(), str.end());
 	ASSERT_TRUE(match);
 	ASSERT_EQ(match.iter, str.end());
+	ASSERT_EQ(match1, "\"hello\"");
+	ASSERT_EQ(match2, "\"world\"");
+}
+
+TEST(Parser, JoinedMove){
+	std::string str{R"("hello""world")"};
+	auto factory = p::factory(str.begin());
+	
+	std::string_view restr = R"(".*?[^\\]")";
+	auto two_strs = (factory.regex(restr) , factory.regex(restr));
+
+	auto match = two_strs.match(str.begin(), str.end());
+	ASSERT_TRUE(match);
+	ASSERT_EQ(match.iter, str.end());
+
 }

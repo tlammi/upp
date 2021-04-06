@@ -27,5 +27,21 @@ template<class Iter, class M0, class M1, class OnMatch0, class OnMatch1>
 Ast<Iter, Joined<Iter, Ast<Iter, M0, OnMatch0>&, Ast<Iter, M1, OnMatch1>&>, void> operator,(Ast<Iter, M0, OnMatch0>& lhs, Ast<Iter, M1, OnMatch1>& rhs){
 	return {Joined<Iter, Ast<Iter, M0, OnMatch0>&, Ast<Iter, M1, OnMatch1>&>{lhs, rhs}};
 }
+
+template<class Iter, class M0, class M1, class OnMatch0, class OnMatch1>
+Ast<Iter, Joined<Iter, Ast<Iter, M0, OnMatch0>&, Ast<Iter, M1, OnMatch1>>, void> operator,(Ast<Iter, M0, OnMatch0>& lhs, Ast<Iter, M1, OnMatch1>&& rhs){
+	return {Joined<Iter, Ast<Iter, M0, OnMatch0>&, Ast<Iter, M1, OnMatch1>>{lhs, std::move(rhs)}};
+}
+
+template<class Iter, class M0, class M1, class OnMatch0, class OnMatch1>
+Ast<Iter, Joined<Iter, Ast<Iter, M0, OnMatch0>, Ast<Iter, M1, OnMatch1>&>, void> operator,(Ast<Iter, M0, OnMatch0>&& lhs, Ast<Iter, M1, OnMatch1>& rhs){
+	return {Joined<Iter, Ast<Iter, M0, OnMatch0>, Ast<Iter, M1, OnMatch1>&>{std::move(lhs), rhs}};
+}
+
+template<class Iter, class M0, class M1, class OnMatch0, class OnMatch1>
+Ast<Iter, Joined<Iter, Ast<Iter, M0, OnMatch0>, Ast<Iter, M1, OnMatch1>>, void> operator,(Ast<Iter, M0, OnMatch0>&& lhs, Ast<Iter, M1, OnMatch1>&& rhs){
+	return {Joined<Iter, Ast<Iter, M0, OnMatch0>, Ast<Iter, M1, OnMatch1>>{std::move(lhs), std::move(rhs)}};
+}
+
 }
 }
