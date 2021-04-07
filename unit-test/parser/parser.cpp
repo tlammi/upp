@@ -84,3 +84,24 @@ TEST(Parser, Or){
 	ASSERT_FALSE(match);
 	ASSERT_EQ(match.iter, nomatch.begin());
 }
+
+TEST(Parser, KleeneStar){
+	std::string str{"1234567890"};
+	auto factory = p::factory(str.begin());
+
+	int count=0;
+	auto integer = factory.regex(R"([0-9])", [&](auto begin, auto end){
+		(void)begin;
+		(void)end;
+		++count;
+	});
+
+	auto ints = *(integer);
+
+	auto res = ints.match(str.begin(), str.end());
+
+	ASSERT_TRUE(res);
+	ASSERT_EQ(count, 10);
+
+}
+
