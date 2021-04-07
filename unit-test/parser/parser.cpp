@@ -137,3 +137,26 @@ TEST(Parser, KleenePlus){
 
 }
 
+TEST(Parser, Optional){
+	std::string str0{"1234567890"};
+	std::string str1{""};
+	auto factory = p::factory(str0.begin());
+
+	int count=0;
+	auto integer = factory.regex(R"([0-9])", [&](auto begin, auto end){
+		(void)begin;
+		(void)end;
+		++count;
+	});
+
+	auto optional = -(integer);
+
+	auto res = optional.match(str0.begin(), str0.end());
+
+	ASSERT_TRUE(res);
+	ASSERT_EQ(count, 1);
+	ASSERT_EQ(res.iter, str0.begin()+1);
+
+	res = optional.match(str1.begin(), str1.end());
+	ASSERT_TRUE(res);
+}
