@@ -110,3 +110,30 @@ TEST(Parser, KleeneStar){
 
 }
 
+
+TEST(Parser, KleenePlus){
+	std::string str0{"1234567890"};
+	std::string str1{""};
+	auto factory = p::factory(str0.begin());
+
+	int count=0;
+	auto integer = factory.regex(R"([0-9])", [&](auto begin, auto end){
+		(void)begin;
+		(void)end;
+		++count;
+	});
+
+	auto ints = +(integer);
+
+	auto res = ints.match(str0.begin(), str0.end());
+
+	ASSERT_TRUE(res);
+	ASSERT_EQ(count, 10);
+
+	res = ints.match(str1.begin(), str1.end());
+	ASSERT_FALSE(res);
+	ASSERT_EQ(count, 10);
+
+
+}
+
