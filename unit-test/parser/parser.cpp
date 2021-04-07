@@ -86,8 +86,9 @@ TEST(Parser, Or){
 }
 
 TEST(Parser, KleeneStar){
-	std::string str{"1234567890"};
-	auto factory = p::factory(str.begin());
+	std::string str0{"1234567890"};
+	std::string str1{""};
+	auto factory = p::factory(str0.begin());
 
 	int count=0;
 	auto integer = factory.regex(R"([0-9])", [&](auto begin, auto end){
@@ -98,8 +99,12 @@ TEST(Parser, KleeneStar){
 
 	auto ints = *(integer);
 
-	auto res = ints.match(str.begin(), str.end());
+	auto res = ints.match(str0.begin(), str0.end());
 
+	ASSERT_TRUE(res);
+	ASSERT_EQ(count, 10);
+
+	res = ints.match(str1.begin(), str1.end());
 	ASSERT_TRUE(res);
 	ASSERT_EQ(count, 10);
 
