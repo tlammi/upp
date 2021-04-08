@@ -160,3 +160,29 @@ TEST(Parser, Optional){
 	res = optional.match(str1.begin(), str1.end());
 	ASSERT_TRUE(res);
 }
+
+TEST(Parser, Literal){
+	std::string str{"hello, world"};
+	std::string str2{"this is a str"};
+
+	auto factory = p::factory(str.begin());
+	auto lit0 = factory.lit('h');
+	auto res0 = lit0.match(str.begin(), str.end());
+	ASSERT_TRUE(res0);
+	ASSERT_EQ(res0.iter, str.begin()+1);
+
+	res0 = lit0.match(str2.begin(), str2.end());
+	ASSERT_FALSE(res0);
+	ASSERT_EQ(res0.iter, str2.begin());
+
+
+	auto lit1 = factory.lit("hell");
+	auto res1 = lit1.match(str.begin(), str.end());
+	ASSERT_TRUE(res1);
+	ASSERT_EQ(res1.iter, str.begin()+4);
+
+	res1 = lit1.match(str2.begin(), str2.end());
+	ASSERT_FALSE(res1);
+	ASSERT_EQ(res1.iter, str2.begin());
+}
+
