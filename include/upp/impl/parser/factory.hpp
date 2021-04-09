@@ -12,7 +12,7 @@ template<class Iter>
 class Factory{
 public:
 	DynAst<Iter> dyn_ast(){
-		return {};
+		return {nullptr};
 	}
 
 	template<class OnMatch>

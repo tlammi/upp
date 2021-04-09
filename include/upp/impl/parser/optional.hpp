@@ -10,12 +10,11 @@ namespace parser{
 template<class Iter, class AstKind>
 class Optional: public Matcher<Iter>{
 public:
-	using iterator = Iter;
 
 	Optional(AstKind a): a_{a}{}
 
-	Result<Iter> match(Iter begin, Iter end) const final {
-		auto res = a_.match(begin, end);
+	Result<Iter> match(Iter begin, Iter end, Iter(*skipper)(Iter, Iter)) const final {
+		auto res = a_.match(begin, end, skipper);
 		return {res.iter, true};
 	}
 
@@ -23,16 +22,11 @@ private:
 	AstKind a_;
 };
 
-
-template<class Iter, class M, class OnMatch>
-Ast<Iter, Optional<Iter, Ast<Iter, M, OnMatch>&>, void> operator-(Ast<Iter, M, OnMatch>& ast){
-	return {Optional<Iter, Ast<Iter, M, OnMatch>&>(ast)};
+template<class A, class = std::enable_if<detail::is_ast_v<A>>>
+Ast<detail::iter_t<A>, Optional<detail::iter_t<A>, A>, void> operator-(A&& a){
+	return {Optional<detail::iter_t<A>, A>(std::forward<A>(a))};
 }
 
-template<class Iter, class M, class OnMatch>
-Ast<Iter, Optional<Iter, Ast<Iter, M, OnMatch>>, void> operator-(Ast<Iter, M, OnMatch>&& ast){
-	return {Optional<Iter, Ast<Iter, M, OnMatch>>(std::move(ast))};
-}
 
 }
 }

@@ -7,3 +7,4 @@
 #include "upp/impl/parser/kleenestar.hpp"
 #include "upp/impl/parser/kleeneplus.hpp"
 #include "upp/impl/parser/factory.hpp"
+#include "upp/impl/parser/parse.hpp"

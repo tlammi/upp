@@ -2,6 +2,7 @@
 
 #include "upp/impl/parser/ast.hpp"
 #include "upp/impl/parser/matcher.hpp"
+#include "upp/impl/parser/detail/type_traits.hpp"
 
 namespace upp{
 namespace parser{
@@ -10,14 +11,13 @@ namespace parser{
 template<class Iter, class Lhs, class Rhs>
 class Or: public Matcher<Iter>{
 public:
-	using iterator = Iter;
 
 	Or(Lhs l, Rhs r): l_{l}, r_{r}{}
 
-	Result<Iter> match(Iter begin, Iter end) const final {
-		auto res = l_.match(begin, end);
+	Result<Iter> match(Iter begin, Iter end, Iter(*skipper)(Iter, Iter)) const final {
+		auto res = l_.match(begin, end, skipper);
 		if(res) return res;
-		return r_.match(begin, end);
+		return r_.match(begin, end, skipper);
 	}
 
 private:
@@ -25,26 +25,10 @@ private:
 	Rhs r_;
 };
 
-
-
-template<class Iter, class M0, class M1, class OnMatch0, class OnMatch1>
-Ast<Iter, Or<Iter, Ast<Iter, M0, OnMatch0>&, Ast<Iter, M1, OnMatch1>&>, void> operator|(Ast<Iter, M0, OnMatch0>& lhs, Ast<Iter, M1, OnMatch1>& rhs){
-	        return {Or<Iter, Ast<Iter, M0, OnMatch0>&, Ast<Iter, M1, OnMatch1>&>{lhs, rhs}};
-}
-
-template<class Iter, class M0, class M1, class OnMatch0, class OnMatch1>
-Ast<Iter, Or<Iter, Ast<Iter, M0, OnMatch0>&, Ast<Iter, M1, OnMatch1>>, void> operator|(Ast<Iter, M0, OnMatch0>& lhs, Ast<Iter, M1, OnMatch1>&& rhs){
-	        return {Or<Iter, Ast<Iter, M0, OnMatch0>&, Ast<Iter, M1, OnMatch1>>{lhs, std::move(rhs)}};
-}
-
-template<class Iter, class M0, class M1, class OnMatch0, class OnMatch1>
-Ast<Iter, Or<Iter, Ast<Iter, M0, OnMatch0>, Ast<Iter, M1, OnMatch1>&>, void> operator|(Ast<Iter, M0, OnMatch0>&& lhs, Ast<Iter, M1, OnMatch1>& rhs){
-	        return {Or<Iter, Ast<Iter, M0, OnMatch0>, Ast<Iter, M1, OnMatch1>&>{std::move(lhs), rhs}};
-}
-
-template<class Iter, class M0, class M1, class OnMatch0, class OnMatch1>
-Ast<Iter, Or<Iter, Ast<Iter, M0, OnMatch0>, Ast<Iter, M1, OnMatch1>>, void> operator|(Ast<Iter, M0, OnMatch0>&& lhs, Ast<Iter, M1, OnMatch1>&& rhs){
-	        return {Or<Iter, Ast<Iter, M0, OnMatch0>, Ast<Iter, M1, OnMatch1>>{std::move(lhs), std::move(rhs)}};
+template<class Lhs, class Rhs, class = std::enable_if<detail::is_ast_v<Lhs> && detail::is_ast_v<Rhs>>>
+Ast<detail::iter_t<Lhs>, Or<detail::iter_t<Lhs>, Lhs, Rhs>, void> operator|(Lhs&& l, Rhs&& r){
+	static_assert(std::is_same_v<detail::iter_t<Lhs>, detail::iter_t<Rhs>>);
+	return {Or<detail::iter_t<Lhs>, Lhs, Rhs>(std::forward<Lhs>(l), std::forward<Rhs>(r))};
 }
 
 }

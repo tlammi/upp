@@ -10,13 +10,12 @@ namespace parser{
 template<class Iter, class AstKind>
 class KleeneStar: public Matcher<Iter>{
 public:
-	using iterator = Iter;
 
 	KleeneStar(AstKind a): a_{a}{}
 
-	Result<Iter> match(Iter iter, Iter end) const final {
+	Result<Iter> match(Iter iter, Iter end, Iter(*skipper)(Iter, Iter)) const final {
 		while(true){
-			auto res = a_.match(iter, end);
+			auto res = a_.match(iter, end, skipper);
 			if(res)
 				iter = res.iter;
 			else
@@ -28,15 +27,9 @@ private:
 	AstKind a_;
 };
 
-
-template<class Iter, class M, class OnMatch>
-Ast<Iter, KleeneStar<Iter, Ast<Iter, M, OnMatch>&>, void> operator*(Ast<Iter, M, OnMatch>& ast){
-	return {KleeneStar<Iter, Ast<Iter, M, OnMatch>&>(ast)};
-}
-
-template<class Iter, class M, class OnMatch>
-Ast<Iter, KleeneStar<Iter, Ast<Iter, M, OnMatch>>, void> operator*(Ast<Iter, M, OnMatch>&& ast){
-	return {KleeneStar<Iter, Ast<Iter, M, OnMatch>>(std::move(ast))};
+template<class A, class = std::enable_if<detail::is_ast_v<A>>>
+Ast<detail::iter_t<A>, KleeneStar<detail::iter_t<A>, A>, void> operator*(A&& a){
+		return {KleeneStar<detail::iter_t<A>, A>(std::forward<A>(a))};
 }
 
 }

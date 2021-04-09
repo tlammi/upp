@@ -14,7 +14,8 @@ public:
 
 	LiteralChar(char c): c_{c}{}
 
-	Result<Iter> match(Iter iter, Iter end) const final {
+	Result<Iter> match(Iter iter, Iter end, Iter(*skipper)(Iter, Iter)) const final {
+		(void) skipper;
 		if(iter != end && *iter == c_)
 			return {iter+1, true};
 		return {iter, false};
@@ -31,7 +32,8 @@ public:
 
 	LiteralStr(std::string_view str): str_{str}{}
 
-	Result<Iter> match(Iter begin, Iter end) const final {
+	Result<Iter> match(Iter begin, Iter end, Iter(*skipper)(Iter, Iter)) const final {
+		(void)skipper;
 		if(end - begin < str_.end() - str_.begin())
 			return {begin, false};
 

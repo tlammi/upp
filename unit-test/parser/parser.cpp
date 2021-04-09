@@ -186,3 +186,26 @@ TEST(Parser, Literal){
 	ASSERT_EQ(res1.iter, str2.begin());
 }
 
+
+TEST(Parser, Recurse){
+	std::string str{R"(
+{
+	"key0": 1,
+	"key1": {
+		"subkey1": "hello",
+		"subkey2": 10
+	},
+	"key2": "str"
+}
+	)"};
+
+	auto factory = p::factory(str.begin());
+	auto obj = factory.dyn_ast();
+	auto integer = factory.regex(R"(0|[1-9][0-9]*)");
+	auto quoted = factory.regex(R"(".*?[^\\]")");
+	auto key_value = (quoted, factory.lit(':'), (integer | quoted | obj));
+	obj = (factory.lit('{'),-(key_value), *(factory.lit(','), key_value), factory.lit('}'));
+	
+	auto res = obj.match(str.begin(), str.end(), p::whitespaces);
+	ASSERT_TRUE(res);
+}
