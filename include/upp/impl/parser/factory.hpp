@@ -15,6 +15,17 @@ public:
 		return {nullptr};
 	}
 
+
+	template<class M, class OnMatch0, class OnMatch1>
+	Ast<Iter, M, OnMatch1> ast(Ast<Iter, M, OnMatch0>& a, OnMatch1&& m){
+		return {a.matcher_, std::forward<OnMatch1>(m)};
+	}
+
+	template<class M, class OnMatch0, class OnMatch1>
+	Ast<Iter, M, OnMatch1> ast(Ast<Iter, M, OnMatch0>&& a, OnMatch1&& m){
+		return {std::move(a.matcher_), std::forward<OnMatch1>(m)};
+	}
+
 	template<class OnMatch>
 	Ast<Iter, Regex<Iter>, OnMatch> regex(std::string_view re, OnMatch&& on_match) const {
 		return {Regex<Iter>{re}, std::forward<OnMatch>(on_match)};
@@ -23,7 +34,6 @@ public:
 	Ast<Iter, Regex<Iter>> regex(std::string_view re) const {
 		return {Regex<Iter>{re}};
 	}
-
 
 	template<class OnMatch>
 	Ast<Iter, LiteralChar<Iter>, OnMatch> lit(char c, OnMatch&& on_match) const {
