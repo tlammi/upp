@@ -15,7 +15,6 @@ public:
 		return {nullptr};
 	}
 
-
 	template<class M, class OnMatch0, class OnMatch1>
 	Ast<Iter, M, OnMatch1> ast(Ast<Iter, M, OnMatch0>& a, OnMatch1&& m){
 		return {a.matcher_, std::forward<OnMatch1>(m)};
