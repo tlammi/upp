@@ -8,6 +8,7 @@ namespace parser{
 template<class Iter>
 class Matcher{
 public:
+	virtual ~Matcher(){}
 	virtual Result<Iter> match(Iter begin, Iter end, Iter(*skipper)(Iter, Iter)) const;
 };
 
