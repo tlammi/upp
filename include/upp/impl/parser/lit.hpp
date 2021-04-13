@@ -14,11 +14,14 @@ public:
 
 	LiteralChar(char c): c_{c}{}
 
-	Result<Iter> match(Iter iter, Iter end, Iter(*skipper)(Iter, Iter)) const final {
-		(void) skipper;
-		if(iter != end && *iter == c_)
-			return {iter+1, true};
-		return {iter, false};
+	bool match(Ctx<Iter>& ctx) const final {
+		if(ctx.iter != ctx.end && *ctx.iter == c_){
+			++ctx.iter;
+			ctx.misses.clear();
+			return true;
+		}
+		ctx.misses.emplace_back(&c_, 1);
+		return false;
 	}
 
 private:
@@ -32,14 +35,21 @@ public:
 
 	LiteralStr(std::string_view str): str_{str}{}
 
-	Result<Iter> match(Iter begin, Iter end, Iter(*skipper)(Iter, Iter)) const final {
-		(void)skipper;
-		if(end - begin < str_.end() - str_.begin())
-			return {begin, false};
+	bool match(Ctx<Iter>& ctx) const final {
+		auto is_equal =  [&](){
+			if(ctx.end - ctx.iter < str_.end() - str_.begin())
+				return false;
+			return std::equal(str_.begin(), str_.end(), ctx.iter);
+		};
 
-		if(std::equal(str_.begin(), str_.end(), begin))
-			return {begin+str_.size(), true};
-		return {begin, false};
+		if(is_equal()){
+			ctx.iter += str_.size();
+			ctx.misses.clear();
+			return true;
+		}
+		
+		ctx.misses.emplace_back(str_);
+		return false;
 	}
 
 private:

@@ -14,10 +14,10 @@ public:
 
 	Or(Lhs l, Rhs r): l_{l}, r_{r}{}
 
-	Result<Iter> match(Iter begin, Iter end, Iter(*skipper)(Iter, Iter)) const final {
-		auto res = l_.match(begin, end, skipper);
+	bool match(Ctx<Iter>& ctx) const final {
+		auto res = l_.match(ctx);
 		if(res) return res;
-		return r_.match(begin, end, skipper);
+		return r_.match(ctx);
 	}
 
 private:

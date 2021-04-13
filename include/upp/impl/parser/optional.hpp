@@ -13,9 +13,9 @@ public:
 
 	Optional(AstKind a): a_{a}{}
 
-	Result<Iter> match(Iter begin, Iter end, Iter(*skipper)(Iter, Iter)) const final {
-		auto res = a_.match(begin, end, skipper);
-		return {res.iter, true};
+	bool match(Ctx<Iter>& ctx) const final {
+		(void) a_.match(ctx);
+		return true;
 	}
 
 private:

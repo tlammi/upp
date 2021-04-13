@@ -13,13 +13,10 @@ public:
 
 	KleeneStar(AstKind a): a_{a}{}
 
-	Result<Iter> match(Iter iter, Iter end, Iter(*skipper)(Iter, Iter)) const final {
+	bool match(Ctx<Iter>& ctx) const final {
 		while(true){
-			auto res = a_.match(iter, end, skipper);
-			if(res)
-				iter = res.iter;
-			else
-				return {iter, true};
+			auto res = a_.match(ctx);
+			if(!res) return true;
 		}
 	}
 

@@ -25,10 +25,11 @@ public:
 	Ast(M&& m, OnMatch&& on_match): matcher_{std::move(m)}, on_match_{std::move(on_match)}{}
 	Ast(const M& m, OnMatch&& on_match): matcher_{m}, on_match_{std::move(on_match)}{} 
 
-	Result<Iter> match(Iter begin, Iter end, Iter(*skipper)(Iter, Iter)=nullptr) const {
-		if(skipper) begin = skipper(begin, end);
-		auto res = matcher_.match(begin, end, skipper);
-		if(res) on_match_(begin, res.iter);
+	bool match(Ctx<Iter>& ctx) const {
+		if(ctx.skipper) ctx.iter = ctx.skipper(ctx.iter, ctx.end);
+		Iter begin = ctx.iter;
+		auto res = matcher_.match(ctx);
+		if(res) on_match_(begin, ctx.iter);
 		return res;
 	}
 
@@ -47,9 +48,9 @@ public:
 	Ast(M&& m): matcher_{std::move(m)}{}
 	Ast(const M& m): matcher_{m}{} 
 
-	Result<Iter> match(Iter begin, Iter end, Iter(*skipper)(Iter, Iter)=nullptr) const {
-		if(skipper) begin = skipper(begin, end);
-		return matcher_.match(begin, end, skipper);
+	bool match(Ctx<Iter>& ctx) const {
+		if(ctx.skipper) ctx.iter = ctx.skipper(ctx.iter, ctx.end);
+		return matcher_.match(ctx);
 	}
 
 private:
@@ -73,9 +74,10 @@ public:
 		return *this;
 	}
 
-	Result<Iter> match(Iter begin, Iter end, Iter(*skipper)(Iter, Iter)=nullptr) const {
-		if(skipper) begin = skipper(begin, end);
-		auto res = matcher_->match(begin, end, skipper);
+	bool match(Ctx<Iter>& ctx) const {
+		if(ctx.skipper) ctx.iter = ctx.skipper(ctx.iter, ctx.end);
+		Iter begin = ctx.iter;
+		auto res = matcher_->match(ctx);
 		if(res) on_match_(begin, res.iter);
 		return res;
 	}
@@ -101,9 +103,9 @@ public:
 		return *this;
 	}
 
-	Result<Iter> match(Iter begin, Iter end, Iter(*skipper)(Iter, Iter)=nullptr) const {
-		if(skipper) begin = skipper(begin, end);
-		return matcher_->match(begin, end, skipper);
+	bool match(Ctx<Iter>& ctx) const {
+		if(ctx.skipper) ctx.iter = ctx.skipper(ctx.iter, ctx.end);
+		return matcher_->match(ctx);
 	}
 
 private:

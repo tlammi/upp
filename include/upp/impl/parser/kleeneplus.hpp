@@ -13,17 +13,13 @@ public:
 
 	KleenePlus(AstKind a): a_{a}{}
 
-	Result<Iter> match(Iter iter, Iter end, Iter(*skipper)(Iter, Iter)) const final {
-		auto res = a_.match(iter, end, skipper);
+	bool match(Ctx<Iter>& ctx) const final {
+		auto res = a_.match(ctx);
 		if(!res) return res;
 
-		iter = res.iter;
 		while(true){
-			res = a_.match(iter, end, skipper);
-			if(res)
-				iter = res.iter;
-			else
-				return {iter, true};
+			res = a_.match(ctx);
+			if(!res) return true;
 		}
 	}
 
