@@ -26,7 +26,6 @@ TEST(Parser, RegexNumber){
 	ASSERT_FALSE(res);
 }
 
-
 TEST(Parser, JoinedRef){
 	std::string str{R"("hello""world")"};
 	auto factory = p::factory(str.begin());
@@ -109,7 +108,6 @@ TEST(Parser, KleeneStar){
 	ASSERT_EQ(count, 10);
 
 }
-
 
 TEST(Parser, KleenePlus){
 	std::string str0{"1234567890"};
@@ -207,7 +205,7 @@ TEST(Parser, Recurse){
 	obj = (factory.lit('{'),-(key_value), *(factory.lit(','), key_value), factory.lit('}'));
 	
 	auto res = p::parse(str.begin(), str.end(), obj, p::whitespaces);
-	for(const auto& r : res.misses){
+	for(const auto& r : res.expecteds){
 		std::cerr << "potential matcher: " << r << '\n';
 	}
 	ASSERT_TRUE(res);

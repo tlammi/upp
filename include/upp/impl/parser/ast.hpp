@@ -2,114 +2,79 @@
 
 #include <memory>
 
-#include "upp/impl/parser/result.hpp"
-#include "upp/impl/parser/matcher.hpp"
-#include "upp/impl/parser/joined.hpp"
+#include "upp/impl/parser/detail/cbholder.hpp"
+#include "upp/impl/parser/detail/ctx.hpp"
 
 namespace upp{
 namespace parser{
+namespace detail{
+template<class T, class Iter>
+bool match(T&& t, Ctx<Iter>& ctx){
+	return t.match(ctx);
+}
+
+
+template<class T, class Iter>
+void invoke(T&& t, Iter begin, Iter end){
+	return t.invoke(begin, end);
+}
+}
+
 
 template<class Iter>
-class Factory;
-
-template<class Iter, class OnMatch>
-class DynAst;
-
-template<class Iter, class M, class OnMatch=void>
 class Ast{
-	template<class, class>
-	friend class DynAst;
-	friend class Factory<Iter>;
+	template<class T, class Iter2>
+	friend bool detail::match(T&&, detail::Ctx<Iter2>&);
+	template<class T, class Iter2>
+	friend void detail::invoke(T&&, Iter2, Iter2);
 public:
-
-	Ast(M&& m, OnMatch&& on_match): matcher_{std::move(m)}, on_match_{std::move(on_match)}{}
-	Ast(const M& m, OnMatch&& on_match): matcher_{m}, on_match_{std::move(on_match)}{} 
-
-	bool match(Ctx<Iter>& ctx) const {
-		if(ctx.skipper) ctx.iter = ctx.skipper(ctx.iter, ctx.end);
-		Iter begin = ctx.iter;
-		auto res = matcher_.match(ctx);
-		if(res) on_match_(begin, ctx.iter);
-		return res;
+private:
+	bool match(detail::Ctx<Iter>& ctx) const {
+		return match_(ctx);
 	}
 
-private:
-	M matcher_;
-	OnMatch on_match_;
-};
-
-template<class Iter, class M>
-class Ast<Iter, M, void>{
-	template<class, class>
-	friend class DynAst;
-	friend class Factory<Iter>;
-public:
-
-	Ast(M&& m): matcher_{std::move(m)}{}
-	Ast(const M& m): matcher_{m}{} 
-
-	bool match(Ctx<Iter>& ctx) const {
-		if(ctx.skipper) ctx.iter = ctx.skipper(ctx.iter, ctx.end);
-		return matcher_.match(ctx);
+	void invoke(Iter begin, Iter end) const {
+		invoke_(begin, end);
 	}
 
-private:
-	M matcher_;
+	virtual bool match_(detail::Ctx<Iter>& ctx) const = 0;
+	virtual void invoke_(Iter begin, Iter end) const = 0;
 };
 
 
-template<class Iter, class OnMatch=void>
-class DynAst{
-	friend class Factory<Iter>;
+template<class Iter, class OnMatch=std::nullptr_t>
+class DynAst: public Ast<Iter>{
 public:
+	DynAst(Ast<Iter>* ptr, OnMatch&& on_match): ast_{ptr}, on_match_{on_match}{}
+	DynAst(Ast<Iter>* ptr): ast_{ptr}{}
 
-	DynAst(Matcher<Iter>* ptr, OnMatch&& on_match): matcher_{ptr}, on_match_{std::move(on_match)}{}
-
-	template<class M, class OnMatch2>
-	DynAst(Ast<Iter, M, OnMatch2>&& other): matcher_{std::make_unique<M>(std::move(other.matcher_))}{}
-
-	template<class M, class OnMatch2>
-	DynAst& operator=(Ast<Iter, M, OnMatch2>&& other){
-		matcher_ = std::make_unique<M>(std::move(other.matcher_));
+	template<class Other, class = std::enable_if_t<!std::is_same_v<std::decay_t<Other>, DynAst>>>
+	DynAst& operator=(Other&& other){
+		ast_ = std::make_unique<std::decay_t<Other>>(std::move(other));
 		return *this;
 	}
-
-	bool match(Ctx<Iter>& ctx) const {
-		if(ctx.skipper) ctx.iter = ctx.skipper(ctx.iter, ctx.end);
-		Iter begin = ctx.iter;
-		auto res = matcher_->match(ctx);
-		if(res) on_match_(begin, res.iter);
-		return res;
-	}
-
 private:
-	std::unique_ptr<Matcher<Iter>> matcher_;
-	OnMatch on_match_;
-};
 
-template<class Iter>
-class DynAst<Iter, void>{
-	friend class Factory<Iter>;
-public:
-
-	DynAst(Matcher<Iter>* ptr): matcher_{ptr}{}
-
-	template<class M, class OnMatch2>
-	DynAst(Ast<Iter, M, OnMatch2>&& other): matcher_{std::make_unique<M>(std::move(other.matcher_))}{}
-
-	template<class M, class OnMatch2>
-	DynAst& operator=(Ast<Iter, M, OnMatch2>&& other){
-		matcher_ = std::make_unique<M>(std::move(other.matcher_));
-		return *this;
+	bool match_(detail::Ctx<Iter>& ctx) const final {
+		if(ast_){
+			Iter& end = detail::prepare_match(ctx, this);
+			bool res = detail::match(*ast_, ctx);
+			if(res)
+				detail::register_match(ctx, end, 0);
+			else
+				detail::register_miss(ctx, this);
+			return res;
+		}
+		throw std::runtime_error("Dynamic AST not populated");
 	}
 
-	bool match(Ctx<Iter>& ctx) const {
-		if(ctx.skipper) ctx.iter = ctx.skipper(ctx.iter, ctx.end);
-		return matcher_->match(ctx);
+
+	void invoke_(Iter begin, Iter end) const final {
+		on_match_(begin, end);
 	}
 
-private:
-	std::unique_ptr<Matcher<Iter>> matcher_;
+	std::unique_ptr<Ast<Iter>> ast_{nullptr};
+	detail::CbHolder<OnMatch> on_match_{nullptr};
 };
 
 }

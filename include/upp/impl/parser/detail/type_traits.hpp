@@ -5,34 +5,33 @@ namespace upp{
 namespace parser{
 namespace detail{
 
+template<class F, class... Args>
+struct first_of {
+	using type = F;
+};
+
+
 template<class T>
-struct is_ast: std::false_type{};
+struct first_tparam{};
 
-template<class Iter, class M, class OnMatch>
-struct is_ast<Ast<Iter, M, OnMatch>>: std::true_type{};
+template<template<class...> class T, class... Args>
+struct first_tparam<T<Args...>>{
+	using type = typename first_of<Args...>::type;
+};
 
-template<class Iter, class OnMatch>
-struct is_ast<DynAst<Iter, OnMatch>>: std::true_type{};
+
+
+template<class T>
+struct is_ast{
+	using FirstTParam = typename first_tparam<T>::type;
+	static constexpr bool value = std::is_base_of_v<Ast<FirstTParam>, T>;
+};
 
 template<class T>
 constexpr bool is_ast_v = is_ast<std::decay_t<T>>::value;
 
 template<class T>
-struct iter{};
-
-template<class Iter, class M, class OnMatch>
-struct iter<Ast<Iter, M, OnMatch>>{
-	using type = Iter;
-};
-
-template<class Iter, class OnMatch>
-struct iter<DynAst<Iter, OnMatch>>{
-	using type = Iter;
-};
-
-template<class T>
-using iter_t = typename iter<std::decay_t<T>>::type;
-
+using iter_t = typename first_tparam<std::decay_t<T>>::type;
 }
 }
 }
