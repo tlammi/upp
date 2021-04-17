@@ -21,7 +21,6 @@ TEST(Parser, RegexNumber){
 	ASSERT_TRUE(res);
 	ASSERT_TRUE(match);
 
-
 	res = p::parse(str.begin(), str.end(), dummy);
 	ASSERT_FALSE(res);
 }

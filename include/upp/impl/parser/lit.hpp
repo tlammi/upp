@@ -13,12 +13,12 @@ public:
 
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const final {
-		Iter& end = detail::prepare_match(ctx, this);
+		Iter* end = detail::prepare_match(ctx, this, cb_);
 		if(ctx.iter != ctx.end && *ctx.iter == c_){
 			detail::register_match(ctx, end, 1);
 			return true;
 		}
-		detail::register_miss(ctx, this);
+		detail::register_miss(ctx, this, end);
 		return false;
 	}
 
@@ -45,13 +45,13 @@ private:
 		};
 
 
-		Iter& end = detail::prepare_match(ctx, this);
+		Iter* end = detail::prepare_match(ctx, this, on_match_);
 
 		if(is_equal()){
 			detail::register_match(ctx, end, str_.size());
 			return true;
 		}
-		detail::register_miss(ctx, this);
+		detail::register_miss(ctx, this, end);
 		return false;
 	}
 

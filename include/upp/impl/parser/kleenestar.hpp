@@ -23,7 +23,7 @@ public:
 
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const final {
-		Iter& end = detail::prepare_match(ctx, this);
+		Iter* end = detail::prepare_match(ctx, this, on_match_);
 		while(true){
 			auto res = detail::match(a_, ctx);
 			if(!res) break;

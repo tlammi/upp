@@ -16,13 +16,13 @@ public:
 
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const final {
-		Iter& end = detail::prepare_match(ctx, this);
+		Iter* end = detail::prepare_match(ctx, this, cb_);
 		bool res = detail::match(l_, ctx);
 		if(!res) res = detail::match(r_, ctx);
 		if(res)
 			detail::register_match(ctx, end, 0);
 		else
-			detail::register_miss(ctx, this);
+			detail::register_miss(ctx, this, end);
 		return res;
 	}
 

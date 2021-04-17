@@ -3,6 +3,7 @@
 #include "upp/impl/parser/regex.hpp"
 #include "upp/impl/parser/ast.hpp"
 #include "upp/impl/parser/lit.hpp"
+#include "upp/impl/parser/joined.hpp"
 
 
 namespace upp{
@@ -15,22 +16,15 @@ public:
 		return {nullptr};
 	}
 
-	template<class Lhs, class Rhs, class OnMatch0, class OnMatch1>
-	Joined<Iter, Lhs, Rhs, OnMatch0> ast(Joined<Iter, Lhs, Rhs, OnMatch1>&& other, OnMatch0&& on_match){
-		return {std::move(other), std::forward<OnMatch0>(on_match)};
+	template<template<class...> class T, class OnMatch, class... Ts>
+	auto ast(T<Ts...>&& other, OnMatch&& on_match){
+		return T{std::move(other), std::forward<OnMatch>(on_match)};
 	}
 
-	/*
-	template<class M, class OnMatch0, class OnMatch1>
-	Ast<Iter, M, OnMatch1> ast(Ast<Iter, M, OnMatch0>& a, OnMatch1&& m){
-		return {a.matcher_, std::forward<OnMatch1>(m)};
+	template<template<class...> class T, class OnMatch, class... Ts>
+	auto ast(const T<Ts...>& other, OnMatch&& on_match){
+		return T{other, std::forward<OnMatch>(on_match)};
 	}
-
-	template<class M, class OnMatch0, class OnMatch1>
-	Ast<Iter, M, OnMatch1> ast(Ast<Iter, M, OnMatch0>&& a, OnMatch1&& m){
-		return {std::move(a.matcher_), std::forward<OnMatch1>(m)};
-	}
-	*/
 
 	template<class OnMatch>
 	Regex<Iter, OnMatch> regex(std::string_view re, OnMatch&& on_match) const {

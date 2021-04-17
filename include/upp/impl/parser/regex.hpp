@@ -2,7 +2,6 @@
 
 #include <regex>
 #include <string_view>
-#include <iostream>
 
 #include "upp/impl/parser/ast.hpp"
 #include "upp/impl/parser/detail/cbholder.hpp"
@@ -17,14 +16,14 @@ public:
 	Regex(std::string_view re): re_{re.begin(), re.end()}{}
 
 private:
-	bool match_(detail::Ctx<Iter>& ctx) const final {	
-		Iter& end = detail::prepare_match(ctx, this);
+	bool match_(detail::Ctx<Iter>& ctx) const final {
+		Iter* end = detail::prepare_match(ctx, this, cb_);
 		auto reiter = std::regex_iterator<Iter>(ctx.iter, ctx.end, re_, std::regex_constants::match_continuous);
 		if(reiter != std::regex_iterator<Iter>()){
 			detail::register_match(ctx, end, reiter->str().size());
 			return true;
 		}
-		detail::register_miss(ctx, this);
+		detail::register_miss(ctx, this, end);
 		return false;
 	}
 

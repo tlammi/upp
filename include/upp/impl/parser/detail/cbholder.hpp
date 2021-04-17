@@ -13,16 +13,14 @@ public:
 	CbHolder(T2&& t): t_{std::forward<T2>(t)}{}
 	CbHolder(){}
 
-	operator bool() const noexcept {
-
-		if constexpr (std::is_convertible_v<T, bool>) {
-			return t_;
+	constexpr operator bool() const noexcept {
+		if constexpr (!std::is_same_v<T, std::nullptr_t>) {
+			return true;
 		}
 		else{
 			return false;
 		}
 	}
-
 
 	template<class... Args>
 	auto operator()(Args&&... args) const {

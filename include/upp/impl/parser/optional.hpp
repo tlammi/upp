@@ -15,7 +15,7 @@ public:
 
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const final {
-		auto& end = detail::prepare_match(ctx, this);
+		auto* end = detail::prepare_match(ctx, this, on_match_);
 		(void) detail::match(a_, ctx);
 		detail::register_match(ctx, end, 0);
 		return true;

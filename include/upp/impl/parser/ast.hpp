@@ -57,12 +57,12 @@ private:
 
 	bool match_(detail::Ctx<Iter>& ctx) const final {
 		if(ast_){
-			Iter& end = detail::prepare_match(ctx, this);
+			Iter* end = detail::prepare_match(ctx, this, on_match_);
 			bool res = detail::match(*ast_, ctx);
 			if(res)
 				detail::register_match(ctx, end, 0);
 			else
-				detail::register_miss(ctx, this);
+				detail::register_miss(ctx, this, end);
 			return res;
 		}
 		throw std::runtime_error("Dynamic AST not populated");

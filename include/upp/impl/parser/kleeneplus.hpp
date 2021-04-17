@@ -15,10 +15,10 @@ public:
 
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const final {
-		auto& end = detail::prepare_match(ctx, this);
+		Iter* end = detail::prepare_match(ctx, this, on_match_);
 		auto res = detail::match(a_, ctx);
 		if(!res){
-			detail::register_miss(ctx, this);
+			detail::register_miss(ctx, this, end);
 			return res;
 		}
 		while(true){

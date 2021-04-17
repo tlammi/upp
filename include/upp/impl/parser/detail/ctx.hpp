@@ -33,43 +33,30 @@ struct Ctx{
 	std::deque<Match<Iter>> matches{};
 };
 
-template<class Iter>
-Iter& prepare_match(Ctx<Iter>& ctx, const Ast<Iter>* ast){
-	ctx.matches.emplace_back(ast, ctx.iter, ctx.end);
+template<class Iter, class OnMatch>
+Iter* prepare_match(Ctx<Iter>& ctx, const Ast<Iter>* ast, OnMatch&& on_match){
 	if(ctx.skipper) ctx.iter = ctx.skipper(ctx.iter, ctx.end);
-	return ctx.matches.back().end;
+	if constexpr (on_match){
+		ctx.matches.emplace_back(ast, ctx.iter, ctx.end);
+		return &ctx.matches.back().end;
+	} else{
+		(void)ast;
+		return nullptr;
+	}
 }
 
 
 template<class Iter>
-void register_match(Ctx<Iter>& ctx, Iter& end, size_t inc){
+void register_match(Ctx<Iter>& ctx, Iter* end, size_t inc){
 	ctx.iter += inc;
 	ctx.expecteds.clear();
-	end = ctx.iter;
+	if(end) *end = ctx.iter;
 }
-
 
 template<class Iter>
-void register_miss(Ctx<Iter>& ctx, const Ast<Iter>* ast){
-	ctx.matches.pop_back();
+void register_miss(Ctx<Iter>& ctx, const Ast<Iter>* ast, Iter* end){
+	if(end) ctx.matches.pop_back();
 	ctx.expecteds.emplace_back(ast);
-}
-
-template<class Iter, class Matcher>
-bool do_match(Ctx<Iter>& ctx, const Ast<Iter>* ast, Matcher&& m){
-	if(ctx.skipper) ctx.iter = ctx.skipper(ctx.iter, ctx.end);
-	Iter begin = ctx.iter;
-	auto [success, inc] = m(ctx);
-	if(success){
-		ctx.iter += inc;
-		ctx.expecteds.clear();
-		ctx.match_queue.emplace_back(ast, begin, ctx.iter);
-		return true;
-		
-	} else {
-		ctx.expecteds.push_back(ast);
-		return false;
-	}
 }
 
 }
