@@ -18,7 +18,7 @@ private:
 		Iter* end = detail::prepare_match(ctx, this, on_match_);
 		auto res = detail::match(a_, ctx);
 		if(!res){
-			detail::register_miss(ctx, this, end);
+			detail::register_miss(ctx, end);
 			return res;
 		}
 		while(true){

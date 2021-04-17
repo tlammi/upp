@@ -49,12 +49,23 @@ Iter* prepare_match(Ctx<Iter>& ctx, const Ast<Iter>* ast, OnMatch&& on_match){
 template<class Iter>
 void register_match(Ctx<Iter>& ctx, Iter* end, size_t inc){
 	ctx.iter += inc;
+	if(end) *end = ctx.iter;
+}
+
+template<class Iter>
+void register_match_leaf(Ctx<Iter>& ctx, Iter* end, size_t inc){
+	ctx.iter += inc;
 	ctx.expecteds.clear();
 	if(end) *end = ctx.iter;
 }
 
 template<class Iter>
-void register_miss(Ctx<Iter>& ctx, const Ast<Iter>* ast, Iter* end){
+void register_miss(Ctx<Iter>& ctx, Iter* end){
+	if(end) ctx.matches.pop_back();
+}
+
+template<class Iter>
+void register_miss_leaf(Ctx<Iter>& ctx, const Ast<Iter>* ast, Iter* end){
 	if(end) ctx.matches.pop_back();
 	ctx.expecteds.emplace_back(ast);
 }

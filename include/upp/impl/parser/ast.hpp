@@ -29,6 +29,10 @@ class Ast{
 	friend void detail::invoke(T&&, Iter2, Iter2);
 public:
 
+	virtual std::string_view name() const noexcept {
+		return "<nameless ast>";
+	}
+
 private:
 	bool match(detail::Ctx<Iter>& ctx) const noexcept {
 		return match_(ctx);
@@ -63,7 +67,7 @@ private:
 			if(res)
 				detail::register_match(ctx, end, 0);
 			else
-				detail::register_miss(ctx, this, end);
+				detail::register_miss(ctx, end);
 			return res;
 		}
 		return false;

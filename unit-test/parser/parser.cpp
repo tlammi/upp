@@ -204,8 +204,6 @@ TEST(Parser, Recurse){
 	obj = (factory.lit('{'),-(key_value), *(factory.lit(','), key_value), factory.lit('}'));
 	
 	auto res = p::parse(str.begin(), str.end(), obj, p::whitespaces);
-	for(const auto& r : res.expecteds){
-		std::cerr << "potential matcher: " << r << '\n';
-	}
 	ASSERT_TRUE(res);
 }
+

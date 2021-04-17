@@ -22,7 +22,7 @@ private:
 		if(res)
 			detail::register_match(ctx, end, 0);
 		else
-			detail::register_miss(ctx, this, end);
+			detail::register_miss(ctx, end);
 		return res;
 	}
 
