@@ -12,7 +12,7 @@ public:
 	LiteralChar(char c): c_{c}{}
 
 private:
-	bool match_(detail::Ctx<Iter>& ctx) const final {
+	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
 		Iter* end = detail::prepare_match(ctx, this, cb_);
 		if(ctx.iter != ctx.end && *ctx.iter == c_){
 			detail::register_match(ctx, end, 1);
@@ -37,7 +37,7 @@ public:
 	LiteralStr(std::string_view str): str_{str}{}
 
 private:
-	bool match_(detail::Ctx<Iter>& ctx) const final {
+	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
 		auto is_equal =  [&](){
 			if(ctx.end - ctx.iter < str_.end() - str_.begin())
 				return false;

@@ -22,7 +22,7 @@ public:
 		a_{std::move(other.a_)}, on_match_{std::move(on_match)}{}
 
 private:
-	bool match_(detail::Ctx<Iter>& ctx) const final {
+	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
 		Iter* end = detail::prepare_match(ctx, this, on_match_);
 		while(true){
 			auto res = detail::match(a_, ctx);

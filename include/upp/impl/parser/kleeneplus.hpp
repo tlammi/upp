@@ -14,7 +14,7 @@ public:
 	KleenePlus(SubAst a): a_{a}{}
 
 private:
-	bool match_(detail::Ctx<Iter>& ctx) const final {
+	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
 		Iter* end = detail::prepare_match(ctx, this, on_match_);
 		auto res = detail::match(a_, ctx);
 		if(!res){

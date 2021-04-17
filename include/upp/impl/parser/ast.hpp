@@ -28,8 +28,9 @@ class Ast{
 	template<class T, class Iter2>
 	friend void detail::invoke(T&&, Iter2, Iter2);
 public:
+
 private:
-	bool match(detail::Ctx<Iter>& ctx) const {
+	bool match(detail::Ctx<Iter>& ctx) const noexcept {
 		return match_(ctx);
 	}
 
@@ -37,7 +38,7 @@ private:
 		invoke_(begin, end);
 	}
 
-	virtual bool match_(detail::Ctx<Iter>& ctx) const = 0;
+	virtual bool match_(detail::Ctx<Iter>& ctx) const noexcept = 0;
 	virtual void invoke_(Iter begin, Iter end) const = 0;
 };
 
@@ -55,7 +56,7 @@ public:
 	}
 private:
 
-	bool match_(detail::Ctx<Iter>& ctx) const final {
+	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
 		if(ast_){
 			Iter* end = detail::prepare_match(ctx, this, on_match_);
 			bool res = detail::match(*ast_, ctx);
@@ -65,9 +66,8 @@ private:
 				detail::register_miss(ctx, this, end);
 			return res;
 		}
-		throw std::runtime_error("Dynamic AST not populated");
+		return false;
 	}
-
 
 	void invoke_(Iter begin, Iter end) const final {
 		on_match_(begin, end);

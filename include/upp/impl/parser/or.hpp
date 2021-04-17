@@ -15,7 +15,7 @@ public:
 	Or(Lhs l, Rhs r): l_{l}, r_{r}{}
 
 private:
-	bool match_(detail::Ctx<Iter>& ctx) const final {
+	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
 		Iter* end = detail::prepare_match(ctx, this, cb_);
 		bool res = detail::match(l_, ctx);
 		if(!res) res = detail::match(r_, ctx);

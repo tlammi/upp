@@ -16,7 +16,7 @@ public:
 	Regex(std::string_view re): re_{re.begin(), re.end()}{}
 
 private:
-	bool match_(detail::Ctx<Iter>& ctx) const final {
+	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
 		Iter* end = detail::prepare_match(ctx, this, cb_);
 		auto reiter = std::regex_iterator<Iter>(ctx.iter, ctx.end, re_, std::regex_constants::match_continuous);
 		if(reiter != std::regex_iterator<Iter>()){
