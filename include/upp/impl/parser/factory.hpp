@@ -15,6 +15,11 @@ public:
 	DynAst<Iter> dyn_ast(){
 		return {nullptr};
 	}
+	
+	template<class OnMatch>
+	DynAst<Iter, OnMatch> dyn_ast(OnMatch&& on_match){
+		return {std::forward<OnMatch>(on_match)};
+	}
 
 	template<template<class...> class T, class OnMatch, class... Ts>
 	auto ast(T<Ts...>&& other, OnMatch&& on_match){

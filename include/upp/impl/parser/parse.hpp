@@ -48,9 +48,8 @@ Result<Iter> parse(Iter begin, Iter end, A&& ast, Iter(*skipper)(Iter, Iter)=nul
 	bool res = detail::match(ast, ctx);
 	for(const auto [ptr, mbegin, mend]: ctx.matches){
 		detail::invoke(*ptr, mbegin, mend);
-
 	}
-	return Result<Iter>{ctx.iter, res, ctx.expecteds};
+	return Result<Iter>{ctx.max_iter, res, ctx.expecteds};
 }
 
 

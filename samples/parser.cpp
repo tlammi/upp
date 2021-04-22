@@ -94,12 +94,14 @@ int main(int argc, char** argv){
 	auto list_begin = factory.lit('[', [&](auto begin, auto end){
 		(void)begin;
 		(void)end;
+		std::cerr << "list begin\n";
 		json.push_container(List());
 	});
 
 	auto list_end = factory.lit(']', [&](auto begin, auto end){
 		(void)begin;
 		(void)end;
+		std::cerr << "list end\n";
 		json.move_up();
 	});
 
@@ -121,7 +123,9 @@ int main(int argc, char** argv){
 
 	// Forward declarations to allow recursive matching
 	auto obj = factory.dyn_ast();
-	auto list = factory.dyn_ast();
+	auto list = factory.dyn_ast([](auto begin, auto end){
+		std::cerr << "list: " << std::string(begin, end) << '\n';
+	});
 
 	// Match any of the alternatives
 	auto value = (quoted | integer | obj | list);
@@ -133,16 +137,16 @@ int main(int argc, char** argv){
 	// - -> zero or one
 	// * -> zero to inf
 	obj = (obj_begin, -(key_value), *(factory.lit(','), key_value), obj_end);
-	list = (list_begin, -(value), *(factory.lit(','), value), list_end);
+	list = (list_begin, -(value), factory.ast(*(factory.lit(','), value), [](auto begin, auto end){std::cerr << "commas and values: " << std::string(begin, end) << '\n';}), list_end);
 	
 	auto obj_or_list = (obj | list);
 
-	auto result = obj_or_list.match(str.begin(), str.end(), p::whitespaces);
+	auto result = p::parse(str.cbegin(), str.cend(), obj_or_list, p::whitespaces);
+
 	if(result)
 		std::cerr << "Successfull parse\n";
 	else{
 		std::cerr << "failed to parse\n";
-		std::cerr << "parsed:\n" << std::string(str.cbegin(), result.iter) << '\n';
-		std::cerr << "characters left:\n" << std::string(result.iter, str.cend()) << '\n';
+		std::cerr << argv[1] << ":" << p::error_msg(str.cbegin(), str.cend(), result) << '\n';
 	}
 }

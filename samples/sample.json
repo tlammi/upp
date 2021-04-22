@@ -2,6 +2,6 @@
 	"key0": "value0",
 	"key1": {
 		"subkey0": 42,
-		"subkey1": [1,2,3,4,5]
+		"subkey1": [1,2,3,4,5
 	}
 }

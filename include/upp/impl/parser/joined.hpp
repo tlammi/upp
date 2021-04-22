@@ -3,6 +3,8 @@
 #include "upp/impl/parser/ast.hpp"
 #include "upp/impl/parser/detail/type_traits.hpp"
 
+#include <string>
+
 namespace upp{
 namespace parser{
 
@@ -21,6 +23,8 @@ public:
 private:
 
 	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
+		//auto [begin, end, expecteds] = detail::prepare_match_joined(ctx, this, on_match_);
+		Iter begin = ctx.iter;
 		Iter* end = detail::prepare_match(ctx, this, on_match_);
 		auto res = detail::match(l_, ctx);
 		if(!res){
@@ -30,6 +34,8 @@ private:
 		res = detail::match(r_, ctx);
 		if(!res){
 			detail::register_miss(ctx, end);
+			ctx.iter = begin;
+			//detail::register_miss(ctx, end);
 			return false;
 		}
 		detail::register_match(ctx, end, 0);

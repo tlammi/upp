@@ -9,10 +9,22 @@ namespace parser{
 
 template<class Iter, class Lhs, class Rhs, class OnMatch=std::nullptr_t>
 class Or: public Ast<Iter>{
+
+	template<class, class, class, class>
+	friend class Or;
+
 public:
 
 	Or(Lhs l, Rhs r, OnMatch&& on_match): l_{l}, r_{r}, cb_{std::move(on_match)}{}
 	Or(Lhs l, Rhs r): l_{l}, r_{r}{}
+
+	template<class OnMatch2>
+	Or(Or<Iter, Lhs, Rhs, OnMatch2>&& other, OnMatch&& on_match):
+		l_{std::move(other.l_)}, r_{std::move(other.r_)}, cb_{std::move(on_match)}{}
+
+	template<class OnMatch2>
+	Or(Or<Iter, Lhs, Rhs, OnMatch2>& other, OnMatch&& on_match):
+		l_{other.l_}, r_{other.r_}, cb_{std::move(on_match)}{}
 
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {

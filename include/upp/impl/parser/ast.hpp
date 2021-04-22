@@ -50,6 +50,7 @@ private:
 template<class Iter, class OnMatch=std::nullptr_t>
 class DynAst: public Ast<Iter>{
 public:
+	DynAst(OnMatch&& on_match): on_match_{on_match}{}
 	DynAst(Ast<Iter>* ptr, OnMatch&& on_match): ast_{ptr}, on_match_{on_match}{}
 	DynAst(Ast<Iter>* ptr): ast_{ptr}{}
 
