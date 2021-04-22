@@ -7,6 +7,12 @@ namespace upp{
 namespace parser{
 
 
+/**
+ * Ast matching one of the sub Asts
+ *
+ * Tries to match the left hand sub Ast and in case of failure,
+ * tries to match the right hand sub Ast.
+ */
 template<class Iter, class Lhs, class Rhs, class OnMatch=std::nullptr_t>
 class Or: public Ast<Iter>{
 
@@ -48,6 +54,7 @@ private:
 	detail::CbHolder<OnMatch> cb_{};
 };
 
+/// Shorthand for creating Or in grammar
 template<class Lhs, class Rhs, class = std::enable_if<detail::is_ast_v<Lhs> && detail::is_ast_v<Rhs>>>
 Or<detail::iter_t<Lhs>, Lhs, Rhs> operator|(Lhs&& l, Rhs&& r){
 	static_assert(std::is_same_v<detail::iter_t<Lhs>, detail::iter_t<Rhs>>);

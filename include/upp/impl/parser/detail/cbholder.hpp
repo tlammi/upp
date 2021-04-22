@@ -6,6 +6,11 @@ namespace upp{
 namespace parser{
 namespace detail{
 
+/**
+ * Utility for hiding callbacks
+ *
+ * Wraps any callable, or a nullptr. In the latter case, operator() does nothing
+ */
 template<class T=std::nullptr_t>
 class CbHolder{
 public:

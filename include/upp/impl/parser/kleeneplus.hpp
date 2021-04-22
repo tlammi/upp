@@ -7,6 +7,13 @@ namespace upp{
 namespace parser{
 
 
+/**
+ * Ast specialization matching an Ast [1, inf) times
+ * 
+ * This class wraps the sub Ast and only calls that types
+ * match() method as many times as possible. The match
+ * fails if 0 matches are found. Otherwise succeeds.
+ */
 template<class Iter, class SubAst, class OnMatch=std::nullptr_t>
 class KleenePlus: public Ast<Iter>{
 public:
@@ -38,6 +45,7 @@ private:
 	detail::CbHolder<OnMatch> on_match_{};
 };
 
+/// Shorthand for creating a kleeneplus Ast
 template<class A, class = std::enable_if_t<detail::is_ast_v<A>>>
 KleenePlus<detail::iter_t<A>, A> operator+(A&& a){
 	return {std::forward<A>(a)};

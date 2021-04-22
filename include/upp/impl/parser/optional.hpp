@@ -7,6 +7,12 @@ namespace upp{
 namespace parser{
 
 
+/**
+ * Ast matching the sub ast [0, 1] times
+ *
+ * Calls \ref match() of the sub matcher and converts a failing
+ * match to a success without moving the iterator.
+ */
 template<class Iter, class SubAst, class OnMatch=std::nullptr_t>
 class Optional: public Ast<Iter>{
 public:
@@ -30,6 +36,7 @@ private:
 	detail::CbHolder<OnMatch> on_match_{};
 };
 
+/// Shorthand for creating an Optional in grammar
 template<class A, class = std::enable_if_t<detail::is_ast_v<A>>>
 Optional<detail::iter_t<A>, A> operator-(A&& a){
 	return {std::forward<A>(a)};

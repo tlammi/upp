@@ -6,6 +6,11 @@
 namespace upp{
 namespace parser{
 
+/**
+ * Ast matching [0, inf) instances of the sub Ast
+ *
+ * Invokes sub Ast's \ref match_() method 0 to inf times, as many times as possible.
+ */
 template<class Iter, class SubAst, class OnMatch=std::nullptr_t>
 class KleeneStar: public Ast<Iter>{
 
@@ -40,6 +45,7 @@ private:
 	detail::CbHolder<OnMatch> on_match_{};
 };
 
+/// Shorthand for creating kleene star Ast in grammar
 template<class A, class = std::enable_if_t<detail::is_ast_v<A>>>
 KleeneStar<detail::iter_t<A>, A> operator*(A&& a){
 		return {std::forward<A>(a)};

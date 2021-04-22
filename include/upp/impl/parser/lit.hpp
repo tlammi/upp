@@ -6,6 +6,9 @@ namespace upp{
 namespace parser{
 
 
+/**
+ * Ast matching a character literal
+ */
 template<class Iter, class OnMatch=std::nullptr_t>
 class LiteralChar: public Ast<Iter>{
 public:
@@ -36,6 +39,9 @@ private:
 	detail::CbHolder<OnMatch> cb_{};
 };
 
+/**
+ * Ast matching a string sequence
+ */
 template<class Iter, class OnMatch=std::nullptr_t>
 class LiteralStr: public Ast<Iter>{
 public:

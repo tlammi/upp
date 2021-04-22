@@ -9,6 +9,9 @@
 namespace upp{
 namespace parser{
 
+/**
+ * Ast matching a reqular expression
+ */
 template<class Iter, class OnMatch=std::nullptr_t>
 class Regex: public Ast<Iter> {
 
