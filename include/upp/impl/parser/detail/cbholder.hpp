@@ -30,10 +30,18 @@ public:
 	template<class... Args>
 	auto operator()(Args&&... args) const {
 		if constexpr (std::is_same_v<T, std::nullptr_t>){
-		} else if constexpr (std::is_same_v<std::invoke_result_t<T, Args...>, void>){
-			t_(std::forward<Args>(args)...);
+			// skip
+		} else if constexpr (std::is_invocable_v<T>) {
+			if constexpr (std::is_same_v<std::invoke_result_t<T>, void>)
+				t_();
+			else
+				return t_();
 		} else {
-			return t_(std::forward<Args>(args)...);
+			if constexpr (std::is_same_v<std::invoke_result_t<T, Args...>, void>)
+				t_(std::forward<Args>(args)...);
+			else
+				return t_(std::forward<Args>(args)...);
+			
 		}
 	}
 private:
