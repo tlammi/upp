@@ -28,6 +28,10 @@ public:
 	Joined(Joined<Iter, Lhs, Rhs, OnMatch2>&& other, OnMatch&& on_match):
 		l_{other.l_}, r_{other.r_}, on_match_{on_match}{}
 
+	template<class OnMatch2>
+	Joined(const Joined<Iter, Lhs, Rhs, OnMatch2>& other, OnMatch&& on_match):
+		l_{other.l_}, r_{other.r_}, on_match_{on_match}{}
+
 private:
 
 	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
