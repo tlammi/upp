@@ -41,3 +41,36 @@ TEST_F(ParserFixture, ValidCFunc){
 	ASSERT_TRUE(res);
 	ASSERT_EQ(C_FUNC.cend()-res.iter, 0);
 }
+
+const std::string LIST = "1,2,3,4,5,6, 8, 11111";
+
+TEST_F(ParserFixture, RecursiveList){
+	
+	std::vector<std::string> items;
+
+	auto list = factory.dyn_ast();
+	auto item = factory.regex("[^,]+", [&](auto begin, auto end){
+			items.emplace_back(begin, end);
+	});
+
+	list = (item, -(factory.lit(','), list));
+
+	auto res = upp::parser::parse(LIST.cbegin(), LIST.cend(), list, upp::parser::whitespaces);
+	ASSERT_TRUE(res);
+	ASSERT_EQ(items.size(), 8);
+}
+
+const std::string LIST_2 = "[1,2 3]";
+
+TEST_F(ParserFixture, Error){
+	
+	auto item = factory.regex(R"([^\s,]+)");
+
+	auto list = (factory.lit('['), item, *(factory.lit(','), item), factory.lit(']'));
+
+	auto res = upp::parser::parse(LIST_2.cbegin(), LIST_2.cend(), list, upp::parser::whitespaces);
+	ASSERT_FALSE(res);
+	auto err_str = upp::parser::error_msg(LIST_2.cbegin(), LIST_2.cend(), res);
+	ASSERT_NE(err_str.find("1:6"), std::string::npos);
+
+}
