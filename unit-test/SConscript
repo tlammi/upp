@@ -22,6 +22,7 @@ test = testenv.Program(
 		"parser/literal.cpp",
 		"parser/joined.cpp",
 		"parser/or.cpp",
+		"parser/optional.cpp",
                 ])
 
 Help("    testbin           Only build tests\n")
