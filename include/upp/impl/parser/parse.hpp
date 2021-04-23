@@ -88,6 +88,12 @@ Result<Iter> parse(Iter begin, Iter end, A&& ast, Iter(*skipper)(Iter, Iter)=nul
 template<class Iter>
 std::string error_msg(Iter begin, Iter end, const Result<Iter>& res){
 
+	std::vector<const Ast<Iter>*> expecteds;
+	for(const auto* ast: res.expecteds)
+		expecteds.push_back(ast);
+	std::sort(expecteds.begin(), expecteds.end());
+	expecteds.erase(std::unique(expecteds.begin(), expecteds.end()), expecteds.end());
+
 	if(!res.expecteds.size())
 		return "";
 	
@@ -96,13 +102,13 @@ std::string error_msg(Iter begin, Iter end, const Result<Iter>& res){
 	ss << coord.line << ':' << coord.column << ": ";
 	ss << "expected ";
 	if(res.expecteds.size() == 1){
-		ss << '\'' <<  res.expecteds.front()->name() << '\'';
+		ss << '\'' <<  (*expecteds.begin())->name() << '\'';
 	}
 	else{
-		for(auto iter = res.expecteds.cbegin(); iter != res.expecteds.cend()-2; ++iter){
+		for(auto iter = expecteds.cbegin(); iter != expecteds.cend()-2; ++iter){
 			ss << '\'' << (*iter)->name() << "', ";
 		}
-		ss << '\'' << (*(res.expecteds.cend()-2))->name() << "' or '" << (*(res.expecteds.cend()-1))->name() << '\'';
+		ss << '\'' << (*(expecteds.cend()-2))->name() << "' or '" << (*(expecteds.cend()-1))->name() << '\'';
 	}
 	ss << " before '" << *res.iter << '\'';
 	return ss.str();
