@@ -19,6 +19,7 @@ class Regex: public Ast<Iter> {
 	friend class Regex;
 public:
 	Regex(std::string_view re, OnMatch&& on_match): re_{re.begin(), re.end()}, cb_{std::move(on_match)}{}
+
 	Regex(std::string_view re): re_{re.begin(), re.end()}{}
 
 	template<class OnMatch2>
