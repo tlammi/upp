@@ -24,7 +24,11 @@ public:
 
 	template<class OnMatch2>
 	KleeneStar(KleeneStar<Iter, SubAst, OnMatch2>&& other, OnMatch&& on_match):
-		a_{std::move(other.a_)}, on_match_{std::move(on_match)}{}
+		a_{other.a_}, on_match_{std::move(on_match)}{}
+
+	template<class OnMatch2>
+	KleeneStar(const KleeneStar<Iter, SubAst, OnMatch2>& other, OnMatch&& on_match):
+		a_{other.a_}, on_match_{std::move(on_match)}{}
 
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {

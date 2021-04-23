@@ -57,6 +57,24 @@ public:
 	}
 
 	/**
+	 * Construct a new Ast replacing the callback
+	 *
+	 * This is an utility method to replace the match callback.
+	 */
+	template<template<class...> class T, class... Ts>
+	auto ast(T<Ts...>&& other){
+		return T{std::move(other)};
+	}
+
+	/**
+	 * Construct a new Ast by copy and replacing the callback
+	 */
+	template<template<class...> class T, class... Ts>
+	auto ast(const T<Ts...>& other){
+		return T{other};
+	}
+
+	/**
 	 * Construct a regex Ast
 	 *
 	 * \param re Regex used for matching lexemes in the input sequence

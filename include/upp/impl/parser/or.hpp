@@ -26,10 +26,10 @@ public:
 
 	template<class OnMatch2>
 	Or(Or<Iter, Lhs, Rhs, OnMatch2>&& other, OnMatch&& on_match):
-		l_{std::move(other.l_)}, r_{std::move(other.r_)}, cb_{std::move(on_match)}{}
+		l_{other.l_}, r_{other.r_}, cb_{std::move(on_match)}{}
 
 	template<class OnMatch2>
-	Or(Or<Iter, Lhs, Rhs, OnMatch2>& other, OnMatch&& on_match):
+	Or(const Or<Iter, Lhs, Rhs, OnMatch2>& other, OnMatch&& on_match):
 		l_{other.l_}, r_{other.r_}, cb_{std::move(on_match)}{}
 
 private:

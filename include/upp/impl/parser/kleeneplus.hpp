@@ -16,9 +16,20 @@ namespace parser{
  */
 template<class Iter, class SubAst, class OnMatch=std::nullptr_t>
 class KleenePlus: public Ast<Iter>{
+	template<class, class, class>
+	friend class KleenePlus;
+
 public:
 
 	KleenePlus(SubAst a): a_{a}{}
+
+	template<class OnMatch2>
+	KleenePlus(KleenePlus<Iter, SubAst, OnMatch2>&& other, OnMatch&& on_match):
+		a_{other.a_}, on_match_{std::move(on_match)}{}
+
+	template<class OnMatch2>
+	KleenePlus(const KleenePlus<Iter, SubAst, OnMatch2>& other, OnMatch&& on_match):
+		a_{other.a_}, on_match_{std::move(on_match)}{}
 
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
@@ -35,7 +46,6 @@ private:
 		detail::register_match(ctx, end, 0);
 		return true;
 	}
-
 
 	void invoke_(Iter begin, Iter end) const final {
 		on_match_(begin, end);

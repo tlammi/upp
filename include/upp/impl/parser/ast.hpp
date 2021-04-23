@@ -37,6 +37,8 @@ class Ast{
 	friend void detail::invoke(T&&, Iter2, Iter2);
 public:
 
+	virtual ~Ast(){}
+
 	/// Name of the AST. Used for error printing
 	virtual std::string_view name() const noexcept {
 		return "<nameless ast>";
@@ -90,6 +92,15 @@ private:
 template<class Iter, class OnMatch=std::nullptr_t>
 class DynAst: public Ast<Iter>{
 public:
+
+	template<class OnMatch2>
+	DynAst(DynAst<Iter, OnMatch2>&& other, OnMatch on_match):
+		ast_{std::move(other.ast_)}, on_match_{std::forward<OnMatch>(on_match)}{}
+
+	template<class OnMatch2>
+	DynAst(const DynAst<Iter, OnMatch2>& other, OnMatch on_match):
+		ast_{std::move(other.ast_)}, on_match_{std::forward<OnMatch>(on_match)}{}
+
 	/// Create empty DynAst with callback only
 	DynAst(OnMatch&& on_match): on_match_{on_match}{}
 

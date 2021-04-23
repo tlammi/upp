@@ -16,7 +16,8 @@ test = testenv.Program(
                 "strutil/strutil.cpp",
 		"traits/traits.cpp",
 		"property_tree/property_tree.cpp",
-		"parser/parser.cpp"
+		"parser/parser.cpp",
+		"parser/factory.cpp"
                 ])
 
 Help("    testbin           Only build tests\n")
