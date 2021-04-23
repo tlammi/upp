@@ -20,7 +20,7 @@ TEST_F(ParserFixture, FactoryCharLiteral){
 
 TEST_F(ParserFixture, FactoryStrLiteral){
 	auto s0 = factory.lit("!");
-	auto s1 = factory.lit("?", [](auto, auto){});
+	auto s1 = factory.lit("?", [](){});
 	auto s2 = factory.ast(s0, [](auto, auto){});
 	auto s3 = factory.ast(factory.lit("0"), [](auto, auto){});
 }
