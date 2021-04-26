@@ -72,7 +72,7 @@ private:
  * \param r Ast that should come second in the sequence
  * \return Ast wrapping the two operands
  */
-template<class Lhs, class Rhs, class = std::enable_if<detail::is_ast_v<Lhs> && detail::is_ast_v<Rhs>>>
+template<class Lhs, class Rhs, class = std::enable_if_t<detail::is_ast_v<Lhs> && detail::is_ast_v<Rhs>>>
 Joined<detail::iter_t<Lhs>, Lhs, Rhs> operator,(Lhs&& l, Rhs&& r){
 	        static_assert(std::is_same_v<detail::iter_t<Lhs>, detail::iter_t<Rhs>>);
 		return {std::forward<Lhs>(l), std::forward<Rhs>(r)};
