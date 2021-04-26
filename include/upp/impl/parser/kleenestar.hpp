@@ -19,12 +19,13 @@ class KleeneStar: public Ast<Iter>{
 
 public:
 
-	KleeneStar(SubAst a): a_{a}{}
-	KleeneStar(SubAst a, OnMatch&& on_match): a_{a}, on_match_{std::move(on_match)}{}
+	KleeneStar(SubAst a): a_{std::forward<SubAst>(a)}{}
+	KleeneStar(SubAst a, OnMatch&& on_match):
+		a_{std::forward<Ast>(a)}, on_match_{std::move(on_match)}{}
 
 	template<class OnMatch2>
 	KleeneStar(KleeneStar<Iter, SubAst, OnMatch2>&& other, OnMatch&& on_match):
-		a_{other.a_}, on_match_{std::move(on_match)}{}
+		a_{std::forward<SubAst>(other.a_)}, on_match_{std::move(on_match)}{}
 
 	template<class OnMatch2>
 	KleeneStar(const KleeneStar<Iter, SubAst, OnMatch2>& other, OnMatch&& on_match):

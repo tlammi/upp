@@ -21,11 +21,11 @@ class KleenePlus: public Ast<Iter>{
 
 public:
 
-	KleenePlus(SubAst a): a_{a}{}
+	KleenePlus(SubAst a): a_{std::forward<SubAst>(a)}{}
 
 	template<class OnMatch2>
 	KleenePlus(KleenePlus<Iter, SubAst, OnMatch2>&& other, OnMatch&& on_match):
-		a_{other.a_}, on_match_{std::move(on_match)}{}
+		a_{std::forward<SubAst>(other.a_)}, on_match_{std::move(on_match)}{}
 
 	template<class OnMatch2>
 	KleenePlus(const KleenePlus<Iter, SubAst, OnMatch2>& other, OnMatch&& on_match):

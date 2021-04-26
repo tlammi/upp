@@ -21,12 +21,12 @@ class Or: public Ast<Iter>{
 
 public:
 
-	Or(Lhs l, Rhs r, OnMatch&& on_match): l_{l}, r_{r}, cb_{std::move(on_match)}{}
-	Or(Lhs l, Rhs r): l_{l}, r_{r}{}
+	Or(Lhs l, Rhs r, OnMatch&& on_match): l_{std::forward<Lhs>(l)}, r_{std::forward<Rhs>(r)}, cb_{std::move(on_match)}{}
+	Or(Lhs l, Rhs r): l_{std::forward<Lhs>(l)}, r_{std::forward<Rhs>(r)}{}
 
 	template<class OnMatch2>
 	Or(Or<Iter, Lhs, Rhs, OnMatch2>&& other, OnMatch&& on_match):
-		l_{other.l_}, r_{other.r_}, cb_{std::move(on_match)}{}
+		l_{std::forward<Lhs>(other.l_)}, r_{std::forward<Rhs>(other.r_)}, cb_{std::move(on_match)}{}
 
 	template<class OnMatch2>
 	Or(const Or<Iter, Lhs, Rhs, OnMatch2>& other, OnMatch&& on_match):

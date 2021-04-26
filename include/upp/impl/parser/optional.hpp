@@ -19,11 +19,11 @@ class Optional: public Ast<Iter>{
 	friend class Optional;
 public:
 
-	Optional(SubAst a): a_{a}{}
+	Optional(SubAst a): a_{std::forward<SubAst>(a)}{}
 
 	template<class OnMatch2>
 	Optional(Optional<Iter, SubAst, OnMatch2>&& other, OnMatch&& on_match):
-		a_{other.a_}, on_match_{std::move(on_match)}{}
+		a_{std::forward<SubAst>(other.a_)}, on_match_{std::move(on_match)}{}
 
 	template<class OnMatch2>
 	Optional(const Optional<Iter, SubAst, OnMatch2>& other, OnMatch&& on_match):

@@ -21,12 +21,12 @@ class Joined: public Ast<Iter>{
 	template<class, class, class, class>
 	friend class Joined;
 public:
-	Joined(Lhs l, Rhs r, OnMatch&& on_match): l_{l}, r_{r}, on_match_{std::move(on_match)}{}
-	Joined(Lhs l, Rhs r): l_{l}, r_{r}{}
+	Joined(Lhs l, Rhs r, OnMatch&& on_match): l_{std::forward<Lhs>(l)}, r_{std::forward<Rhs>(r)}, on_match_{std::move(on_match)}{}
+	Joined(Lhs l, Rhs r): l_{std::forward<Lhs>(l)}, r_{std::forward<Rhs>(r)}{}
 
 	template<class OnMatch2>
 	Joined(Joined<Iter, Lhs, Rhs, OnMatch2>&& other, OnMatch&& on_match):
-		l_{other.l_}, r_{other.r_}, on_match_{on_match}{}
+		l_{std::forward<Lhs>(other.l_)}, r_{std::forward<Rhs>(other.r_)}, on_match_{on_match}{}
 
 	template<class OnMatch2>
 	Joined(const Joined<Iter, Lhs, Rhs, OnMatch2>& other, OnMatch&& on_match):
