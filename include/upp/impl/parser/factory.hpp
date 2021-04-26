@@ -78,21 +78,28 @@ public:
 	 * Construct a regex Ast
 	 *
 	 * \param re Regex used for matching lexemes in the input sequence
+	 * \param name Verbose name used in error printing
 	 * \param on_match Callback invoked on matches.
+	 * @{
 	 */
 	template<class OnMatch>
 	Regex<Iter, OnMatch> regex(std::string_view re, OnMatch&& on_match) const {
 		return {re, std::forward<OnMatch>(on_match)};
 	}
 
-	/**
-	 * Construct a regex Ast without match callback
-	 *
-	 * \param re Regex used for matching
-	 */
+	template<class OnMatch>
+	Regex<Iter, OnMatch> regex(std::string_view re, std::string_view name, OnMatch&& on_match) const {
+		return {re, name, std::forward<OnMatch>(on_match)};
+	}
+
 	Regex<Iter> regex(std::string_view re) const {
 		return {re};
 	}
+
+	Regex<Iter> regex(std::string_view re, std::string_view name) const {
+		return {re, name};
+	}
+	/// @}
 
 	/**
 	 * Construct a character matching literal

@@ -18,9 +18,11 @@ class Regex: public Ast<Iter> {
 	template<class, class>
 	friend class Regex;
 public:
-	Regex(std::string_view re, OnMatch&& on_match): re_{re.begin(), re.end()}, cb_{std::move(on_match)}{}
+	Regex(std::string_view re, OnMatch&& on_match): re_{re.begin(), re.end()}, name_{re}, cb_{std::move(on_match)}{}
+	Regex(std::string_view re, std::string_view name, OnMatch&& on_match): re_{re.begin(), re.end()}, name_{name}, cb_{std::move(on_match)}{}
 
-	Regex(std::string_view re): re_{re.begin(), re.end()}{}
+	Regex(std::string_view re): re_{re.begin(), re.end()}, name_{re} {}
+	Regex(std::string_view re, std::string_view name): re_{re.begin(), re.end()}, name_{name} {}
 
 	template<class OnMatch2>
 	Regex(Regex<Iter, OnMatch2>&& other, OnMatch&& on_match):
@@ -29,6 +31,10 @@ public:
 	template<class OnMatch2>
 	Regex(const Regex<Iter, OnMatch2>& other, OnMatch&& on_match):
 		re_{other.re_}, cb_{std::forward<OnMatch>(on_match)}{}
+
+	std::string_view name() const noexcept final {
+		return name_;
+	}
 
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
@@ -47,6 +53,7 @@ private:
 	}
 
 	std::regex re_;
+	std::string name_;
 	detail::CbHolder<OnMatch> cb_{};
 };
 

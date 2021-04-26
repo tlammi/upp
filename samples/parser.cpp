@@ -106,7 +106,7 @@ int main(int argc, char** argv){
 	});
 
 	// Regex for matching quoted strings
-	auto quoted = factory.regex(R"(".*?[^\\]")", [&](auto begin, auto end){
+	auto quoted = factory.regex(R"(".*?[^\\]")", "quoted string", [&](auto begin, auto end){
 		json.push_value(std::string(begin+1, end-1));
 	});
 
@@ -116,7 +116,7 @@ int main(int argc, char** argv){
 	});
 
 	// Match integer
-	auto integer = factory.regex(R"(0|[1-9][0-9]*)", [&](auto begin, auto end){
+	auto integer = factory.regex(R"(0|[1-9][0-9]*)", "integer", [&](auto begin, auto end){
 		int i = std::stoi(std::string(begin, end));
 		json.push_value(i);
 	});
@@ -137,7 +137,7 @@ int main(int argc, char** argv){
 	// - -> zero or one
 	// * -> zero to inf
 	obj = (obj_begin, -(key_value), *(factory.lit(','), key_value), obj_end);
-	list = (list_begin, -(value), factory.ast(*(factory.lit(','), value), [](auto begin, auto end){std::cerr << "commas and values: " << std::string(begin, end) << '\n';}), list_end);
+	list = (list_begin, -(value), *(factory.lit(','), value), list_end);
 	
 	auto obj_or_list = (obj | list);
 

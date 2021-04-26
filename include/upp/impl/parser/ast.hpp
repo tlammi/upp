@@ -41,7 +41,7 @@ public:
 
 	/// Name of the AST. Used for error printing
 	virtual std::string_view name() const noexcept {
-		return "<nameless ast>";
+		return "<anonymous ast>";
 	}
 
 private:
