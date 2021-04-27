@@ -1,5 +1,12 @@
 #include "fixture.hpp"
 
+TEST_F(ParserFixture, FactoryCtor){
+	auto f = upp::parser::Factory<std::string::const_iterator>();
+	upp::parser::Factory f2{f};
+	upp::parser::Factory f3{std::move(f)};
+	f2 = f3;
+	f2 = std::move(f3);
+}
 TEST_F(ParserFixture, FactoryDynAst){
 	auto dynast0 = factory.dyn_ast();
 	auto dynast1 = factory.dyn_ast([](auto, auto){});

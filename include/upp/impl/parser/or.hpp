@@ -35,8 +35,8 @@ public:
 	Or(const Or&) = default;
 	Or(Or&&) = default;
 
-	Or& operator=(const Or&) = default;
-	Or& operator=(Or&&) = default;
+	Or& operator=(const Or&) = delete;
+	Or& operator=(Or&&) = delete;
 
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {

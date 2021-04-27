@@ -34,8 +34,8 @@ public:
 	KleenePlus(const KleenePlus&) = default;
 	KleenePlus(KleenePlus&&) = default;
 
-	KleenePlus& operator=(const KleenePlus&) = default;
-	KleenePlus& operator=(KleenePlus&&) = default;
+	KleenePlus& operator=(const KleenePlus&) = delete;
+	KleenePlus& operator=(KleenePlus&&) = delete;
 
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {

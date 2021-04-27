@@ -36,8 +36,8 @@ public:
 	Joined(const Joined&) = default;
 	Joined(Joined&&) = default;
 
-	Joined& operator=(const Joined&) = default;
-	Joined& operator=(Joined&&) = default;
+	Joined& operator=(const Joined&) = delete;
+	Joined& operator=(Joined&&) = delete;
 
 private:
 

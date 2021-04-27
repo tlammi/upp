@@ -32,8 +32,8 @@ public:
 	Optional(const Optional&) = default;
 	Optional(Optional&&) = default;
 
-	Optional& operator=(const Optional&) = default;
-	Optional& operator=(Optional&&) = default;
+	Optional& operator=(const Optional&) = delete;
+	Optional& operator=(Optional&&) = delete;
 
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {

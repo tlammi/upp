@@ -3,11 +3,12 @@
 
 #include "fixture.hpp"
 
-
 TEST_F(ParserFixture, JoinedCtor){
 	auto a = factory.lit('a');
 	auto c = factory.lit('c');
 	auto j0 = (std::move(a), c);
+	upp::parser::Joined j1{j0};
+	upp::parser::Joined j2{std::move(j0)};
 }
 
 TEST_F(ParserFixture, JoinedMatch){
