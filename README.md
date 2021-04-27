@@ -3,11 +3,12 @@
 A library written in C++17 containing various utilities.
 
 # Modules
-- cli -- Command Line Interface
+- upp::cli -- Command Line Interface
   - `upp::cli` -- Hierarchical command line parser
-- sync -- Various helpers for interthread communication
+- upp::sync -- Various helpers for interthread communication
   - `upp::sync::Fifo` -- Threadsafe Fifo buffer based on synchronization mechanisms in standard library
   - `upp::sync::MutexWrap` -- Rust-like wrapper class providing thread safe access to the wrapped value
+- upp::parser -- Lexer/parser library supporting Backus-Naur form-like grammar specification
 
 # Examples
 - TBA

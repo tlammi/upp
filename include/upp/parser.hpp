@@ -1,5 +1,13 @@
 #pragma once
 
+namespace upp {
+/**
+ * Namespace containing a library for lexer and parser implementation
+ */
+namespace parser{}
+
+}
+
 #include "upp/impl/parser/ast.hpp"
 #include "upp/impl/parser/factory.hpp"
 #include "upp/impl/parser/joined.hpp"
