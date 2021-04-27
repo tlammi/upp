@@ -32,6 +32,12 @@ public:
 	Or(const Or<Iter, Lhs, Rhs, OnMatch2>& other, OnMatch&& on_match):
 		l_{other.l_}, r_{other.r_}, cb_{std::move(on_match)}{}
 
+	Or(const Or&) = default;
+	Or(Or&&) = default;
+
+	Or& operator=(const Or&) = default;
+	Or& operator=(Or&&) = default;
+
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
 		Iter* end = detail::prepare_match(ctx, this, cb_);

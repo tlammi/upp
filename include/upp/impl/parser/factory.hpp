@@ -18,6 +18,14 @@ namespace parser{
 template<class Iter>
 class Factory{
 public:
+
+	Factory(){}
+	Factory(const Factory&) = default;
+	Factory(Factory&&) = default;
+
+	Factory& operator=(const Factory&) = default;
+	Factory& operator=(Factory&&) = default;
+
 	/**
 	 * Create empty DynAst
 	 *

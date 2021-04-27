@@ -29,6 +29,12 @@ public:
 	Optional(const Optional<Iter, SubAst, OnMatch2>& other, OnMatch&& on_match):
 		a_{other.a_}, on_match_{std::move(on_match)}{}
 
+	Optional(const Optional&) = default;
+	Optional(Optional&&) = default;
+
+	Optional& operator=(const Optional&) = default;
+	Optional& operator=(Optional&&) = default;
+
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
 		auto* end = detail::prepare_match(ctx, this, on_match_);

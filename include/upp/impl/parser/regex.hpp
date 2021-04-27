@@ -32,6 +32,12 @@ public:
 	Regex(const Regex<Iter, OnMatch2>& other, OnMatch&& on_match):
 		re_{other.re_}, cb_{std::forward<OnMatch>(on_match)}{}
 
+	Regex(const Regex&) = default;
+	Regex(Regex&&) = default;
+
+	Regex& operator=(const Regex&) = default;
+	Regex& operator=(Regex&&) = default;
+
 	std::string_view name() const noexcept final {
 		return name_;
 	}

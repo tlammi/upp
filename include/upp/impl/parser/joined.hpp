@@ -32,6 +32,13 @@ public:
 	Joined(const Joined<Iter, Lhs, Rhs, OnMatch2>& other, OnMatch&& on_match):
 		l_{other.l_}, r_{other.r_}, on_match_{on_match}{}
 
+
+	Joined(const Joined&) = default;
+	Joined(Joined&&) = default;
+
+	Joined& operator=(const Joined&) = default;
+	Joined& operator=(Joined&&) = default;
+
 private:
 
 	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {

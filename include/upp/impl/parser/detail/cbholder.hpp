@@ -18,6 +18,12 @@ public:
 	CbHolder(T2&& t): t_{std::forward<T2>(t)}{}
 	CbHolder(){}
 
+	CbHolder(const CbHolder&) = default;
+	CbHolder(CbHolder&&) = default;
+
+	CbHolder& operator=(const CbHolder&) = default;
+	CbHolder& operator=(CbHolder&&) = default;
+
 	constexpr operator bool() const noexcept {
 		if constexpr (!std::is_same_v<T, std::nullptr_t>) {
 			return true;

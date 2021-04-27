@@ -25,6 +25,11 @@ public:
 	LiteralChar(const LiteralChar<Iter, OnMatch2>& other, OnMatch&& on_match):
 		c_{other.c_}, cb_{std::move(on_match)}{}
 
+	LiteralChar(const LiteralChar&) = default;
+	LiteralChar(LiteralChar&&) = default;
+
+	LiteralChar& operator=(const LiteralChar&) = default;
+	LiteralChar& operator=(LiteralChar&&) = default;
 
 	std::string_view name() const noexcept final {
 		return std::string_view(&c_, 1);
@@ -71,6 +76,11 @@ public:
 	LiteralStr(const LiteralStr<Iter, OnMatch2>& other, OnMatch&& on_match):
 		str_{other.str_}, on_match_{std::move(on_match)}{}
 
+	LiteralStr(const LiteralStr&) = default;
+	LiteralStr(LiteralStr&&) = default;
+
+	LiteralStr& operator=(const LiteralStr&) = default;
+	LiteralStr& operator=(LiteralStr&&) = default;
 
 	std::string_view name() const noexcept final {
 		return str_;

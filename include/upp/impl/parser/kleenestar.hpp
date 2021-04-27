@@ -31,6 +31,12 @@ public:
 	KleeneStar(const KleeneStar<Iter, SubAst, OnMatch2>& other, OnMatch&& on_match):
 		a_{other.a_}, on_match_{std::move(on_match)}{}
 
+	KleeneStar(const KleeneStar&) = default;
+	KleeneStar(KleeneStar&&) = default;
+
+	KleeneStar& operator=(const KleeneStar&) = default;
+	KleeneStar& operator=(KleeneStar&&) = default;
+
 private:
 	bool match_(detail::Ctx<Iter>& ctx) const noexcept final {
 		Iter* end = detail::prepare_match(ctx, this, on_match_);

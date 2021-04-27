@@ -115,6 +115,13 @@ public:
 	/// Construct DynAst without the matching callback
 	DynAst(Ast<Iter>* ptr): ast_{ptr}{}
 
+
+	DynAst(const DynAst&) = delete;
+	DynAst(DynAst&&) = default;
+
+	DynAst& operator=(const DynAst&) = delete;
+	DynAst& operator=(DynAst&&) = default;
+
 	/**
 	 * Assign an Ast to this object
 	 *
