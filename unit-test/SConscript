@@ -25,6 +25,7 @@ test = testenv.Program(
 		"parser/kleenestar.cpp",
 		"parser/kleeneplus.cpp",
 		"parser/complex.cpp",
+		"math/mat.cpp",
                 ])
 
 Help("    testbin           Only build tests\n")
