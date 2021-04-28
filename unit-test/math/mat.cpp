@@ -138,3 +138,17 @@ TEST(Mat, MulMultiple){
 	ASSERT_EQ(res(0, 0), 219);
 }
 
+TEST(Mat, Transpose){
+	m::Mat<int, 1, 2> mat{};
+	mat(0, 0) = 1;
+	mat(0, 1) = 2;
+
+	auto trans1 = m::transpose(mat);
+	auto trans2 = mat.t();
+
+	ASSERT_EQ(trans1, trans2);
+
+	ASSERT_EQ(trans1(0, 0), 1);
+	ASSERT_EQ(trans1(1, 0), 2);
+
+}

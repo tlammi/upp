@@ -4,6 +4,7 @@
 
 #include "upp/impl/math/detail/traits.hpp"
 #include "upp/impl/math/detail/conv.hpp"
+#include "upp/impl/math/transpose.hpp"
 
 namespace upp{
 namespace math{
@@ -29,6 +30,15 @@ public:
 	constexpr const T& operator()(size_t i, size_t j) const {
 		check_idx(i, j);
 		return arr_[i][j];
+	}
+
+
+	Transpose<Mat&> t() noexcept {
+		return {*this};
+	}
+
+	Transpose<const Mat&> t() const noexcept {
+		return {*this};
 	}
 
 private:
