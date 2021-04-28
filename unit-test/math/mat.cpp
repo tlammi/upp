@@ -156,8 +156,8 @@ TEST(Mat, Transpose){
 TEST(Mat, DiagMat){
 
 	m::DiagMat<int, 2, 3> d{};
-	d(0, 0) = 1;
-	d(1, 1) = 2;
+	d(0) = 1;
+	d(1) = 2;
 
 	m::Mat<int, 3, 1> mat{};
 

@@ -21,16 +21,20 @@ public:
 			operator()(i, i) = other(i, i);
 	}
 
-	constexpr T& operator()(size_t i, size_t j) {
+	constexpr const T operator()(size_t i, size_t j) const {
 		check_idx(i, j);
 		if(i == j) return arr_[i];
-		return dummy_;
+		return 0;
 	}
 
-	constexpr const T& operator()(size_t i, size_t j) const {
-		check_idx(i, j);
-		if(i == j) return arr_[i];
-		return dummy_;
+	constexpr const T& operator()(size_t i) const {
+		check_idx(i, i);
+		return arr_[i];
+	}
+
+	constexpr T& operator()(size_t i) {
+		check_idx(i, i);
+		return arr_[i];
 	}
 
 	Transpose<DiagMat&> t() noexcept {
@@ -47,7 +51,6 @@ private:
 		if(i>=H) throw std::runtime_error("Mat::operator(): i>H");
 		if(j>=W) throw std::runtime_error("Mat::operator(): j>W");
 	}
-	T dummy_{};
 	T arr_[std::min(H, W)];
 };
 
