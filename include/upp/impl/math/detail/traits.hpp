@@ -20,7 +20,13 @@ class MatMul;
 template<class Wrap>
 class Transpose;
 
+template<class T, size_t H, size_t W>
+class DiagMat;
+
+
 namespace detail{
+
+
 
 template<class T>
 struct is_mat: std::false_type{};
@@ -39,6 +45,11 @@ struct is_mat<MatMul<L, R>>: std::true_type{};
 
 template<class Wrap>
 struct is_mat<Transpose<Wrap>>: std::true_type{};
+
+template<class T, size_t H, size_t W>
+struct is_mat<DiagMat<T, H, W>>: std::true_type{};
+
+
 
 template<class T>
 constexpr bool is_mat_v = is_mat<std::decay_t<T>>::value;
@@ -73,6 +84,12 @@ template<class Wrap>
 struct mat_type<Transpose<Wrap>>{
 	using type = mat_type_t<Wrap>;
 };
+
+template<class T, size_t H, size_t W>
+struct mat_type<DiagMat<T, H, W>>{
+	using type = T;
+};
+
 
 
 template<class T>
@@ -113,6 +130,12 @@ struct mat_height<Transpose<Wrap>>{
 	static constexpr size_t value = mat_width_v<Wrap>;
 };
 
+template<class T, size_t H, size_t W>
+struct mat_height<DiagMat<T, H, W>>{
+	static constexpr size_t value = H;
+};
+
+
 
 template<class T, size_t H, size_t W>
 struct mat_width<Mat<T, H, W>>{
@@ -137,6 +160,11 @@ struct mat_width<MatMul<L, R>>{
 template<class Wrap>
 struct mat_width<Transpose<Wrap>>{
 	static constexpr size_t value = mat_height_v<Wrap>;
+};
+
+template<class T, size_t H, size_t W>
+struct mat_width<DiagMat<T, H, W>>{
+	static constexpr size_t value = W;
 };
 
 }

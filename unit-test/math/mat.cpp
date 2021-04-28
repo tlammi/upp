@@ -152,3 +152,23 @@ TEST(Mat, Transpose){
 	ASSERT_EQ(trans1(1, 0), 2);
 
 }
+
+TEST(Mat, DiagMat){
+
+	m::DiagMat<int, 2, 3> d{};
+	d(0, 0) = 1;
+	d(1, 1) = 2;
+
+	m::Mat<int, 3, 1> mat{};
+
+	mat(0, 0) = 3;
+	mat(1, 0) = 4;
+	mat(2, 0) = 5;
+
+	m::Mat<int, 2, 1> expected{};
+
+	expected(0, 0) = 3;
+	expected(1, 0) = 8;
+
+	ASSERT_EQ((d*mat), expected);
+}

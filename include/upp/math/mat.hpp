@@ -7,4 +7,5 @@
 #include "upp/impl/math/matmul.hpp"
 #include "upp/impl/math/cmp.hpp"
 #include "upp/impl/math/transpose.hpp"
+#include "upp/impl/math/diagmat.hpp"
 
