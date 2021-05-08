@@ -1,5 +1,6 @@
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include "fixture.hpp"
 
@@ -72,5 +73,40 @@ TEST_F(ParserFixture, Error){
 	ASSERT_FALSE(res);
 	auto err_str = upp::parser::error_msg(LIST_2.cbegin(), LIST_2.cend(), res);
 	ASSERT_NE(err_str.find("1:6"), std::string::npos);
+
+}
+
+
+
+const std::string INVALID_LIST = "[1, 2, 3";
+
+// Check that the iterator is left where the best match left it
+TEST_F(ParserFixture, DoubleError){
+	auto item = factory.regex(R"([^\s,]+)");
+	auto list = (factory.lit('['), item, *(factory.lit(','), item), factory.lit(']'));
+
+	// Mock rule to test that the iterator does not get cleared
+	auto something_else = (factory.lit('['), factory.lit('['));
+
+	// Matches list first and then the mock rule. Iterator should be left
+	// where the left hand operand leaves it as it is further
+	auto ast = (list | something_else);
+
+	auto res = upp::parser::parse(INVALID_LIST.cbegin(), INVALID_LIST.cend(), ast, upp::parser::whitespaces);
+	ASSERT_FALSE(res);
+	auto distance = res.iter - INVALID_LIST.cbegin();
+	ASSERT_EQ(distance, 8);
+	ASSERT_EQ(res.expecteds.size(), 2);
+
+	auto expected_names = [&](){
+		std::vector<std::string_view> names;
+		for(const auto& exp: res.expecteds)
+			names.push_back(exp->name());
+		return names;
+	};
+
+	auto names = expected_names();
+
+	ASSERT_THAT(names, testing::UnorderedElementsAre("]", ","));
 
 }

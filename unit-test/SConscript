@@ -2,7 +2,7 @@ Import("env")
 
 
 testenv = env.Clone()
-test_flags = {"LIBS": ["gtest", "upp", "pthread"]}
+test_flags = {"LIBS": ["gtest", "gmock", "upp", "pthread"]}
 testenv.MergeFlags(test_flags)
 test = testenv.Program(
     "testbin", ["main.cpp",

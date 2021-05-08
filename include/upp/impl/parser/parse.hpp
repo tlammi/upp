@@ -35,7 +35,7 @@ IterCoord coord(Iter iter, const Iter pos, const Iter end){
 		if(iter == pos) return coord;
 		++iter;
 	}
-	throw std::runtime_error("pos not in range [iter, end)");
+	return coord;
 }
 
 }
@@ -110,7 +110,10 @@ std::string error_msg(Iter begin, Iter end, const Result<Iter>& res){
 		}
 		ss << '\'' << (*(expecteds.cend()-2))->name() << "' or '" << (*(expecteds.cend()-1))->name() << '\'';
 	}
-	ss << " before '" << *res.iter << '\'';
+	if(res.iter != end)
+		ss << " before '" << *res.iter << '\'';
+	else
+		ss << " before end of stream";
 	return ss.str();
 }
 

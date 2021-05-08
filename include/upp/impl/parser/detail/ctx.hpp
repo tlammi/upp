@@ -94,8 +94,10 @@ void register_match(Ctx<Iter>& ctx, Iter* end, size_t inc){
 template<class Iter>
 void register_match_leaf(Ctx<Iter>& ctx, Iter* end, size_t inc){
 	ctx.iter += inc;
-	if(ctx.iter > ctx.max_iter) ctx.max_iter = ctx.iter;
-	ctx.expecteds.clear();
+	if(ctx.iter > ctx.max_iter){
+		ctx.max_iter = ctx.iter;
+		ctx.expecteds.clear();
+	}
 	if(end) *end = ctx.iter;
 }
 
