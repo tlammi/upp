@@ -59,7 +59,7 @@ template<class Iter, class OnMatch>
 Iter* prepare_match(Ctx<Iter>& ctx, const Ast<Iter>* ast, OnMatch&& on_match){
 	if(ctx.skipper) ctx.iter = ctx.skipper(ctx.iter, ctx.end);
 	if(ctx.iter > ctx.max_iter) ctx.max_iter = ctx.iter;
-	if constexpr (on_match){
+	if (on_match){
 		ctx.matches.emplace_back(ast, ctx.iter, ctx.end);
 		return &ctx.matches.back().end;
 	} else{

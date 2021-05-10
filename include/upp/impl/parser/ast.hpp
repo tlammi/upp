@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string_view>
 
 #include "upp/impl/parser/detail/cbholder.hpp"
 #include "upp/impl/parser/detail/ctx.hpp"
