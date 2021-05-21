@@ -41,13 +41,15 @@ IterCoord coord(Iter iter, const Iter pos, const Iter end){
 }
 
 /// Skipper for skipping all whitespaces between lexemes
-auto whitespaces(auto iter, auto end){
+template<class T>
+T whitespaces(T iter, T end){
 	while(iter != end && std::isspace(*iter)) ++iter;
 	return iter;
 }
 
 /// Skipper for skipping all spaces between lexemes
-auto spaces(auto iter, auto end){
+template<class T>
+T spaces(T iter, T end){
 	while(iter != end && *iter == ' ') ++iter;
 	return iter;
 }

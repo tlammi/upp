@@ -17,7 +17,7 @@ Targets:
 """)
 
 cpppath = ["#include"]
-cxxflags = ["--std=c++17", "-fconcepts-ts"]
+cxxflags = ["--std=c++17"]
 libs = []
 
 if GetOption("debug"):
