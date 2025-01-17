@@ -1,0 +1,3 @@
+TESTS += files(
+  'functional.cpp'
+)
