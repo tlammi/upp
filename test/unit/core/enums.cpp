@@ -36,3 +36,10 @@ TEST(Map, Add) {
   ASSERT_EQ(std::as_const(map).at(Int::A), 1);
 }
 
+TEST(Map, InlineAdd) {
+  auto map = upp::EnumMapInline<Int, int>{};
+  map[Int::A] = 1;
+  ASSERT_EQ(map.size(), 1);
+  ASSERT_EQ(map.at(Int::A), 1);
+  ASSERT_EQ(std::as_const(map).at(Int::A), 1);
+}
