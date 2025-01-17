@@ -1,3 +1,4 @@
 TESTS += files(
-  'functional.cpp'
+  'functional.cpp',
+  'util.cpp',
 )
