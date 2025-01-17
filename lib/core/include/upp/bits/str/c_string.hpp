@@ -75,4 +75,11 @@ class CString {
   }
 };
 
+namespace literals {
+constexpr CString operator""_c_str(const char* str, size_t len) {
+  return {str, len};
+}
+
+}  // namespace literals
+
 }  // namespace upp

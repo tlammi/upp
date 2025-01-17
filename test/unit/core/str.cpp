@@ -27,10 +27,16 @@ TEST(Util, StrCmpLonger) {
   ASSERT_GT(res, 0);
 }
 
-TEST(CStr, Default) {
+TEST(CStr, DefaultCtor) {
   auto s = upp::CString();
   ASSERT_EQ(s.size(), 0);
   ASSERT_EQ(s.data(), nullptr);
+}
+
+TEST(CStr, LiteralCtor) {
+  using namespace upp::literals;
+  auto s = "foo"_c_str;
+  ASSERT_EQ(s, std::string("foo"));
 }
 
 TEST(CStr, StrLiteral) {
