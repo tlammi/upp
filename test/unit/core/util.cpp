@@ -22,3 +22,4 @@ TEST(Match, ReturnVoid) {
   upp::match(var, [&](int i) { res = i; });
   ASSERT_EQ(res, 1);
 }
+
