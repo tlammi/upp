@@ -36,10 +36,41 @@ TEST(Map, Add) {
   ASSERT_EQ(std::as_const(map).at(Int::A), 1);
 }
 
-TEST(Map, InlineAdd) {
-  auto map = upp::EnumMapInline<Int, int>{};
+TEST(Map, StaticAdd) {
+  auto map = upp::EnumMapStatic<Int, int>{};
   map[Int::A] = 1;
   ASSERT_EQ(map.size(), 1);
   ASSERT_EQ(map.at(Int::A), 1);
   ASSERT_EQ(std::as_const(map).at(Int::A), 1);
+}
+
+TEST(Map, ConstIterate) {
+  enum class Enum {
+    A,
+    B,
+    C,
+    D,
+  };
+
+  auto map = upp::EnumMap<Enum, std::string>();
+  map[Enum::A] = "a";
+  map[Enum::B] = "b";
+  map[Enum::D] = "d";
+
+  auto iter = map.begin();
+  ASSERT_EQ(iter->first, Enum::A);
+  ASSERT_EQ(iter->second, "a");
+  ++iter;
+  ASSERT_EQ(iter->first, Enum::B);
+  ASSERT_EQ(iter->second, "b");
+  ++iter;
+  ASSERT_EQ(iter->first, Enum::D);
+  ASSERT_EQ(iter->second, "d");
+  ++iter;
+  ASSERT_EQ(iter, map.end());
+
+  /*
+  for (const auto& [key, val] : map) {
+  }
+  */
 }
