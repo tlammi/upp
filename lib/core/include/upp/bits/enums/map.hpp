@@ -117,6 +117,16 @@ public:
 
   iterator end() noexcept { return {}; }
 
+  size_t erase(Key key) noexcept {
+    auto &opt = m_data[*magic_enum::enum_index(key)];
+    if (opt) {
+      opt.reset();
+      --m_size;
+      return 1;
+    }
+    return 0;
+  }
+
 protected:
   constexpr EnumMapBase(Store init) : m_data(std::move(init)) {}
   constexpr EnumMapBase() = default;

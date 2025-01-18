@@ -68,9 +68,20 @@ TEST(Map, ConstIterate) {
   ASSERT_EQ(iter->second, "d");
   ++iter;
   ASSERT_EQ(iter, map.end());
+}
 
-  /*
-  for (const auto& [key, val] : map) {
-  }
-  */
+TEST(Map, EraseOne) {
+  auto map = upp::EnumMap<Int, int>();
+  map[Int::A] = 1;
+  auto count = map.erase(Int::A);
+  ASSERT_EQ(count, 1);
+  ASSERT_TRUE(map.empty());
+}
+
+TEST(Map, EraseMiss) {
+  auto map = upp::EnumMap<Int, int>();
+  map[Int::A] = 1;
+  auto count = map.erase(Int::B);
+  ASSERT_EQ(count, 0);
+  ASSERT_EQ(map.size(), 1);
 }

@@ -17,7 +17,7 @@ compile: build/.tag
 TEST_NAME ?= *
 .PHONY: test
 test: build/.tag
-	meson test -C build $(TEST_NAME)
+	meson test -C build "$(TEST_NAME)"
 
 .PHONY: coverage-html
 coverage-html: build/.tag
