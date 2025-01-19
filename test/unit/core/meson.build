@@ -3,4 +3,5 @@ TESTS += files(
   'util.cpp',
   'str.cpp',
   'enums.cpp',
+  'concepts.cpp',
 )
