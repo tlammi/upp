@@ -44,7 +44,7 @@ TEST(Map, StaticAdd) {
   ASSERT_EQ(std::as_const(map).at(Int::A), 1);
 }
 
-TEST(Map, ConstIterate) {
+TEST(Map, Iterate) {
   enum class Enum {
     A,
     B,
@@ -60,12 +60,18 @@ TEST(Map, ConstIterate) {
   auto iter = map.begin();
   ASSERT_EQ(iter->first, Enum::A);
   ASSERT_EQ(iter->second, "a");
+  iter->second = "A";
+  ASSERT_EQ(map[Enum::A], "A");
   ++iter;
   ASSERT_EQ(iter->first, Enum::B);
   ASSERT_EQ(iter->second, "b");
+  iter->second = "B";
+  ASSERT_EQ(map[Enum::B], "B");
   ++iter;
   ASSERT_EQ(iter->first, Enum::D);
   ASSERT_EQ(iter->second, "d");
+  iter->second = "D";
+  ASSERT_EQ(map[Enum::D], "D");
   ++iter;
   ASSERT_EQ(iter, map.end());
 }
