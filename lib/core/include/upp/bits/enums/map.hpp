@@ -6,18 +6,23 @@
 
 namespace upp {
 
-template <concepts::enum_type Key, class Val, class Store> class EnumMapBase {
+template <concepts::enum_type Key, class Val, class Store>
+class EnumMapBase {
   Store m_data{};
   size_t m_size{};
 
-public:
-  class iterator {
+ public:
+  template <bool Const>
+  class IteratorImpl {
     friend class EnumMapBase;
 
-    Store *m_store{};
+    using reference = std::conditional_t<Const, const Val &, Val &>;
+    using store_pointer = std::conditional_t<Const, const Store *, Store *>;
+
+    store_pointer m_store{};
     union {
       Key key{};
-      std::pair<Key, Val &> pair;
+      std::pair<Key, reference> pair;
     } m_data;
 
     constexpr bool is_end() const noexcept { return !m_store; }
@@ -35,11 +40,10 @@ public:
       }
     }
 
-    constexpr iterator(Key key, Store *store) noexcept
+    constexpr IteratorImpl(Key key, store_pointer store) noexcept
         : m_store(store), m_data{.key = key} {
       assert(&m_data.key == &m_data.pair.first);
-      if (is_end())
-        return;
+      if (is_end()) return;
       while (true) {
         auto &optional = (*m_store)[idx()];
         if (optional) {
@@ -47,25 +51,22 @@ public:
           return;
         }
         inc();
-        if (is_end())
-          return;
+        if (is_end()) return;
       }
     }
 
-  public:
-    constexpr iterator() noexcept = default;
+   public:
+    constexpr IteratorImpl() noexcept = default;
 
-    constexpr bool operator==(const iterator &other) const noexcept {
-      if (!m_store && !other.m_store)
-        return true;
+    constexpr bool operator==(const IteratorImpl &other) const noexcept {
+      if (!m_store && !other.m_store) return true;
       return m_data.key == other.m_data.key;
     }
 
-    constexpr iterator &operator++() noexcept {
+    constexpr IteratorImpl &operator++() noexcept {
       while (true) {
         inc();
-        if (is_end())
-          return *this;
+        if (is_end()) return *this;
         auto &optional = (*m_store)[idx()];
         if (optional) {
           std::construct_at(&m_data.pair, m_data.pair.first, *optional);
@@ -74,10 +75,10 @@ public:
       }
     }
 
-    constexpr std::pair<Key, Val &> &operator*() noexcept {
+    constexpr std::pair<Key, reference> &operator*() noexcept {
       return m_data.pair;
     }
-    constexpr std::pair<Key, Val &> *operator->() noexcept {
+    constexpr std::pair<Key, reference> *operator->() noexcept {
       return &m_data.pair;
     }
   };
@@ -85,6 +86,8 @@ public:
   using key_type = Key;
   using mapped_type = Val;
   using value_type = std::pair<key_type, mapped_type>;
+  using iterator = IteratorImpl<false>;
+  using const_iterator = IteratorImpl<true>;
 
   static constexpr size_t map_capacity = magic_enum::enum_count<Key>();
 
@@ -115,7 +118,12 @@ public:
     return {magic_enum::enum_value<Key>(0), &m_data};
   }
 
+  const_iterator begin() const noexcept {
+    return {magic_enum::enum_value<Key>(0), &m_data};
+  }
+
   iterator end() noexcept { return {}; }
+  const_iterator end() const noexcept { return {}; }
 
   size_t erase(Key key) noexcept {
     auto &opt = m_data[*magic_enum::enum_index(key)];
@@ -127,7 +135,7 @@ public:
     return 0;
   }
 
-protected:
+ protected:
   constexpr EnumMapBase(Store init) : m_data(std::move(init)) {}
   constexpr EnumMapBase() = default;
 
@@ -151,7 +159,7 @@ class EnumMap
     : public EnumMapBase<Key, Val, std::unique_ptr<std::optional<Val>[]>> {
   using Base = EnumMapBase<Key, Val, std::unique_ptr<std::optional<Val>[]>>;
 
-public:
+ public:
   constexpr EnumMap()
       : Base(std::unique_ptr<std::optional<Val>[]>(
             new std::optional<Val>[Base::map_capacity])) {}
@@ -169,10 +177,10 @@ class EnumMapStatic
   using Base = EnumMapBase<
       Key, Val, std::array<std::optional<Val>, magic_enum::enum_count<Key>()>>;
 
-public:
+ public:
   constexpr EnumMapStatic() : Base() {}
   constexpr EnumMapStatic(std::initializer_list<typename Base::value_type> list)
       : Base(list) {}
 };
 
-} // namespace upp
+}  // namespace upp

@@ -76,6 +76,25 @@ TEST(Map, Iterate) {
   ASSERT_EQ(iter, map.end());
 }
 
+TEST(Map, ConstIterate) {
+  enum class Enum {
+    A,
+    B,
+    C,
+  };
+  const auto map =
+      upp::EnumMap<Enum, std::string>{{Enum::A, "a"}, {Enum::C, "c"}};
+
+  auto iter = map.begin();
+  ASSERT_EQ(iter->first, Enum::A);
+  ASSERT_EQ(iter->second, "a");
+  ++iter;
+  ASSERT_EQ(iter->first, Enum::C);
+  ASSERT_EQ(iter->second, "c");
+  ++iter;
+  ASSERT_EQ(iter, map.end());
+}
+
 TEST(Map, EraseOne) {
   auto map = upp::EnumMap<Int, int>();
   map[Int::A] = 1;
