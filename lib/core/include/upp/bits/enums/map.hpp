@@ -28,8 +28,9 @@ class EnumMapBase {
             Key key{};
             std::pair<Key, reference> pair;
         } m_data{};
+        bool m_end{false};
 
-        constexpr bool is_end() const noexcept { return !m_store; }
+        constexpr bool is_end() const noexcept { return m_end; }
 
         constexpr size_t idx() noexcept {
             return *magic_enum::enum_index(m_data.key);
@@ -38,7 +39,7 @@ class EnumMapBase {
         constexpr void inc() noexcept {
             auto i = idx() + 1;
             if (i == magic_enum::enum_count<Key>()) {
-                m_store = nullptr;
+                m_end = true;
             } else {
                 m_data.key = magic_enum::enum_value<Key>(i);
             }
@@ -60,27 +61,32 @@ class EnumMapBase {
             }
         }
 
+        constexpr IteratorImpl(store_pointer store) noexcept
+            : m_store(store), m_end(true) {}
+
      public:
         constexpr IteratorImpl() noexcept = default;
 
         constexpr IteratorImpl(const IteratorImpl& other) noexcept
-            : m_store(other.m_store) {
-            if (m_store) std::construct_at(&m_data.pair, other.m_data.pair);
+            : m_store(other.m_store), m_end(other.m_end) {
+            std::construct_at(&m_data.pair, other.m_data.pair);
         }
 
         constexpr IteratorImpl& operator=(const IteratorImpl& other) noexcept {
             m_store = other.m_store;
+            m_end = other.m_end;
             std::construct_at(&m_data.pair, other.m_data.pair);
             return *this;
         }
 
         constexpr IteratorImpl(IteratorImpl&& other) noexcept
-            : m_store(other.m_store) {
+            : m_store(other.m_store), m_end(other.m_end) {
             std::construct_at(&m_data.pair, other.pair);
         }
 
         constexpr IteratorImpl& operator=(IteratorImpl&& other) noexcept {
             m_store = other.m_store;
+            m_end = other.m_end;
             std::construct_at(&m_data.pair, other.pair);
             return *this;
         }
@@ -88,11 +94,9 @@ class EnumMapBase {
         constexpr ~IteratorImpl() = default;
 
         constexpr bool operator==(const IteratorImpl& other) const noexcept {
-            if (!m_store && !other.m_store) return true;
-            if (m_store && other.m_store) {
-                return m_data.key == other.m_data.key;
-            }
-            return false;
+            if (m_end && other.m_end) return true;
+            if (!m_end || other.m_end) return false;
+            return m_data.key == other.m_data.key;
         }
 
         constexpr IteratorImpl& operator++() noexcept {
@@ -113,6 +117,8 @@ class EnumMapBase {
             ++(*this);
             return cpy;
         }
+
+        constexpr IteratorImpl& operator--() noexcept {}
 
         template <class S>
         constexpr decltype(auto) operator*(this S&& self) noexcept {
@@ -167,8 +173,8 @@ class EnumMapBase {
         return {magic_enum::enum_value<Key>(0), &m_data};
     }
 
-    iterator end() noexcept { return {}; }
-    const_iterator end() const noexcept { return {}; }
+    iterator end() noexcept { return {&m_data}; }
+    const_iterator end() const noexcept { return {&m_data}; }
 
     size_t erase(Key key) noexcept {
         auto& opt = m_data[*magic_enum::enum_index(key)];
