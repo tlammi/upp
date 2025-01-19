@@ -19,6 +19,9 @@ class CString {
   constexpr CString(const char* str) noexcept
       : CString(str, upp::strlen(str)) {}
 
+  template <size_t S>
+  constexpr CString(const char (&str)[S]) noexcept : CString(str, S) {}
+
   constexpr CString(const char* str, size_t len) noexcept
       : m_ptr(str), m_len(len) {}
 
