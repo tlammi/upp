@@ -23,7 +23,7 @@ class EnumMapBase {
     union {
       Key key{};
       std::pair<Key, reference> pair;
-    } m_data;
+    } m_data{};
 
     constexpr bool is_end() const noexcept { return !m_store; }
 
