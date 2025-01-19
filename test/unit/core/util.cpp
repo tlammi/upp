@@ -23,3 +23,32 @@ TEST(Match, ReturnVoid) {
   ASSERT_EQ(res, 1);
 }
 
+TEST(Defer, Do) {
+  int i = 0;
+  {
+    auto defer = upp::Defer{[&] noexcept { ++i; }};
+    ASSERT_EQ(i, 0);
+  }
+  ASSERT_EQ(i, 1);
+}
+
+TEST(Defer, Cancel) {
+  int i = 0;
+  {
+    auto defer = upp::Defer{[&] noexcept { ++i; }};
+    defer.cancel();
+  }
+  ASSERT_EQ(i, 0);
+}
+
+TEST(Defer, Move) {
+  int i = 0;
+  {
+    auto defer = upp::Defer{[&] noexcept { ++i; }};
+    auto d2 = std::move(defer);
+    auto d3 = std::move(d2);
+    ASSERT_EQ(i, 0);
+  }
+
+  ASSERT_EQ(i, 1);
+}
