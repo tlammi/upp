@@ -45,6 +45,18 @@ class EnumMapBase {
             }
         }
 
+        constexpr void dec() noexcept {
+            if (m_end) {
+                auto count = magic_enum::enum_count<Key>();
+                m_data.key = magic_enum::enum_value<Key>(count - 1);
+                m_end = false;
+            } else {
+                auto i = idx();
+                assert(i);
+                m_data.key = magic_enum::enum_value<Key>(i - 1);
+            }
+        }
+
         constexpr IteratorImpl(Key key, store_pointer store) noexcept
             : m_store(store), m_data{.key = key} {
             assert(&m_data.key == &m_data.pair.first);
@@ -95,7 +107,7 @@ class EnumMapBase {
 
         constexpr bool operator==(const IteratorImpl& other) const noexcept {
             if (m_end && other.m_end) return true;
-            if (!m_end || other.m_end) return false;
+            if (m_end || other.m_end) return false;
             return m_data.key == other.m_data.key;
         }
 
@@ -118,7 +130,23 @@ class EnumMapBase {
             return cpy;
         }
 
-        constexpr IteratorImpl& operator--() noexcept {}
+        constexpr IteratorImpl& operator--() noexcept {
+            while (true) {
+                dec();
+                auto& optional = (*m_store)[idx()];
+                if (optional) {
+                    std::construct_at(&m_data.pair, m_data.pair.first,
+                                      *optional);
+                    return *this;
+                }
+            }
+        }
+
+        constexpr IteratorImpl operator--(int) noexcept {
+            auto cpy = *this;
+            --(*this);
+            return cpy;
+        }
 
         template <class S>
         constexpr decltype(auto) operator*(this S&& self) noexcept {

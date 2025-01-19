@@ -8,7 +8,7 @@ enum class Int : int {
     B = 1,
 };
 
-static_assert(std::forward_iterator<upp::EnumMap<Int, int>::iterator>);
+static_assert(std::bidirectional_iterator<upp::EnumMap<Int, int>::iterator>);
 
 TEST(Cast, ToUnderlying) {
     ASSERT_EQ(upp::underlying_cast(Int::A), 0);
@@ -78,6 +78,28 @@ TEST(Map, Iterate) {
     ASSERT_EQ(iter, map.end());
 }
 
+TEST(Map, IterateSubtract) {
+    enum class Enum {
+        A,
+        B,
+        C,
+        D,
+    };
+    using enum Enum;
+    auto map = upp::EnumMap<Enum, std::string>{{A, "a"}, {B, "b"}, {C, "c"}};
+    auto iter = map.end();
+    --iter;
+    ASSERT_EQ(iter->first, C);
+    ASSERT_EQ(iter->second, "c");
+    --iter;
+    ASSERT_EQ(iter->first, B);
+    ASSERT_EQ(iter->second, "b");
+    --iter;
+    ASSERT_EQ(iter->first, A);
+    ASSERT_EQ(iter->second, "a");
+    ASSERT_EQ(iter, map.begin());
+}
+
 TEST(Map, ConstIterate) {
     enum class Enum {
         A,
@@ -126,3 +148,4 @@ TEST(Map, CreateVec) {
 
     ASSERT_EQ(vec.size(), 3);
 }
+
