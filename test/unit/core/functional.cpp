@@ -134,3 +134,19 @@ TEST(StaticFunc, Callback) {
     ASSERT_EQ(res, 3);
 }
 
+TEST(Callback, CtorDefault) {
+    auto cb = upp::Callback<void()>();
+    ASSERT_FALSE(cb);
+}
+
+TEST(Callback, FromFunc) {
+    auto f = mk_fn([] { return 1; });
+    auto cb = upp::Callback(f);
+    ASSERT_EQ(cb(), 1);
+}
+
+TEST(Callback, FromStaticFunc) {
+    auto f = mk_sfn([] { return 1; });
+    auto cb = upp::Callback(f);
+    ASSERT_EQ(cb(), 1);
+}

@@ -30,7 +30,7 @@ concept static_function_element =
 
 template <size_t S, class R, class... Ps>
 class StaticFunction<R(Ps...), S> {
-    std::array<uint8_t, S> m_buf{};
+    alignas(alignof(std::max_align_t)) std::array<uint8_t, S> m_buf{};
     R (*m_invoke)(void*, Ps...){};
 
     void* data() noexcept { return static_cast<void*>(m_buf.data()); }
