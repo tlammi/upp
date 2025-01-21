@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <upp/concepts.hpp>
@@ -30,7 +31,7 @@ concept static_function_element =
 
 template <size_t S, class R, class... Ps>
 class StaticFunction<R(Ps...), S> {
-    alignas(alignof(std::max_align_t)) std::array<uint8_t, S> m_buf{};
+    alignas(alignof(std::max_align_t)) mutable std::array<uint8_t, S> m_buf{};
     R (*m_invoke)(void*, Ps...){};
 
     void* data() noexcept { return static_cast<void*>(m_buf.data()); }
@@ -70,18 +71,18 @@ class StaticFunction<R(Ps...), S> {
 
     R operator()(Ps... ps) { return m_invoke(data(), std::forward<Ps>(ps)...); }
 
-    void* userdata() noexcept {
-        return reinterpret_cast<void*>(this);  // NOLINT
+    void* userdata() const noexcept {
+        return reinterpret_cast<void*>(m_buf.data());  // NOLINT
     }
 
-    auto callback() noexcept -> R (*)(void*, Ps...) {
+    auto callback() const noexcept -> R (*)(void*, Ps...) {
         return +[](void* userdata, Ps... ps) {
             auto* self = static_cast<StaticFunction*>(userdata);
             void* ptr = self->data();
             return self->m_invoke(ptr, std::forward<Ps>(ps)...);
         };
     }
-    auto callback2() noexcept -> R (*)(Ps..., void*) {
+    auto callback2() const noexcept -> R (*)(Ps..., void*) {
         return +[](Ps... ps, void* userdata) {
             auto* self = static_cast<StaticFunction*>(userdata);
             void* ptr = self->data();

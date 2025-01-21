@@ -150,3 +150,4 @@ TEST(Callback, FromStaticFunc) {
     auto cb = upp::Callback(f);
     ASSERT_EQ(cb(), 1);
 }
+

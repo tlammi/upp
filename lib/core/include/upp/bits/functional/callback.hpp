@@ -21,8 +21,11 @@ class Callback<R(Ps...)> {
         : m_userdata(f.userdata()), m_invoke(f.callback()) {}
 
     template <size_t S>
-    constexpr Callback(StaticFunction<R(Ps...), S>& f)
+    constexpr Callback(const StaticFunction<R(Ps...), S>& f)
         : m_userdata(f ? f.userdata() : nullptr), m_invoke(f.callback()) {}
+
+    template <size_t S>
+    Callback(StaticFunction<R(Ps...), S>&&) = delete;
 
     constexpr R operator()(Ps... ps) const noexcept {
         return m_invoke(m_userdata, std::forward<Ps>(ps)...);
