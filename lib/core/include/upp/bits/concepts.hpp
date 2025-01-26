@@ -21,4 +21,20 @@ concept enum_type = std::is_enum_v<T>;
 template <class T, class F>
 concept prototype = detail::prototype_impl<T, F>::value;
 
+template <class T>
+concept basic_lockable = requires(T t) {
+    t.lock();
+    t.unlock();
+};
+
+template <class T>
+concept lockable = requires(T t) { t.try_lock(); } && basic_lockable<T>;
+
+template <class T>
+concept shared_lockable = requires(T t) {
+    t.lock_shared();
+    t.try_lock_shared();
+    t.unlock_shared();
+};
+
 }  // namespace upp::concepts
