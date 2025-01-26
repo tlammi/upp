@@ -25,7 +25,6 @@ std::string_view split_next(std::string_view& s) {
 
 std::optional<RouteView> parse_route(std::string_view pattern,
                                      std::string_view path) {
-    namespace rv = std::ranges::views;
     auto orig = path;
     RouteView::ParamMap map{};
     std::string_view key{};
@@ -48,9 +47,6 @@ std::optional<RouteView> parse_route(std::string_view pattern,
                 std::println("assigning to map: '{}': '{}'", key,
                              path.substr(0, idx));
                 map[key] = path.substr(0, idx);
-                std::println("adsf: {}, {}", key, map[key]);
-                std::println("a: {}", map["a"]);
-                std::println("b: {}", map["b"]);
                 path.remove_prefix(idx + val.size());
                 std::println("path left: {}", path);
                 key = {};
@@ -58,12 +54,10 @@ std::optional<RouteView> parse_route(std::string_view pattern,
         }
     }
     if (!key.empty()) {
-        map[key] = path;
+        map[key] = std::exchange(path, {});
         std::println("last: {}: {}", key, map[key]);
     }
-    std::println("map:");
-    for (const auto& [k, v] : map) { std::println("{}: {}", k, v); }
-
+    if (!path.empty()) { return std::nullopt; }
     return RouteView(orig, std::move(map));
 }
 }  // namespace upp::net

@@ -21,7 +21,7 @@ TEST(Parse, ParamMatchBegin) {
 }
 
 TEST(Parse, ParamMatchMiddle) {
-    auto res = upp::net::parse_route("/a/{foo}/b", "/a/bar/b/");
+    auto res = upp::net::parse_route("/a/{foo}/b", "/a/bar/b");
     ASSERT_TRUE(res);
     ASSERT_EQ(res->params().at("foo"), "bar");
 }
@@ -38,5 +38,20 @@ TEST(Parse, Multiple) {
 
 TEST(Parse, PrefixMissmatch) {
     auto res = upp::net::parse_route("/foo/{a}", "/bar/baz");
+    ASSERT_FALSE(res);
+}
+
+TEST(Parse, SuffixMismatch) {
+    auto res = upp::net::parse_route("/{foo}/bar", "/bar/baz");
+    ASSERT_FALSE(res);
+}
+
+TEST(Parse, ExtraPrefix) {
+    auto res = upp::net::parse_route("/foo/bar/{baz}", "/bar/baz");
+    ASSERT_FALSE(res);
+}
+
+TEST(Parse, ExtraSuffix) {
+    auto res = upp::net::parse_route("/foo/{bar}/baz", "/foo/bar/baz/asd");
     ASSERT_FALSE(res);
 }
