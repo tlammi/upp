@@ -1,12 +1,16 @@
 TESTS = []
 subdir('core')
+if get_option('net')
+  subdir('net')
+endif
 
 fs = import('fs')
 
 
 common_test_deps = [dependency('gtest'), dependency('gtest_main')]
 test_deps = {
-    'core': [upp_core_dep] + common_test_deps
+    'core': [upp_core_dep] + common_test_deps,
+    'net': [upp_net_dep] + common_test_deps,
 }
 
 foreach t: TESTS

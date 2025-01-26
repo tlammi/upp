@@ -1,0 +1,3 @@
+TESTS += files(
+  'route.cpp'
+)

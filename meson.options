@@ -1,0 +1,1 @@
+option('net', type: 'boolean', value: true, description: 'Build networking support')
