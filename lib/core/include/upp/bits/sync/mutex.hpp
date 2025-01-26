@@ -9,20 +9,22 @@ namespace upp {
 
 template <class T, class Lock>
 class BasicMutexLock {
+    Lock m_lock;
+    T* m_val;
+
  public:
     BasicMutexLock(T& val, Lock lk) noexcept
         : m_lock(std::move(lk)), m_val(&val) {}
 
     T& operator*() const noexcept { return *m_val; }
     T* operator->() const noexcept { return m_val; }
-
- private:
-    Lock m_lock;
-    T* m_val;
 };
 
 template <class T, class Mut>
 class BasicMutex {
+    mutable Mut m_mut{};
+    T m_val{};
+
  public:
     BasicMutex() noexcept = default;
 
@@ -59,10 +61,6 @@ class BasicMutex {
         if (!lk.owns_lock()) return std::nullopt;
         return BasicMutexLock(m_val, std::move(lk));
     }
-
- private:
-    mutable Mut m_mut{};
-    T m_val{};
 };
 
 template <class T>
