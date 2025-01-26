@@ -1,5 +1,4 @@
 #include <cassert>
-#include <print>
 #include <stdexcept>
 #include <upp/bits/net/route.hpp>
 #include <upp/str.hpp>
@@ -31,32 +30,23 @@ std::optional<RouteView> parse_route(std::string_view pattern,
     while (!pattern.empty()) {
         auto val = split_next(pattern);
         if (val.empty()) break;
-        std::println("val: '{}'", val);
         if (val.starts_with('{') && val.ends_with('}')) {
             key = val.substr(1, val.size() - 2);
             if (key.empty()) throw std::runtime_error("invalid pattern");
         } else {
             if (key.empty()) {
                 if (!path.starts_with(val)) { return std::nullopt; }
-                std::println("before discard: {}", path);
                 path.remove_prefix(val.size());
-                std::println("after discard: {}", path);
             } else {
                 auto idx = path.find(val);
                 if (idx == std::string_view::npos) return std::nullopt;
-                std::println("assigning to map: '{}': '{}'", key,
-                             path.substr(0, idx));
                 map[key] = path.substr(0, idx);
                 path.remove_prefix(idx + val.size());
-                std::println("path left: {}", path);
                 key = {};
             }
         }
     }
-    if (!key.empty()) {
-        map[key] = std::exchange(path, {});
-        std::println("last: {}: {}", key, map[key]);
-    }
+    if (!key.empty()) { map[key] = std::exchange(path, {}); }
     if (!path.empty()) { return std::nullopt; }
     return RouteView(orig, std::move(map));
 }
