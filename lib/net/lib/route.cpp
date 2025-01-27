@@ -1,9 +1,11 @@
 #include <cassert>
+#include <ranges>
 #include <stdexcept>
 #include <upp/bits/net/route.hpp>
 #include <upp/str.hpp>
 
 namespace upp::net {
+namespace rv = std::ranges::views;
 namespace {
 std::string_view split_next(std::string_view& s) {
     if (s.starts_with('{')) {
@@ -21,33 +23,36 @@ std::string_view split_next(std::string_view& s) {
     return res;
 }
 }  // namespace
+namespace route_detail {
 
-std::optional<RouteView> parse_route(std::string_view pattern,
-                                     std::string_view path) {
-    auto orig = path;
-    RouteView::ParamMap map{};
-    std::string_view key{};
-    while (!pattern.empty()) {
-        auto val = split_next(pattern);
-        if (val.empty()) break;
-        if (val.starts_with('{') && val.ends_with('}')) {
-            key = val.substr(1, val.size() - 2);
-            if (key.empty()) throw std::runtime_error("invalid pattern");
+std::optional<std::map<std::string_view, std::string_view>> parse_route_params(
+    std::string_view pattern, std::string_view path) {
+    auto patt_view = pattern | rv::split('/');
+    auto path_view = path | rv::split('/');
+    auto patt_iter = patt_view.begin();
+    auto path_iter = path_view.begin();
+    std::map<std::string_view, std::string_view> map{};
+    while (patt_iter != patt_view.end() || path_iter != path_view.end()) {
+        if (patt_iter == patt_view.end() || path_iter == path_view.end())
+            return std::nullopt;
+
+        auto patt_view =
+            std::string_view((*patt_iter).data(), (*patt_iter).size());
+        auto path_view =
+            std::string_view((*path_iter).data(), (*path_iter).size());
+
+        if (patt_view.starts_with('{') && patt_view.ends_with('}')) {
+            patt_view = patt_view.substr(1, patt_view.size() - 2);
+            map[patt_view] = path_view;
         } else {
-            if (key.empty()) {
-                if (!path.starts_with(val)) { return std::nullopt; }
-                path.remove_prefix(val.size());
-            } else {
-                auto idx = path.find(val);
-                if (idx == std::string_view::npos) return std::nullopt;
-                map[key] = path.substr(0, idx);
-                path.remove_prefix(idx + val.size());
-                key = {};
-            }
+            if (patt_view != path_view) return std::nullopt;
         }
+        ++patt_iter;
+        ++path_iter;
     }
-    if (!key.empty()) { map[key] = std::exchange(path, {}); }
-    if (!path.empty()) { return std::nullopt; }
-    return RouteView(orig, std::move(map));
+    return map;
 }
+
+}  // namespace route_detail
+
 }  // namespace upp::net
