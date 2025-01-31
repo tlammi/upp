@@ -149,3 +149,43 @@ TEST(Map, CreateVec) {
     ASSERT_EQ(vec.size(), 3);
 }
 
+TEST(BitMask, CtorEmpty) {
+    enum class Empty {};
+    upp::BitMask<Empty>();
+}
+
+enum class BitMaskEnum {
+    A = 1,
+    B = 1 << 1,
+};
+
+TEST(BitMask, CtorDefault) {
+    using enum BitMaskEnum;
+    auto b = upp::BitMask<BitMaskEnum>();
+    ASSERT_TRUE(b.none());
+    ASSERT_FALSE(b.any());
+    ASSERT_FALSE(b.all());
+}
+
+TEST(BitMask, CtorAllSet) {
+    using enum BitMaskEnum;
+    auto b = upp::BitMask<BitMaskEnum>(A, B);
+    ASSERT_FALSE(b.none());
+    ASSERT_TRUE(b.any());
+    ASSERT_TRUE(b.all());
+}
+
+TEST(BitMask, AndEnum) {
+    using enum BitMaskEnum;
+    auto b = upp::BitMask<BitMaskEnum>(A);
+    ASSERT_TRUE(b & A);
+    ASSERT_FALSE(b & B);
+}
+
+TEST(BitMask, OrEnum) {
+    using enum BitMaskEnum;
+    auto b = upp::BitMask<BitMaskEnum>();
+    b = b | B;
+    ASSERT_TRUE(b & B);
+    ASSERT_FALSE(b & A);
+}
