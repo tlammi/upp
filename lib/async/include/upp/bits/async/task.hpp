@@ -34,7 +34,7 @@ class TaskAwaiter {
     }
 
     T await_resume() {
-        if constexpr (!std::same_as<T, void>) return {};
+        if constexpr (!std::same_as<T, void>) return m_handle.promise().value();
     }
 };
 
@@ -50,7 +50,6 @@ class Task final : private UniqueHandle<TaskPromise<T>> {
     Parent extract() { return Parent(std::move(*this)); }
 
     [[nodiscard]] Task<void> operator+() && {
-        std::println("operator +");
         auto& s = co_await scheduler();
         s.dispatch(std::move(*this));
     }
@@ -83,8 +82,17 @@ class TaskPromiseBase {
 
 template <class T>
 class TaskPromise : public TaskPromiseBase {
+    // TODO: could this be an union?
+    std::optional<T> m_val{};
+
  public:
-    void return_value(T value) {}
+    void return_value(T value) { m_val.emplace(std::move(value)); }
+
+    template <class Self>
+    decltype(auto) value(this Self&& self) {
+        return *std::forward<Self>(self).m_val;
+    }
+
     Task<T> get_return_object() {
         return Task<T>{std::coroutine_handle<TaskPromise>::from_promise(*this)};
     }
