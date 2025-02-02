@@ -1,1 +1,2 @@
 option('net', type: 'boolean', value: true, description: 'Build networking support')
+option('async', type: 'boolean', value: true, description: 'Build async support')

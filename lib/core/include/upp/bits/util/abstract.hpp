@@ -4,11 +4,12 @@ namespace upp {
 
 class Abstract {
  public:
-    Abstract(const Abstract&) = delete;
-    Abstract& operator=(const Abstract&) = delete;
+    constexpr Abstract() noexcept = default;
+    Abstract(const Abstract&) = default;
+    Abstract& operator=(const Abstract&) = default;
 
-    Abstract(Abstract&&) = delete;
-    Abstract& operator=(Abstract&&) = delete;
+    Abstract(Abstract&&) = default;
+    Abstract& operator=(Abstract&&) = default;
 
     constexpr virtual ~Abstract() = default;
 };
