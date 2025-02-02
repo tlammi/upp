@@ -37,6 +37,7 @@ class Task;
 
 class Scheduler {
     std::list<detail::SchedCtx> m_ctxs{};
+    std::list<detail::SchedCtx>::iterator m_iter{m_ctxs.begin()};
 
  public:
     Scheduler() = default;
@@ -50,6 +51,8 @@ class Scheduler {
 
     void dispatch(Task<void> t);
 
+    bool done() const noexcept;
+    void step();
     void run();
 };
 

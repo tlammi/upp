@@ -60,7 +60,7 @@ TEST(Run, NestedMultiple) {
     }(a(3), a(4), &res));
     ASSERT_EQ(res, 7);
 }
-/*
+
 TEST(Run, Yield) {
     int v = 0;
     auto sched = ua::Scheduler();
@@ -76,6 +76,5 @@ TEST(Run, Yield) {
     while (v == 1) sched.step();
     ASSERT_EQ(v, 2);
     while (!sched.done()) sched.step();
-    ASSERT_EQ(v, 2);
+    ASSERT_EQ(v, 3);
 }
-*/

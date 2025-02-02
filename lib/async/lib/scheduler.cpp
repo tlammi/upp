@@ -13,21 +13,41 @@ void Scheduler::dispatch(Task<> t) {
     h.promise().set_context(last);
 }
 
-void Scheduler::run() {
-    auto iter = m_ctxs.begin();
-    while (!m_ctxs.empty()) {
-        if (iter == m_ctxs.end()) iter = m_ctxs.begin();
-        auto& stack = iter->stack;
-        stack.top().resume();
-        if (stack.top().done()) {
-            stack.pop();
-            if (stack.empty()) {
-                auto old = iter++;
-                m_ctxs.erase(old);
-                continue;
-            }
+bool Scheduler::done() const noexcept { return m_ctxs.empty(); }
+
+void Scheduler::step() {
+    if (m_iter == m_ctxs.end()) m_iter = m_ctxs.begin();
+    auto& stack = m_iter->stack;
+    stack.top().resume();
+    if (stack.top().done()) {
+        stack.pop();
+        if (stack.empty()) {
+            auto old = m_iter++;
+            m_ctxs.erase(old);
+            return;
         }
-        ++iter;
     }
+    ++m_iter;
+}
+
+void Scheduler::run() {
+    while (!done()) step();
+    /*
+      auto iter = m_ctxs.begin();
+      while (!done()) {
+          if (iter == m_ctxs.end()) iter = m_ctxs.begin();
+          auto& stack = iter->stack;
+          stack.top().resume();
+          if (stack.top().done()) {
+              stack.pop();
+              if (stack.empty()) {
+                  auto old = iter++;
+                  m_ctxs.erase(old);
+                  continue;
+              }
+          }
+          ++iter;
+      }
+      */
 }
 }  // namespace upp::async
