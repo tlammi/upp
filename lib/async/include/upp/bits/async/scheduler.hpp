@@ -15,14 +15,15 @@ struct SchedCtx final : public Ctx {
     UniqueHandle<> root{};
     Stack stack{};
     Scheduler* sched{};
+    bool active{true};
 
     SchedCtx(UniqueHandle<> root, Scheduler* sched)
         : root(std::move(root)), sched(sched) {
         stack.push(this->root.get());
     }
 
-    void activate() final {}
-    void deactivate() final {}
+    void activate() final { active = true; }
+    void deactivate() final { active = false; }
 
     void push_stack(std::coroutine_handle<> handle) override {
         stack.push(handle);
@@ -44,6 +45,9 @@ class Scheduler {
     Scheduler(const Scheduler&) = delete;
     Scheduler& operator=(const Scheduler&) = delete;
     // TODO: enable these. Need to update sched field in m_ctxs
+    // See also upp::async::scheduler() which gets the address of this
+    // Maybe reconsider that? Could task detaching be done without publishing
+    // this into the coroutines?
     Scheduler(Scheduler&&) = delete;
     Scheduler& operator=(Scheduler&&) = delete;
 
