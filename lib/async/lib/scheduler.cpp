@@ -1,11 +1,9 @@
-#include <print>
 #include <upp/bits/async/scheduler.hpp>
 #include <upp/bits/async/task.hpp>
 
 namespace upp::async {
 
 void Scheduler::dispatch(Task<> t) {
-    std::println("dispatch");
     auto uniq = t.extract();
     auto h = uniq.get();
     m_ctxs.push_back(detail::SchedCtx{std::move(uniq), this});
