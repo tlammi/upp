@@ -118,6 +118,20 @@ class Queue {
             ++*this;
             return cpy;
         }
+
+        constexpr IteratorImpl& operator--() noexcept {
+            if (!m_idx) {
+                m_idx = chunk_size;
+                m_node = node_cast(m_node->prev);
+            }
+            --m_idx;
+            return *this;
+        }
+        constexpr IteratorImpl operator--(int) noexcept {
+            auto tmp = *this;
+            --*this;
+            return tmp;
+        }
     };
 
  public:
