@@ -65,3 +65,13 @@ TEST(Add, EmplaceBack) {
     }
     ASSERT_EQ(q.size(), count);
 }
+
+TEST(Add, EmplaceFront) {
+    using Elem = std::array<int, 100>;  // NOLINT
+    auto q = upp::Queue<Elem>();
+    static constexpr auto count = 100;
+    for (size_t i = 0; i < count; ++i) {
+        ASSERT_EQ(q.size(), i);
+        q.emplace_front();
+    }
+}

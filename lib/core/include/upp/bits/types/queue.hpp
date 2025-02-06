@@ -221,10 +221,8 @@ class Queue {
 
     template <class... Ts>
     void emplace_back(Ts&&... ts) {
-        if (!m_front) {
-            m_front = new Node();
-            m_front->prev = m_front;
-        } else if (m_stop == chunk_size) {
+        bootstrap();
+        if (m_stop == chunk_size) {
             auto* last = last_node();
             if (last->next) {
                 last = node_cast(last->next);
@@ -240,6 +238,44 @@ class Queue {
         std::construct_at(&last_node()->data[m_stop].val,
                           std::forward<Ts>(ts)...);
         ++m_stop;
+    }
+
+    void push_front(const T& t)
+        requires(std::copy_constructible<T>)
+    {
+        emplace_front(t);
+    }
+    void push_front(T&& t)
+        requires(std::move_constructible<T>)
+    {
+        emplace_front(std::move(t));
+    }
+
+    template <class... Ts>
+    void emplace_front(Ts&&... ts) {
+        bootstrap();
+        if (!m_start) {
+            auto* last = last_node();
+            if (last->next) {
+                auto* end = last->next;
+                last->next = end->next;
+                end->next->prev = last;
+                end->next = m_front;
+                end->prev = last;
+                m_front->prev = end;
+                m_front = node_cast(end);
+            } else {
+                auto* node = new Node();
+                auto* last = last_node();
+                m_front->prev = node;
+                node->next = m_front;
+                node->prev = last;
+                m_front = node;
+            }
+            m_start = chunk_size;
+        }
+        --m_start;
+        std::construct_at(&m_front->data[m_start].val, std::forward<Ts>(ts)...);
     }
 };
 }  // namespace upp
