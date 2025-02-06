@@ -6,3 +6,5 @@ TESTS += files(
   'concepts.cpp',
   'sync.cpp',
 )
+
+subdir('types')
