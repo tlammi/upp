@@ -294,15 +294,15 @@ class Queue {
         ++m_start;
         if (m_start == chunk_size) {
             m_start = 0;
-            if (m_start == last_node()) {
+            if (m_front == last_node()) {
                 m_stop = 0;
             } else {
                 auto* last = last_node();
                 auto* prev = m_front;
-                m_front = m_front->next;
+                m_front = node_cast(m_front->next);
                 m_front->prev = last;
                 prev->next = last->next;
-                last->next->prev = prev;
+                if (last->next) last->next->prev = prev;
                 last->next = prev;
             }
         }
