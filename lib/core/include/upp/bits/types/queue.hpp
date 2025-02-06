@@ -240,6 +240,17 @@ class Queue {
         ++m_stop;
     }
 
+    void pop_back() {
+        auto* last = last_node();
+        if (!m_stop) {
+            last = node_cast(last->prev);
+            m_front->prev = last;
+            m_stop = chunk_size;
+        }
+        --m_stop;
+        last->data[m_stop].val.~T();
+    }
+
     void push_front(const T& t)
         requires(std::copy_constructible<T>)
     {
@@ -276,6 +287,25 @@ class Queue {
         }
         --m_start;
         std::construct_at(&m_front->data[m_start].val, std::forward<Ts>(ts)...);
+    }
+
+    void pop_front() {
+        m_front->data[m_start].val.~T();
+        ++m_start;
+        if (m_start == chunk_size) {
+            m_start = 0;
+            if (m_start == last_node()) {
+                m_stop = 0;
+            } else {
+                auto* last = last_node();
+                auto* prev = m_front;
+                m_front = m_front->next;
+                m_front->prev = last;
+                prev->next = last->next;
+                last->next->prev = prev;
+                last->next = prev;
+            }
+        }
     }
 };
 }  // namespace upp

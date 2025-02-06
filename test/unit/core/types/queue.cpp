@@ -75,3 +75,13 @@ TEST(Add, EmplaceFront) {
         q.emplace_front();
     }
 }
+TEST(Rm, PopBackAll) {
+    using Elem = std::array<int, 100>;
+    auto q = upp::Queue<Elem>();
+    static constexpr size_t count = 100;
+    for (size_t i = 0; i < count; ++i) { q.emplace_back(); }
+    for (size_t i = count; i > 0; --i) {
+        ASSERT_EQ(q.size(), i);
+        q.pop_back();
+    }
+}
