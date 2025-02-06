@@ -170,6 +170,12 @@ class Queue {
             m_start = 0;
         }
         for (size_t i = m_start; i < m_stop; ++i) { node->data[i].val.~T(); }
+        node = m_front;
+        while (node) {
+            auto prev = node;
+            node = node_cast(node->next);
+            delete prev;
+        }
     }
 
     constexpr iterator begin() noexcept { return {m_front, m_start}; }
@@ -189,7 +195,7 @@ class Queue {
         const auto* end = last_node();
         size_t chunks = 1;
         while (node != end) {
-            ++node;
+            node = node_cast(node->next);
             ++chunks;
         }
         return (chunks - 1) * chunk_size + (m_stop - m_start);
@@ -199,6 +205,18 @@ class Queue {
 
     constexpr bool empty() const noexcept {
         return !m_front || (m_front == last_node() && m_stop == m_start);
+    }
+
+    void push_back(const T& t)
+        requires(std::copy_constructible<T>)
+    {
+        emplace_back(t);
+    }
+
+    void push_back(T&& t)
+        requires(std::move_constructible<T>)
+    {
+        emplace_back(std::move(t));
     }
 
     template <class... Ts>

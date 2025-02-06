@@ -53,3 +53,15 @@ TEST(Iterate, CreateVectorConst) {
     auto v = std::vector<int>(q.begin(), q.end());
     ASSERT_THAT(v, ElementsAre(1, 2, 3));
 }
+
+TEST(Add, EmplaceBack) {
+    // large array to fill the storage faster
+    using Elem = std::array<int, 100>;  // NOLINT
+    auto q = upp::Queue<Elem>();
+    static constexpr auto count = 100;
+    for (size_t i = 0; i < count; ++i) {
+        ASSERT_EQ(q.size(), i);
+        q.emplace_back();
+    }
+    ASSERT_EQ(q.size(), count);
+}
