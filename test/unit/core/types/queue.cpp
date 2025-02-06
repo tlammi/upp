@@ -13,9 +13,9 @@ TEST(Ctor, Default) {
 }
 
 TEST(Ctor, InitializerList) {
-    auto q = upp::Queue{1, 2, 3, 4, 5};
+    auto q = upp::Queue{1, 2, 3, 4};
     ASSERT_FALSE(q.empty());
-    ASSERT_EQ(q.size(), 5);
+    ASSERT_EQ(q.size(), 4);
 }
 
 TEST(Iterate, Empty) {
@@ -44,6 +44,12 @@ TEST(Iterate, ForLoop) {
 
 TEST(Iterate, CreateVector) {
     auto q = upp::Queue<int>{1, 2, 3};
+    auto v = std::vector<int>(q.begin(), q.end());
+    ASSERT_THAT(v, ElementsAre(1, 2, 3));
+}
+
+TEST(Iterate, CreateVectorConst) {
+    const auto q = upp::Queue<int>{1, 2, 3};
     auto v = std::vector<int>(q.begin(), q.end());
     ASSERT_THAT(v, ElementsAre(1, 2, 3));
 }

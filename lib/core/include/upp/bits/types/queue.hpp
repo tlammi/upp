@@ -71,22 +71,27 @@ class Queue {
         }
     }
 
- public:
-    class iterator {
+    template <class S>
+    class IteratorImpl {
         friend class Queue;
+        template <class U>
+        friend class IteratorImpl;
         Node* m_node{};
         size_t m_idx{};
 
-        constexpr iterator(Node* node, size_t idx) : m_node(node), m_idx(idx) {}
+        constexpr IteratorImpl(Node* node, size_t idx)
+            : m_node(node), m_idx(idx) {}
 
      public:
-        using value_type = T;
-        using reference = T&;
-        using pointer_type = T*;
+        using value_type = S;
+        using reference = S&;
+        using pointer_type = S*;
         using difference_type = std::ptrdiff_t;
 
-        constexpr iterator() = default;
-        constexpr bool operator==(const iterator& other) const noexcept {
+        constexpr IteratorImpl() = default;
+
+        template <class U>
+        constexpr bool operator==(const IteratorImpl<U>& other) const noexcept {
             if (m_node != other.m_node) return false;
             if (m_idx != other.m_idx) return false;
             return true;
@@ -100,7 +105,7 @@ class Queue {
             return &m_node->data[m_idx].val;
         }
 
-        constexpr iterator& operator++() noexcept {
+        constexpr IteratorImpl& operator++() noexcept {
             ++m_idx;
             if (m_idx == chunk_size) {
                 m_idx = 0;
@@ -108,12 +113,16 @@ class Queue {
             }
             return *this;
         }
-        constexpr iterator operator++(int) {
+        constexpr IteratorImpl operator++(int) {
             auto cpy = *this;
             ++*this;
             return cpy;
         }
     };
+
+ public:
+    using iterator = IteratorImpl<T>;
+    using const_iterator = IteratorImpl<const T>;
 
     using size_type = size_t;
 
@@ -163,8 +172,16 @@ class Queue {
         for (size_t i = m_start; i < m_stop; ++i) { node->data[i].val.~T(); }
     }
 
-    iterator begin() { return {m_front, m_start}; }
-    iterator end() { return {m_front ? last_node() : nullptr, m_stop}; }
+    constexpr iterator begin() noexcept { return {m_front, m_start}; }
+    constexpr const_iterator begin() const noexcept {
+        return {m_front, m_start};
+    }
+    constexpr iterator end() noexcept {
+        return {m_front ? last_node() : nullptr, m_stop};
+    }
+    constexpr const_iterator end() const noexcept {
+        return {m_front ? last_node() : nullptr, m_stop};
+    }
 
     constexpr size_type size() const noexcept {
         if (!m_front) return 0;
