@@ -56,7 +56,7 @@ TEST(Iterate, CreateVectorConst) {
 
 TEST(Add, EmplaceBack) {
     // large array to fill the storage faster
-    using Elem = std::array<int, 100>;  // NOLINT
+    using Elem = std::array<uint8_t, 100>;  // NOLINT
     auto q = upp::Queue<Elem>();
     static constexpr auto count = 100;
     for (size_t i = 0; i < count; ++i) {
@@ -67,7 +67,7 @@ TEST(Add, EmplaceBack) {
 }
 
 TEST(Add, EmplaceFront) {
-    using Elem = std::array<int, 100>;  // NOLINT
+    using Elem = std::array<uint8_t, 100>;  // NOLINT
     auto q = upp::Queue<Elem>();
     static constexpr auto count = 100;
     for (size_t i = 0; i < count; ++i) {
@@ -76,7 +76,7 @@ TEST(Add, EmplaceFront) {
     }
 }
 TEST(Rm, PopBackAll) {
-    using Elem = std::array<int, 100>;
+    using Elem = std::array<uint8_t, 100>;
     auto q = upp::Queue<Elem>();
     static constexpr size_t count = 100;
     for (size_t i = 0; i < count; ++i) { q.emplace_back(); }
@@ -87,7 +87,7 @@ TEST(Rm, PopBackAll) {
 }
 
 TEST(Rm, PopFrontAll) {
-    using Elem = std::array<int, 100>;
+    using Elem = std::array<uint8_t, 100>;
     auto q = upp::Queue<Elem>();
     static constexpr size_t count = 100;
     for (size_t i = 0; i < count; ++i) { q.emplace_front(); }
