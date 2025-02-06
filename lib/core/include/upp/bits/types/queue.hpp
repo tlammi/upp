@@ -270,7 +270,7 @@ class Queue {
             if (last->next) {
                 auto* end = last->next;
                 last->next = end->next;
-                end->next->prev = last;
+                if (end->next) end->next->prev = last;
                 end->next = m_front;
                 end->prev = last;
                 m_front->prev = end;

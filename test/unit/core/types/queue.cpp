@@ -96,3 +96,29 @@ TEST(Rm, PopFrontAll) {
         q.pop_front();
     }
 }
+
+TEST(WriteRead, FrontToBack) {
+    static constexpr size_t window_size = 10;
+    static constexpr size_t count = 1000;
+    auto q = upp::Queue<int>();
+
+    for (size_t i = 0; i < window_size; ++i) q.emplace_front();
+    for (size_t i = 0; i < count; ++i) {
+        q.emplace_front();
+        q.pop_back();
+        ASSERT_EQ(q.size(), window_size);
+    }
+}
+
+TEST(WriteRead, BackToFront) {
+    static constexpr size_t window_size = 10;
+    static constexpr size_t count = 1000;
+    auto q = upp::Queue<int>();
+
+    for (size_t i = 0; i < window_size; ++i) q.emplace_back();
+    for (size_t i = 0; i < count; ++i) {
+        q.emplace_back();
+        q.pop_front();
+        ASSERT_EQ(q.size(), window_size);
+    }
+}
