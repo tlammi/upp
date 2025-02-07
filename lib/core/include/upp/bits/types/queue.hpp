@@ -40,7 +40,6 @@ class Queue {
 
     static Node* node_cast(NodeHeader* hdr) { return static_cast<Node*>(hdr); }
     constexpr Node* last_node() const noexcept {
-        if (!m_front->prev) return m_front;
         return node_cast(m_front->prev);
     }
 
@@ -154,12 +153,36 @@ class Queue {
             }
         }
     }
-    // TODO: implement
-    Queue(const Queue&) = delete;
-    // TODO: implement
-    Queue& operator=(const Queue&) = delete;
 
+    template <class Iter>
+    constexpr Queue(Iter begin, Iter end) {
+        if constexpr (std::random_access_iterator<Iter>) {
+            reserve_back(end - begin);
+            auto* node = m_front;
+            while (begin != end) {
+                node->data[m_stop].val = *begin;
+                ++m_stop;
+                if (m_stop == chunk_size) {
+                    node = node_cast(node->next);
+                    m_stop = 0;
+                }
+                ++begin;
+            }
+        } else {
+            while (begin != end) {
+                emplace_back(*begin);
+                ++begin;
+            }
+        }
+    }
+
+    constexpr Queue(const Queue& other) : Queue(other.begin(), other.end()) {}
+    constexpr Queue& operator=(const Queue& other) {
+        *this = Queue(other.begin(), other.end());
+        return *this;
+    }
     constexpr Queue(Queue&& other) noexcept
+
         : m_front(std::exchange(other.m_front, nullptr)),
           m_start(std::exchange(other.m_start, 0)),
           m_stop(std::exchange(other.m_stop, 0)) {}
@@ -196,12 +219,16 @@ class Queue {
     constexpr const_iterator begin() const noexcept {
         return {m_front, m_start};
     }
+
+    constexpr const_iterator cbegin() const noexcept { return begin(); }
+
     constexpr iterator end() noexcept {
         return {m_front ? last_node() : nullptr, m_stop};
     }
     constexpr const_iterator end() const noexcept {
         return {m_front ? last_node() : nullptr, m_stop};
     }
+    constexpr const_iterator cend() const noexcept { return end(); }
 
     constexpr size_type size() const noexcept {
         if (!m_front) return 0;
