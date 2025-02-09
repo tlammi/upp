@@ -3,6 +3,7 @@
 #include <cassert>
 #include <string_view>
 #include <upp/bits/util/assert.hpp>
+#include <upp/bits/util/macros.hpp>
 #include <utility>
 
 namespace upp {
@@ -64,10 +65,7 @@ class AssertCondition {
     }
 };
 
-#if defined(NDEBUG)
-#define UPP_ASSERT_CONDITION_NO_UNIQUE_ADDRESS [[no_unique_address]]
-#else
-#define UPP_ASSERT_CONDITION_NO_UNIQUE_ADDRESS
-#endif
+#define UPP_ASSERT_CONDITION_NO_UNIQUE_ADDRESS \
+    UPP_IF_NDEBUG([[no_unique_address]])
 
 }  // namespace upp
