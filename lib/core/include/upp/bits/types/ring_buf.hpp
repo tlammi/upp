@@ -142,13 +142,6 @@ class RingBuf {
     using value_type = T;
 
  private:
-    static constexpr size_type initial_capacity_hint = 64;
-    static constexpr size_type initial_capacity() noexcept {
-        size_type cap = 1;
-        while (cap * sizeof(T) < initial_capacity_hint) { cap *= 2; }
-        return cap;
-    }
-
     // NOLINTNEXTLINE
     union Union {
         std::uint8_t dummy{};
@@ -180,7 +173,7 @@ class RingBuf {
 
     void ensure_capacity(size_type size) {
         if (!m_store) {
-            auto cap = initial_capacity();
+            size_t cap = 1;
             while (cap < size) cap *= 2;
             m_store = std::make_unique<Store>(cap);
             return;
@@ -299,7 +292,6 @@ class RingBuf {
         auto new_cap = m_store->cap;
         while (new_cap > m_store->size) { new_cap /= 2; }
         new_cap *= 2;
-        new_cap = std::max(new_cap, initial_capacity());
         if (new_cap < m_store->cap) {
             auto new_store = std::unique_ptr<Store>(new_cap);
             for (size_t i = 0; i < m_store->count; ++i) {
