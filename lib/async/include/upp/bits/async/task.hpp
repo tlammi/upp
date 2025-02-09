@@ -6,6 +6,7 @@
 #include <upp/bits/async/ctx.hpp>
 #include <upp/bits/async/scheduler.hpp>
 #include <upp/bits/async/unique_handle.hpp>
+#include <upp/util.hpp>
 
 namespace upp::async {
 
@@ -48,19 +49,29 @@ template <class T = void>
 class Task final : private UniqueHandle<TaskPromise<T>> {
     using Parent = UniqueHandle<TaskPromise<T>>;
 
+    UPP_ASSERT_CONDITION_NO_UNIQUE_ADDRESS AssertCondition m_used{
+        "Task<> not awaited or detached"};
+
  public:
     using promise_type = TaskPromise<T>;
     using handle_type = std::coroutine_handle<promise_type>;
     explicit Task(handle_type h) : Parent(h) {}
 
-    Parent extract() { return Parent(std::move(*this)); }
+    Parent extract() {
+        m_used = true;
+        return Parent(std::move(*this));
+    }
 
     [[nodiscard]] Task<void> operator+() && {
+        m_used = true;
         auto& s = co_await scheduler();
         s.dispatch(std::move(*this));
     }
 
-    TaskAwaiter<T> operator co_await() { return TaskAwaiter<T>{Parent::get()}; }
+    TaskAwaiter<T> operator co_await() {
+        m_used = true;
+        return TaskAwaiter<T>{Parent::get()};
+    }
 };
 
 class TaskPromiseBase {

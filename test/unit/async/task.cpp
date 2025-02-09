@@ -5,11 +5,11 @@
 namespace ua = upp::async;
 
 TEST(Ctor, ReturnVoid) {
-    []() -> ua::Task<> { co_return; }();
+    []() -> ua::Task<> { co_return; }().extract();
 }
 
 TEST(Ctor, ReturnVal) {
-    []() -> ua::Task<int> { co_return 1; }();
+    []() -> ua::Task<int> { co_return 1; }().extract();
 }
 
 TEST(Run, Simple) {
