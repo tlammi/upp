@@ -1,17 +1,18 @@
 #pragma once
 
 #include <cstddef>
-#include <list>
 #include <upp/bits/async/ctx.hpp>
+#include <upp/types.hpp>
 
 namespace upp::async {
 
 class SemAcquirer {
     size_t* m_counter;
-    std::list<Ctx*>* m_awaiters;
+    upp::RingBuf<Ctx*>* m_awaiters;
 
  public:
-    constexpr SemAcquirer(size_t* counter, std::list<Ctx*>* awaiters) noexcept
+    constexpr SemAcquirer(size_t* counter,
+                          upp::RingBuf<Ctx*>* awaiters) noexcept
         : m_counter(counter), m_awaiters(awaiters) {}
 
     SemAcquirer(const SemAcquirer&) = delete;
@@ -37,7 +38,7 @@ class SemAcquirer {
 class Semaphore {
     size_t m_counter{0};
     // TODO: is there a better type?
-    std::list<Ctx*> m_awaiters{};
+    upp::RingBuf<Ctx*> m_awaiters{};
 
  public:
     explicit Semaphore(size_t count = 0) noexcept : m_counter(count) {}

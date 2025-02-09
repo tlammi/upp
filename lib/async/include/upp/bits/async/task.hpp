@@ -34,7 +34,13 @@ class TaskAwaiter {
     }
 
     T await_resume() {
-        if constexpr (!std::same_as<T, void>) return m_handle.promise().value();
+        if constexpr (!std::same_as<T, void>) {
+            if constexpr (std::move_constructible<T>) {
+                return std::move(m_handle.promise().value());
+            } else {
+                return m_handle.promise().value();
+            }
+        }
     }
 };
 
