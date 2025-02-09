@@ -5,6 +5,7 @@ TESTS += files(
   'enums.cpp',
   'concepts.cpp',
   'sync.cpp',
+  'ranges.cpp',
 )
 
 subdir('types')

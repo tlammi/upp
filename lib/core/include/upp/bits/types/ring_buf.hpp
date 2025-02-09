@@ -149,11 +149,13 @@ class RingBuf {
         return cap;
     }
 
+    // NOLINTNEXTLINE
     union Union {
         std::uint8_t dummy{};
         T val;
         ~Union() {}
     };
+
     struct Store {
         size_type cap{};
         size_type offset{};
@@ -334,11 +336,23 @@ class RingBuf {
         ++m_store->count;
     }
 
-    T& front() noexcept { return (*this)[0]; }
-    const T& front() const noexcept { return (*this)[0]; }
+    void pop_back() noexcept {
+        const auto idx = (m_store->offset + m_store->count - 1) % m_store->cap;
+        m_store->data[idx].val.~T();
+        --m_store->count;
+    }
+
+    void pop_front() {
+        m_store->data[m_store->offset].val.~T();
+        m_store->offset = (m_store->offset + 1) % m_store->cap;
+        --m_store->count;
+    }
 
     T& back() noexcept { return (*this)[m_store->count - 1]; }
     const T& back() const noexcept { return (*this)[m_store->count - 1]; }
+
+    T& front() noexcept { return (*this)[0]; }
+    const T& front() const noexcept { return (*this)[0]; }
 
     T& operator[](size_t idx) noexcept {
         idx = (m_store->offset + idx) % m_store->cap;
@@ -359,6 +373,11 @@ class RingBuf {
             throw std::runtime_error("RingBuf::at");
         return (*this)[idx];
     }
+
+    T* data() noexcept { return m_store ? m_store->data : nullptr; }
+    const T* data() const noexcept { return m_store ? m_store->data : nullptr; }
+
+    size_type offset() const noexcept { return m_store ? m_store->offset : 0; }
 };
 
 template <class T, class U>

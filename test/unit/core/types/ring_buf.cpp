@@ -1,6 +1,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <ranges>
+#include <upp/ranges.hpp>
 #include <upp/types.hpp>
 
 static_assert(std::random_access_iterator<upp::RingBuf<int>::iterator>);
@@ -122,4 +124,67 @@ TEST(Capacity, Reserve) {
 TEST(ResourceManagement, Default) {
     upp::RingBuf<std::unique_ptr<int>>(std::in_place, new int(1), new int(2),
                                        new int(3));
+}
+
+TEST(RmItems, PopBackOne) {
+    auto b = mk_simple_buf();
+    b.pop_back();
+    ASSERT_THAT(b, ElementsAre(1, 2, 3));
+}
+
+TEST(RmItems, PopBackAll) {
+    auto b = mk_simple_buf();
+    while (!b.empty()) b.pop_back();
+}
+
+TEST(RmItems, PopFront) {
+    auto b = mk_simple_buf();
+    b.pop_front();
+    ASSERT_THAT(b, ElementsAre(2, 3, 4));
+}
+
+TEST(RmItems, PopFrontAll) {
+    auto b = mk_simple_buf();
+    while (!b.empty()) b.pop_front();
+}
+
+TEST(AddPop, SmallMovingWindowForward) {
+    auto b = mk_simple_buf();
+    auto orig = b;
+    const auto count = b.size() * 99;
+    for (size_t i = 0; i < count; ++i) {
+        auto v = b.front();
+        b.pop_front();
+        b.push_back(v);
+    }
+    ASSERT_EQ(b, orig);
+    ASSERT_EQ(b.capacity(), orig.capacity());
+}
+
+TEST(AddPop, SmallMovingWindowBackward) {
+    auto b = mk_simple_buf();
+    auto orig = b;
+    const auto count = b.size() * 99;
+    for (size_t i = 0; i < count; ++i) {
+        auto v = b.back();
+        b.pop_back();
+        b.push_front(v);
+    }
+    ASSERT_EQ(b, orig);
+    ASSERT_EQ(b.capacity(), orig.capacity());
+}
+
+TEST(AddPop, BigMovingWindowForward) {
+    auto b = upp::RingBuf<size_t>();
+    static constexpr size_t elements = 1000;
+    b.reserve(elements);
+    for (auto i : upp::range(elements)) { b.push_back(i); }
+    auto orig = b;
+    static constexpr size_t count = 10000;
+    for (auto _ : upp::range(count)) {
+        auto v = b.front();
+        b.pop_front();
+        b.push_back(v);
+    }
+    ASSERT_EQ(b, orig);
 }
