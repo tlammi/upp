@@ -344,8 +344,8 @@ class RingBuf {
         if (size() < 2) return;
         while (count--) {
             auto tmp = std::move(front());
-            emplace_back(std::move(tmp));
             pop_front();
+            emplace_back(std::move(tmp));
         }
     }
 

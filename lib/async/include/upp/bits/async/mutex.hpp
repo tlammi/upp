@@ -2,7 +2,6 @@
 
 #include <coroutine>
 #include <mutex>
-#include <upp/bits/async/ctx.hpp>
 #include <upp/bits/async/task.hpp>
 #include <upp/types.hpp>
 
@@ -13,7 +12,7 @@ class MutexLocker;
 class Mutex {
     friend class MutexLocker;
     bool m_locked{false};
-    RingBuf<Ctx*> m_awaiters{};
+    RingBuf<std::coroutine_handle<>> m_awaiters{};
 
  public:
     Mutex() = default;
@@ -29,7 +28,7 @@ class Mutex {
     void unlock() {
         m_locked = false;
         if (m_awaiters.empty()) return;
-        m_awaiters.front()->activate();
+        detail::scheduler().reactivate(m_awaiters.front());
         m_awaiters.pop_front();
     }
 
@@ -44,11 +43,10 @@ class MutexLocker {
  public:
     constexpr bool await_ready() const noexcept { return !m_mut->m_locked; }
 
-    template <class Promise>
-    void await_suspend(std::coroutine_handle<Promise> handle) {
-        auto& ctx = handle.promise().context();
-        ctx.deactivate();
-        m_mut->m_awaiters.push_back(&ctx);
+    void await_suspend(std::coroutine_handle<> handle) {
+        auto deactivated = detail::scheduler().deactivate_curr();
+        assert(deactivated == handle);
+        m_mut->m_awaiters.push_back(deactivated);
     }
 
     void await_resume() { m_mut->m_locked = true; }
