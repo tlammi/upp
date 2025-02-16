@@ -343,7 +343,8 @@ class RingBuf {
     void rotate(size_t count = 1) {
         if (size() < 2) return;
         while (count--) {
-            emplace_back(std::move(front()));
+            auto tmp = std::move(front());
+            emplace_back(std::move(tmp));
             pop_front();
         }
     }

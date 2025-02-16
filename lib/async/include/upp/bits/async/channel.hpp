@@ -13,16 +13,23 @@ class Channel {
 
  public:
     Task<T> read() {
+        std::println("read 1");
         co_await m_sem.acquire();
+        std::println("read 2");
         auto v = std::move(m_messages.front());
+        std::println("read 3");
         m_messages.pop_front();
+        std::println("read 4");
         co_return v;
     }
 
     template <class... Ts>
     void write(Ts&&... ts) {
+        std::println("write 1");
         m_messages.emplace_back(std::forward<Ts>(ts)...);
+        std::println("write 2");
         m_sem.release();
+        std::println("write 3");
     }
 
     bool empty() const noexcept { return !m_messages.size(); }

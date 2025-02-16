@@ -3,7 +3,6 @@
 #include <cassert>
 #include <coroutine>
 #include <exception>
-#include <upp/bits/async/ctx.hpp>
 #include <upp/bits/async/scheduler.hpp>
 #include <upp/bits/async/unique_handle.hpp>
 #include <upp/util.hpp>
@@ -64,7 +63,9 @@ class Task final : private UniqueHandle<TaskPromise<T>> {
         return Parent(std::move(*this));
     }
 
-    void operator+() && {
+    void operator+() && { std::move(*this).detach(); }
+
+    void detach() && {
         m_used = true;
         detail::scheduler().detach(std::move(*this));
     }

@@ -188,3 +188,23 @@ TEST(AddPop, BigMovingWindowForward) {
     }
     ASSERT_EQ(b, orig);
 }
+
+TEST(Rotate, Empty) {
+    auto b = upp::RingBuf<size_t>();
+    b.rotate();
+    ASSERT_TRUE(b.empty());
+}
+TEST(Rotate, One) {
+    auto a = upp::RingBuf<size_t>{1};
+    auto b = a;
+    b.rotate();
+    ASSERT_EQ(a, b);
+}
+
+TEST(Rotate, Two) {
+    auto a = upp::RingBuf<size_t>{1, 2};
+    auto b = a;
+    b.rotate();
+    ASSERT_EQ(b[0], a[1]);
+    ASSERT_EQ(b[1], a[0]);
+}

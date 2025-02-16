@@ -1,18 +1,20 @@
 #pragma once
 
+#include <coroutine>
 #include <cstddef>
-#include <upp/bits/async/ctx.hpp>
+#include <upp/bits/async/scheduler.hpp>
 #include <upp/types.hpp>
 
 namespace upp::async {
 
 class SemAcquirer {
-    size_t* m_counter;
-    upp::RingBuf<Ctx*>* m_awaiters;
+    size_t* m_counter{};
+    upp::RingBuf<std::coroutine_handle<>>* m_awaiters;
 
  public:
-    constexpr SemAcquirer(size_t* counter,
-                          upp::RingBuf<Ctx*>* awaiters) noexcept
+    constexpr SemAcquirer(
+        size_t* counter,
+        upp::RingBuf<std::coroutine_handle<>>* awaiters) noexcept
         : m_counter(counter), m_awaiters(awaiters) {}
 
     SemAcquirer(const SemAcquirer&) = delete;
@@ -27,9 +29,7 @@ class SemAcquirer {
 
     template <class Promise>
     void await_suspend(std::coroutine_handle<Promise> handle) {
-        auto* ctx = &handle.promise().context();
-        ctx->deactivate();
-        m_awaiters->push_back(ctx);
+        m_awaiters->push_back(detail::scheduler().deactivate_curr());
     }
 
     constexpr void await_resume() const noexcept { --*m_counter; }
@@ -37,8 +37,7 @@ class SemAcquirer {
 
 class Semaphore {
     size_t m_counter{0};
-    // TODO: is there a better type?
-    upp::RingBuf<Ctx*> m_awaiters{};
+    upp::RingBuf<std::coroutine_handle<>> m_awaiters{};
 
  public:
     explicit Semaphore(size_t count = 0) noexcept : m_counter(count) {}
@@ -55,7 +54,7 @@ class Semaphore {
 
     void release(size_t count = 1) {
         while (!m_awaiters.empty() && count) {
-            m_awaiters.front()->activate();
+            detail::scheduler().reactivate(m_awaiters.front());
             m_awaiters.pop_front();
             --count;
         }
