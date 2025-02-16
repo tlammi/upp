@@ -59,18 +59,23 @@ class Main final : Scheduler {
         m_tasks.push_back(handle);
     }
 
+    constexpr void step_impl();
+
  public:
     using promise_type = MainPromise;
 
     constexpr int run() {
         detail::set_scheduler(*this);
-        while (!done()) step();
+        while (!done()) step_impl();
         detail::clear_scheduler();
         return result();
     }
 
     constexpr bool done() const noexcept;
-    constexpr void step();
+    constexpr void step() {
+        detail::set_scheduler(*this);
+        step_impl();
+    }
     constexpr int result() { return m_result; }
 };
 
@@ -103,7 +108,7 @@ constexpr bool Main::done() const noexcept {
     return m_tasks.empty();
 }
 
-constexpr void Main::step() {
+constexpr void Main::step_impl() {
     std::println("step: {}", m_tasks.front().address());
     m_tasks.front().resume();
     if (m_tasks.front().done()) {

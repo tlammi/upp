@@ -1,7 +1,8 @@
 TESTS += files(
-  'task.cpp',
   #'semaphore.cpp',
   #'channel.cpp',
   #'mutex.cpp',
   'main.cpp',
+  'task.cpp',
+  'yield.cpp',
 )
