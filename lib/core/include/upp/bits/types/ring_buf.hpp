@@ -340,10 +340,21 @@ class RingBuf {
         --m_store->count;
     }
 
+    void rotate(size_t count = 1) {
+        if (size() < 2) return;
+        while (count--) {
+            emplace_back(std::move(front()));
+            pop_front();
+        }
+    }
+
     T& back() noexcept { return (*this)[m_store->count - 1]; }
     const T& back() const noexcept { return (*this)[m_store->count - 1]; }
 
-    T& front() noexcept { return (*this)[0]; }
+    T& front() noexcept {
+        assert(!empty());
+        return (*this)[0];
+    }
     const T& front() const noexcept { return (*this)[0]; }
 
     T& operator[](size_t idx) noexcept {

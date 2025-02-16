@@ -19,27 +19,29 @@ class TaskAwaiter {
     using handle_type = std::coroutine_handle<TaskPromise<T>>;
 
  private:
-    handle_type m_handle;
+    handle_type m_dst;
 
  public:
     constexpr explicit TaskAwaiter(handle_type handle) noexcept
-        : m_handle(handle) {}
+        : m_dst(handle) {}
 
     constexpr bool await_ready() const noexcept { return false; }
 
-    template <class Promise>
-    void await_suspend(std::coroutine_handle<Promise> parent) {
-        auto& ctx = parent.promise().context();
-        m_handle.promise().set_context(ctx);
-        ctx.push_stack(m_handle);
+    void await_suspend(std::coroutine_handle<> awaiter) const noexcept {
+        auto prev = detail::scheduler().replace_curr(m_dst);
+        std::println("{} == {}", prev.address(), awaiter.address());
+        assert(prev.address() == awaiter.address());
+        m_dst.promise().set_continuation(awaiter);
+        std::println("task await_suspend");
     }
 
     T await_resume() {
+        std::println("task await_resume");
         if constexpr (!std::same_as<T, void>) {
             if constexpr (std::move_constructible<T>) {
-                return std::move(m_handle.promise().value());
+                return std::move(m_dst.promise().value());
             } else {
-                return m_handle.promise().value();
+                return m_dst.promise().value();
             }
         }
     }
@@ -62,43 +64,48 @@ class Task final : private UniqueHandle<TaskPromise<T>> {
         return Parent(std::move(*this));
     }
 
-    [[nodiscard]] Task<void> operator+() && {
+    void operator+() && {
         m_used = true;
-        auto& s = co_await scheduler();
-        s.dispatch(std::move(*this));
+        detail::scheduler().detach(std::move(*this));
     }
 
     TaskAwaiter<T> operator co_await() {
         m_used = true;
+        std::println("task co_await");
         return TaskAwaiter<T>{Parent::get()};
     }
 };
 
+template <class Tsk>
 class TaskPromiseBase {
-    Ctx* m_ctx{};
+    std::coroutine_handle<> m_continuation{};
 
  public:
-    // TODO: should this be suspend_never
     constexpr std::suspend_always initial_suspend() const noexcept {
         return {};
     }
 
-    constexpr std::suspend_always final_suspend() const noexcept { return {}; }
+    std::suspend_always final_suspend() const noexcept {
+        std::println("final_suspend");
+        // null if detached
+        if (m_continuation) detail::scheduler().replace_curr(m_continuation);
+        std::println("final_suspend 2");
+        return {};
+    }
+
+    constexpr void set_continuation(
+        std::coroutine_handle<> continuation) noexcept {
+        m_continuation = continuation;
+    }
 
     void unhandled_exception() { std::terminate(); }
-
-    void set_context(Ctx& ctx) noexcept { m_ctx = &ctx; }
-    Ctx& context() const noexcept {
-        assert(m_ctx);
-        return *m_ctx;
-    }
 
  protected:
     ~TaskPromiseBase() = default;
 };
 
 template <class T>
-class TaskPromise : public TaskPromiseBase {
+class TaskPromise : public TaskPromiseBase<TaskPromise<T>> {
     // TODO: could this be an union?
     std::optional<T> m_val{};
 
@@ -116,7 +123,7 @@ class TaskPromise : public TaskPromiseBase {
 };
 
 template <>
-class TaskPromise<void> : public TaskPromiseBase {
+class TaskPromise<void> : public TaskPromiseBase<TaskPromise<void>> {
  public:
     void return_void() {}
     Task<> get_return_object() {

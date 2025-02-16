@@ -1,4 +1,59 @@
 #pragma once
+
+#include <cassert>
+#include <upp/bits/async/unique_handle.hpp>
+#include <vector>
+
+namespace upp::async {
+
+class Scheduler {
+ public:
+    /**
+     * \brief Detach a new task
+     * */
+    virtual void detach(UniqueHandle<> h) = 0;
+
+    /**
+     * \brief Replace the currently active coroutine
+     *
+     * Replace the currently active coroutine with a new one and return the
+     * replaced one. This is typically called from awaiter which replaces the
+     * current coroutine with its target (and restores the original coroutine
+     * once awaiting has finished).
+     * */
+    virtual std::coroutine_handle<> replace_curr(
+        std::coroutine_handle<> handle) = 0;
+
+    /**
+     * \brief Deactivate current coroutine.
+     *
+     * This extracts the current coroutine so it is not executed by the
+     * framework. Called e.g. when a mutex blocks a coroutine.
+     * */
+    virtual std::coroutine_handle<> deactivate_curr() = 0;
+
+    /**
+     * \brief Reactivate a previously deactivated coroutine
+     * */
+    virtual void reactivate(std::coroutine_handle<> handle) = 0;
+
+ protected:
+    constexpr ~Scheduler() = default;
+};
+
+namespace detail {
+inline thread_local Scheduler* g_scheduler{};  // NOLINT
+void set_scheduler(Scheduler& sched) { g_scheduler = &sched; }
+void clear_scheduler() { g_scheduler = nullptr; }
+Scheduler& scheduler() {
+    assert(g_scheduler);
+    return *g_scheduler;
+}
+}  // namespace detail
+
+}  // namespace upp::async
+
+#if 0
 #include <cassert>
 #include <list>
 #include <print>
@@ -36,6 +91,9 @@ struct SchedCtx final : public Ctx {
 template <class T>
 class Task;
 
+// TODO: Should this be a global instance?
+// The current approach forces the corotuines to be lazy.
+// Using a global instance would allow for eager coroutines.
 class Scheduler {
     std::list<detail::SchedCtx> m_ctxs{};
     std::list<detail::SchedCtx>::iterator m_iter{m_ctxs.begin()};
@@ -80,3 +138,4 @@ class SchedulerAwaiter {
 constexpr SchedulerAwaiter scheduler() { return {}; }
 
 }  // namespace upp::async
+#endif

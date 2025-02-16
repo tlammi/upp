@@ -54,7 +54,6 @@ class MutexLocker {
     void await_resume() { m_mut->m_locked = true; }
 };
 
-// TODO: enforce co_await for this
 template <template <class...> class Lock, class Mutex>
 [[nodiscard]] Task<Lock<std::remove_cvref_t<Mutex>>> lock(Mutex& mut) {
     co_await mut.lock();
