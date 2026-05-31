@@ -1,4 +1,4 @@
-tests = files('bitmask.cpp', 'guard.cpp', 'cleanup.cpp', 'flexible.cpp', 'ring_buffer.cpp', 'visit.cpp', 'strlit.cpp', 'enum_array.cpp', 'maybe.cpp')
+tests = files('bitmask.cpp', 'guard.cpp', 'cleanup.cpp', 'flexible.cpp', 'ring_buffer.cpp', 'visit.cpp', 'strlit.cpp', 'enum_array.cpp', 'maybe.cpp', 'bitset.cpp')
 
 # Work in progress
 #tests += files('queue.cpp')
