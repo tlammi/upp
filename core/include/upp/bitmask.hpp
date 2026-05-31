@@ -12,6 +12,13 @@
 
 namespace upp {
 
+/**
+ * \brief Utility type for providing operators for bitmask-like enums
+ *
+ * This type provides all bitwise operators for enums classes that typically
+ * would require implementing the operators for each type individually.
+ *
+ * */
 template <enum_type E>
 class bitmask {
     E m_v{};
