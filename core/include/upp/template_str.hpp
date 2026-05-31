@@ -13,7 +13,7 @@ template <std::size_t N>
 struct template_str {
     std::array<char, N> data{};
 
-    consteval explicit template_str(const char (&s)[N] /*NOLINT*/) {
+    consteval template_str(const char (&s)[N] /*NOLINT*/) {
         std::copy(s, s + N, data.begin());
     }
 
