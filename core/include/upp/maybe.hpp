@@ -1,11 +1,13 @@
 #pragma once
 
+#include <optional>
 #include <span>
 #include <string_view>
 #include <type_traits>
 #include <utility>
 
 namespace upp {
+
 template <class T>
 struct maybe_traits;
 
@@ -17,22 +19,31 @@ struct maybe_traits<T*> {
 
 template <class T, std::size_t Extent>
 struct maybe_traits<std::span<T, Extent>> {
+    static constexpr union {
+        char unused{};
+        T value;
+    } dummy{};
     static constexpr bool is_null(std::span<const T, Extent> val) noexcept {
-        return val.data() == nullptr;
+        return val.data() == &dummy.value;
     }
-    static constexpr std::span<T, Extent> null_value() noexcept { return {}; }
+    static constexpr std::span<T, Extent> null_value() noexcept {
+        // This const_cast feels just wrong, but hey, it works.
+        return {const_cast<std::remove_const_t<T>*>(&dummy.value), 0};
+    }
 };
 
 template <class Char, class Traits>
 struct maybe_traits<std::basic_string_view<Char, Traits>> {
+    static constexpr Char dummy{};
+
     static constexpr bool is_null(
         std::basic_string_view<Char, Traits> val) noexcept {
-        return val.data() == nullptr;
+        return val.data() == &dummy;
     }
 
     static constexpr std::basic_string_view<Char, Traits>
     null_value() noexcept {
-        return {};
+        return {&dummy, 0};
     }
 };
 
@@ -62,6 +73,14 @@ class maybe {
  private:
     T m_val{Traits::null_value()};
 
+    template <class S>
+    static consteval bool deducing_this_noexcept() {
+        if constexpr (std::is_rvalue_reference_v<S>)
+            return std::is_nothrow_move_constructible_v<T>;
+        if constexpr (std::is_lvalue_reference_v<S>)
+            return std::is_nothrow_copy_constructible_v<T>;
+    }
+
  public:
     constexpr maybe() noexcept(
         std::is_nothrow_constructible_v<T, decltype(Traits::null_value())>) =
@@ -83,6 +102,20 @@ class maybe {
         std::is_nothrow_move_constructible_v<T>)
         : m_val(std::move(t)) {}
 
+    constexpr maybe(const maybe&) noexcept(
+        std::is_nothrow_copy_constructible_v<T>) = default;
+
+    constexpr maybe& operator=(const maybe&) noexcept(
+        std::is_nothrow_copy_assignable_v<T>) = default;
+
+    constexpr maybe(maybe&&) noexcept(std::is_nothrow_move_constructible_v<T>) =
+        default;
+
+    constexpr maybe& operator=(maybe&&) noexcept(
+        std::is_nothrow_move_assignable_v<T>) = default;
+
+    constexpr ~maybe() = default;
+
     constexpr explicit operator bool() const noexcept { return has_value(); }
 
     constexpr bool has_value() const noexcept {
@@ -97,6 +130,20 @@ class maybe {
     template <class S>
     constexpr T* operator->(this S& self) noexcept {
         return &self.m_val;
+    }
+
+    template <class S>
+    constexpr std::optional<T> as_optional(this S&& self) noexcept(
+        deducing_this_noexcept<S>()) {
+        if (self.has_value())
+            return std::optional<T>{std::forward<S>(self).m_val};
+        return std::nullopt;
+    }
+
+    template <class S>
+    constexpr explicit operator std::optional<T>(this S&& self) noexcept(
+        deducing_this_noexcept<S>()) {
+        return std::forward<S>(self).as_optional();
     }
 };
 }  // namespace upp
