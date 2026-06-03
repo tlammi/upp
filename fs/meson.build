@@ -15,6 +15,7 @@ upp_fs_lib = library(
     dependencies: deps,
     install: true,
 )
+pkg.generate(upp_fs_lib)
 upp_fs_dep = declare_dependency(
     include_directories: incdir,
     link_with: upp_fs_lib,

@@ -16,6 +16,7 @@ upp_logs_lib = library(
     dependencies: deps,
     install: true,
 )
+pkg.generate(upp_logs_lib)
 upp_logs_dep = declare_dependency(
     include_directories: incdir,
     link_with: upp_logs_lib,

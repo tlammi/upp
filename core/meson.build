@@ -11,10 +11,12 @@ upp_core_lib = library(
     include_directories: incdir,
     install: true,
 )
+pkg.generate(upp_core_lib)
 upp_core_dep = declare_dependency(
     include_directories: incdir,
     link_with: upp_core_lib,
 )
+
 
 subdir('test')
 
