@@ -12,3 +12,13 @@ subdir('fs')
 subdir('logs')
 subdir('codec')
 subdir('linux')
+
+upp_dep = declare_dependency(
+    dependencies: [
+        upp_core_dep,
+        upp_fs_dep,
+        upp_logs_dep,
+        upp_codec_dep,
+        upp_linux_dep,
+    ],
+)
