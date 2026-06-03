@@ -6,6 +6,7 @@ SRCS = files()
 deps = [
     upp_core_dep,
     upp_logs_dep,
+    upp_fs_dep,
     dependency('libavcodec'),
     dependency('libavutil'),
     dependency('libavformat'),

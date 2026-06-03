@@ -4,6 +4,7 @@ SRCS += files(
     'demux.cpp',
     'hwaccel.cpp',
     'decoder.cpp',
+    'util.cpp',
 )
 
 subdir('detail')
