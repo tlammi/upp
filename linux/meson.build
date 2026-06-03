@@ -21,5 +21,6 @@ upp_linux_dep = declare_dependency(
     dependencies: deps,
 )
 
-subdir('test')
-
+if get_option('tests')
+    subdir('test')
+endif
