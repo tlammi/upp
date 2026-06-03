@@ -1,4 +1,5 @@
 incdir = include_directories('include')
+install_subdir('include', install_dir: '.')
 
 SRCS = files()
 
@@ -8,7 +9,7 @@ deps = [
   upp_core_dep
 ]
 
-upp_linux_lib = library('upp-linux', SRCS, include_directories: incdir, dependencies: deps)
+upp_linux_lib = library('upp-linux', SRCS, include_directories: incdir, dependencies: deps, install: true)
 upp_linux_dep = declare_dependency(include_directories: incdir, link_with: upp_linux_lib, dependencies: deps)
 
 subdir('test')
