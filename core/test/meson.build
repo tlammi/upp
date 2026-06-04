@@ -10,6 +10,7 @@ tests = files(
     'maybe.cpp',
     'bitset.cpp',
     'enum_set.cpp',
+    'intrusive_list.cpp',
 )
 
 # Work in progress
