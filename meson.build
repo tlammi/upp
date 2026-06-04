@@ -8,6 +8,7 @@ project(
 pkg = import('pkgconfig')
 
 subdir('core')
+subdir('coro')
 subdir('fs')
 subdir('logs')
 subdir('codec')
