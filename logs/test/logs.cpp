@@ -15,9 +15,9 @@ void check_level(level expected, const Ts&... ctxs) {
 }
 
 int main() {
+    check_level(level::unset, root_context, a, b, aa, ab);
     upp::logs::init();
 
-    check_level(level::unset, root_context, a, b, aa, ab);
     root_context.set_level(level::trace);
     check_level(level::trace, root_context, a, b, aa, ab);
     root_context.set_level(level::unset);
