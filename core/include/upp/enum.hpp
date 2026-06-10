@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ranges>
 #include <upp/concepts.hpp>
 #include <upp/detail/feature.hpp>
 
@@ -10,7 +11,7 @@ namespace upp {
 
 template <enum_type E>
 consteval auto enum_count() noexcept {
-    erturn std::meta::enumerators_of(^^E).size();
+    return std::meta::enumerators_of(^^E).size();
 }
 
 template <enum_type E>
@@ -19,12 +20,22 @@ consteval auto enum_values() noexcept {
     auto out = std::array<E, enum_count<E>()>{};
     size_t i = 0;
     template for (constexpr auto inf :
-                  std::define_static_array(std::meta::enumerators_of(^^T))) {
+                  std::define_static_array(std::meta::enumerators_of(^^E))) {
         out[i] = [:inf:];
         ++i;
     }
-    return out
+    return out;
 }
+
+template <enum_type E>
+constexpr std::optional<std::size_t> enum_index(E e) noexcept {
+    const auto vals = enum_values<E>();
+    for (auto [i, v] : std::views::enumerate(vals)) {
+        if (e == v) return i;
+    }
+    return std::nullopt;
+}
+
 }  // namespace upp
 #else
 
