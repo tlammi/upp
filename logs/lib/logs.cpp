@@ -1,8 +1,11 @@
+#include <unistd.h>
+
 #include <atomic>
 #include <cassert>
 #include <print>
 #include <upp/enum_array.hpp>
 #include <upp/logs.hpp>
+#include <upp/terminal.hpp>
 #include <utility>
 
 namespace upp::logs {
@@ -13,26 +16,66 @@ void (*g_callback)(const context&, level lvl, std::string) = nullptr;
 static constexpr auto relaxed = std::memory_order::relaxed;
 
 namespace {
+
+bool tty_output() noexcept { return isatty(fileno(stderr)); }
+
 constexpr auto prefixes = upp::make_enum_array<strlit, level>({
     {level::trace, "[T] "},
     {level::debug, "[D] "},
     {level::info, "[I] "},
     {level::note, "[N] "},
     {level::warn, "[W] "},
-    {level::fatal, "[T] "},
-    {level::error, "[F] "},
+    {level::error, "[E] "},
+    {level::fatal, "[F] "},
 });
 
-void default_callback(const context& ctx, level lvl, std::string msg) {
-    // TODO: Better implementation
-    if (ctx.name().empty()) {
-        std::println(stderr, "{}{}",
-                     static_cast<std::string_view>(prefixes[lvl]), msg);
-    } else {
-        std::println(stderr, "[{}] {}{}",
-                     static_cast<std::string_view>(ctx.name()),
-                     static_cast<std::string_view>(prefixes[lvl]), msg);
+std::string color_on(level lvl) noexcept {
+    using enum level;
+    using enum terminal::option;
+    switch (lvl) {
+        case level::unset:
+        case level::trace:
+        case level::debug:
+        case level::info: return {};
+        case level::note: return terminal::dynamic_escape_code(bold);
+        case level::warn: return terminal::dynamic_escape_code(yellow);
+        case level::error: return terminal::dynamic_escape_code(red);
+        case level::fatal: return terminal::dynamic_escape_code(red, bold);
     }
+    std::unreachable();
+}
+
+std::string color_off(level lvl) noexcept {
+    using enum level;
+    using enum terminal::option;
+    switch (lvl) {
+        case level::unset:
+        case level::trace:
+        case level::debug:
+        case level::info: return {};
+        case level::note:
+        case level::warn:
+        case level::error:
+        case level::fatal: return terminal::dynamic_escape_code(clear);
+    }
+    std::unreachable();
+}
+
+// TODO: Better implementation
+void default_callback(const context& ctx, level lvl, std::string msg) {
+    const bool colored = tty_output();
+    auto buf = colored ? color_on(lvl) : std::string();
+    buf.append_range(prefixes[lvl]);
+    if (!ctx.name().empty()) {
+        buf.push_back('[');
+        buf.append_range(ctx.name());
+        buf.push_back(']');
+        buf.push_back(' ');
+    }
+    buf.append_range(msg);
+    if (colored) buf.append_range(color_off(lvl));
+    buf.push_back('\n');
+    std::fputs(buf.c_str(), stderr);
 }
 }  // namespace
 

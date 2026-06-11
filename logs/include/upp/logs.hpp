@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <format>
 #include <upp/immovable.hpp>
 #include <upp/strlit.hpp>
 #include <upp/uncopyable.hpp>

@@ -1,4 +1,4 @@
-tests = files('logs.cpp')
+tests = files('logs.cpp', 'manual.cpp')
 
 fs = import('fs')
 
