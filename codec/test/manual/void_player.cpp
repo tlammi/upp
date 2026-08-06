@@ -3,16 +3,15 @@
 #include <upp/fs/file.hpp>
 #include <upp/logs.hpp>
 
+const auto& logger = upp::logs::root_context();
+
 int main(int argc, char** argv) {
-    upp::logs::init({
-        .level = upp::logs::level::trace,
-    });
+    upp::logs::quick_init(upp::logs::level::trace);
     for (int i = 1; i < argc; ++i) {
         size_t count = 1;
         // NOLINTNEXTLINE
         auto dat = upp::fs::file(argv[i]).read_bin();
-        UPP_DEBUG(upp::logs::root_context, "read {} bytes from media",
-                  dat.size());
+        UPP_DEBUG(logger, "read {} bytes from media", dat.size());
         auto demux = upp::codec::demux(dat);
         auto video_stream = demux.best_video_stream();
         auto vid_decoder = upp::codec::decoder{{

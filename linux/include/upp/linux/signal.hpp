@@ -1,7 +1,6 @@
 #pragma once
 
-#include <signal.h>
-
+#include <csignal>
 #include <initializer_list>
 
 namespace upp::linux {
