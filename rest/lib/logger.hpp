@@ -4,7 +4,7 @@
 
 namespace upp::rest {
 
-const auto LOGGER = logs::context({.name = "upp.rest"});
+const auto LOGGER = logs::context(upp::logs::root_context(), "rest");
 
 #define UPP_CODEC_LOG(lvl, ...) UPP_LOG(lvl, ::upp::rest::LOGGER, __VA_ARGS__)
 
