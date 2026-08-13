@@ -23,6 +23,8 @@ upp_logs_dep = declare_dependency(
     dependencies: deps,
 )
 
+priv_incdir = include_directories('lib')
+
 if get_option('tests')
     subdir('test')
 endif

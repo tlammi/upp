@@ -4,9 +4,9 @@
 
 namespace upp::codec {
 
-const auto LOGGER = logs::context({.name = "upp.codec"});
+const auto LOGGER = logs::context(logs::upp_context, "codec");
 
-#define UPP_CODEC_LOG(lvl, ...) UPP_LOG(lvl, ::upp::codec::LOGGER, __VA_ARGS__)
+#define UPP_CODEC_LOG(lvl, ...) UPP_LOG(lvl, LOGGER, __VA_ARGS__)
 
 #define TRACE(...) UPP_CODEC_LOG(::upp::logs::level::trace, __VA_ARGS__)
 #define DEBUG(...) UPP_CODEC_LOG(::upp::logs::level::debug, __VA_ARGS__)
