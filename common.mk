@@ -19,5 +19,5 @@ $(BUILD_DIR): $(BUILD_DIR)/.tag
 
 $(BUILD_DIR)/.tag:
 	[ -d $(BUILD_DIR) ] && [ ! -f $(BUILD_DIR)/.tag ] && rm -rf $(BUILD_DIR) || true
-	meson setup -Db_sanitize=address,undefined $(BUILD_DIR) $(ROOT_DIR)
+	meson setup -Db_lundef=false -Db_sanitize=address,undefined $(BUILD_DIR) $(ROOT_DIR)
 	touch $(BUILD_DIR)/.tag

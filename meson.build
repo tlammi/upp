@@ -8,6 +8,7 @@ project(
 pkg = import('pkgconfig')
 
 subdir('core')
+subdir('math')
 subdir('coro')
 subdir('fs')
 subdir('logs')
@@ -17,6 +18,7 @@ subdir('linux')
 upp_dep = declare_dependency(
     dependencies: [
         upp_core_dep,
+        upp_math_dep,
         upp_fs_dep,
         upp_logs_dep,
         upp_codec_dep,
