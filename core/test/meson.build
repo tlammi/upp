@@ -11,6 +11,7 @@ tests = files(
     'bitset.cpp',
     'enum_set.cpp',
     'intrusive_list.cpp',
+    'fam.cpp',
 )
 
 # Work in progress
