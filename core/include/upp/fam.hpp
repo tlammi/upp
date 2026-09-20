@@ -117,6 +117,13 @@ constexpr T* get_fam(Hdr* h) noexcept {
     return reinterpret_cast<T*>(addr);  // NOLINT
 }
 
+template <class Hdr, class T>
+constexpr const T* get_fam(const Hdr* h) noexcept {
+    auto addr = reinterpret_cast<std::ptrdiff_t>(h);  // NOLINT
+    addr += offset<Hdr, T>();
+    return reinterpret_cast<const T*>(addr);  // NOLINT
+}
+
 /**
  * \brief Allocate a FAM object
  * \ingroup upp_core
