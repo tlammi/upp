@@ -1,4 +1,4 @@
-tests = files('detach.cpp', 'task.cpp', 'asio_scheduler.cpp')
+tests = files('detach.cpp', 'task.cpp', 'asio_scheduler.cpp', 'any_sender.cpp')
 
 fs = import('fs')
 
