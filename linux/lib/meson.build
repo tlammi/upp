@@ -1,1 +1,1 @@
-SRCS += files('signal.cpp')
+SRCS += files('signal.cpp', 'dlopen.cpp')
