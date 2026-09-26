@@ -1,23 +1,17 @@
 #include <gtest/gtest.h>
 
 #include <upp/coro/any_sender.hpp>
+#include <upp/coro/task.hpp>
 
 using upp::coro::any_sender;
 using upp::coro::infallible_any_sender;
 using upp::coro::trivial_any_sender;
 using upp::coro::unstoppable_any_sender;
 
-template <class T>
-constexpr auto just_1() -> T {
-    return stdexec::just(1);
-}
 
-template <class T>
-constexpr auto test_value() {
-    auto res = stdexec::sync_wait(just_1<T>());
-    ASSERT_TRUE(res);
-    ASSERT_EQ(std::get<0>(*res), 1);
-}
+//
+// Tests matching all senders
+//
 
 using AllSenders =
     testing::Types<any_sender<int>, trivial_any_sender<int>,
@@ -35,6 +29,20 @@ TYPED_TEST(ValueTest, ValueReturned) {
     ASSERT_EQ(std::get<0>(*res), 1);
 }
 
+TYPED_TEST(ValueTest, Awaitable){
+  auto sndr = []() -> TypeParam {return stdexec::just(1); }();
+  auto t = [&]() -> upp::coro::task<int> {
+    co_return co_await std::move(sndr);
+  };
+  auto res = stdexec::sync_wait(t());
+  ASSERT_TRUE(res);
+    ASSERT_EQ(std::get<0>(*res), 1);
+}
+
+//
+// Tests for senders sending cancellation
+//
+
 using StopSenders =
     testing::Types<any_sender<int>, infallible_any_sender<int> >;
 
@@ -48,6 +56,10 @@ TYPED_TEST(StopTest, StopSent) {
     auto res = stdexec::sync_wait(sndr());
     ASSERT_FALSE(res);
 }
+
+//
+// Tests for senders sending errors
+//
 
 using ErrorSenders =
     testing::Types<any_sender<int>, unstoppable_any_sender<int> >;

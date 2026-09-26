@@ -17,16 +17,25 @@ using query = exec::queries<>;
 using sender_query = exec::queries<>;
 
 template <class Completion>
+using any_receiver_impl =
+    exec::any_receiver<Completion, query>;
+
+template <class Completion>
 using any_sender_impl =
-    exec::any_sender<exec::any_receiver<Completion, query>, sender_query>;
+    exec::any_sender<any_receiver_impl<Completion>, sender_query>;
 
 template <class... Ts>
 using completion =
     completion_signatures<set_value(Ts...), set_error(std::exception_ptr),
                           set_stopped()>;
 
+using any_scheduler = exec::any_scheduler<any_sender_impl<completion<>>>;
+
 template <class... Ts>
 using any_sender = any_sender_impl<completion<Ts...>>;
+
+template <class... Ts>
+using any_receiver = any_receiver_impl<completion<Ts...>>;
 
 template <class... Ts>
 using trivial_completion = completion_signatures<set_value(Ts...)>;
