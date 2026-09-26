@@ -12,7 +12,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y meson ninja-build g++
+          sudo apt-get install -y meson ninja-build g++-16
       - name: Build
         run: make
       - name: Test
