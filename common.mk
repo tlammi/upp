@@ -11,6 +11,10 @@ compile: $(BUILD_DIR)
 test: $(BUILD_DIR)
 	meson test -C $(BUILD_DIR) --suite unit --suite $(SUBPROJECT)
 
+.PHONY: test-smoke
+test: $(BUILD_DIR)
+	meson test -C $(BUILD_DIR) --suite smoke --suite $(SUBPROJECT)
+
 .PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)

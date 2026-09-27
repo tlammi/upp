@@ -13,17 +13,12 @@ jobs:
         with:
           packages: meson ninja-build g++-16 libgtest-dev libgmock-dev libboost-all-dev pkgconf libavcodec-dev libavformat-dev
           version: "0.1"
-      #- name: Install dependencies
-      #  run: |
-      #    set -eux
-      #    sudo apt-get update
-      #    sudo apt-get install -y python3-pip
-      #    pip install --user --break-system-packages meson
-      #    sudo apt-get install -y ninja-build g++-16 googletest libboost-all-dev pkgconf
       - name: Build
         env:
           CXX: g++-16
           CC: gcc-16
         run: make
       - name: Test
-        run: make test
+        run: |
+          make test
+          make test-smoke
