@@ -17,7 +17,7 @@ test-smoke: $(BUILD_DIR)
 
 .PHONY: lint-all
 lint-all: $(BUILD_DIR)
-	run-clang-tidy -p $(BUILD_DIR)
+	run-clang-tidy -p $(BUILD_DIR) -warnings-as-errors='*' -q
 
 .PHONY: format-check
 format-check: $(BUILD_DIR)
