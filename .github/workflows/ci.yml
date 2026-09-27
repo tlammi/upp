@@ -9,13 +9,17 @@ jobs:
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v4
-      - name: Install dependencies
-        run: |
-          set -eux
-          sudo apt-get update
-          sudo apt-get install -y python3-pip
-          pip install --user --break-system-packages meson
-          sudo apt-get install -y ninja-build g++-16 googletest libboost-all-dev pkgconf
+      - uses: actions/cache@v6.1.0
+        with:
+          packages: meson ninja-build g++-16 googletest libgtest-dev libboost-all-dev pkgconf
+          version: "0.1"
+      #- name: Install dependencies
+      #  run: |
+      #    set -eux
+      #    sudo apt-get update
+      #    sudo apt-get install -y python3-pip
+      #    pip install --user --break-system-packages meson
+      #    sudo apt-get install -y ninja-build g++-16 googletest libboost-all-dev pkgconf
       - name: Build
         env:
           CXX: g++-16
