@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import json
+import argparse
+from pathlib import Path
+from subprocess import run, PIPE, SubprocessError
+from typing import Iterable
+
+
+CLANG_FORMAT = os.environ.get("CLANG_FORMAT", "clang-format")
+
+def compile_commands_files(path: Path):
+    with open(path / "compile_commands.json") as f:
+        obj = json.load(f)
+        for item in obj:
+            yield Path(item["file"])
+
+def absolute_paths(files: Iterable[Path], *, builddir: Path):
+    for f in files:
+        yield (builddir / f).resolve()
+
+p = argparse.ArgumentParser()
+p.add_argument("-b", "--build", type=Path, help="Build directory", required=True)
+p.add_argument("-f", "--fix", action="store_true", default=False, help="Fix")
+
+ns = p.parse_args()
+files = absolute_paths(compile_commands_files(ns.build), builddir=ns.build)
+
+strfiles = [str(f) for f in files]
+try:
+    if ns.fix:
+        run([CLANG_FORMAT, "-i"] + strfiles , check=True)
+    else:
+        run([CLANG_FORMAT, "-n", "-Werror"] + strfiles , check=True)
+except SubprocessError as _:
+    sys.exit(1)
+

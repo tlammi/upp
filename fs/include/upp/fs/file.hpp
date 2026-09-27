@@ -29,7 +29,7 @@ constexpr null_native_handle_t null_native_handle{};
 class file {
     native_handle m_handle{null_native_handle};
 
-    void do_close() noexcept;
+    void do_close() const noexcept;
 
  public:
     constexpr file() noexcept = default;

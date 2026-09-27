@@ -36,7 +36,7 @@ constinit log_mutex g_mut{};
  * */
 constinit bool g_organized{false};
 // NOLINTEND
-static constexpr auto relaxed = std::memory_order::relaxed;
+constexpr auto relaxed = std::memory_order::relaxed;
 
 bool tty_output() noexcept { return isatty(fileno(stderr)); }
 
@@ -84,7 +84,7 @@ std::string color_off(level lvl) noexcept {
 
 // Find the next sibling. The data has to be organized before calling this
 const context_base* find_next_sibling(const context_base* in) noexcept {
-    auto* parent = in->parent();
+    const auto* parent = in->parent();
     for (const auto* i = in->next(); i != nullptr; i = i->next()) {
         if (i->parent() == parent) return i;
     }
@@ -110,7 +110,7 @@ const context_base* sync_inherited_log_levels(const context_base* branch,
         return find_next_sibling(branch);
     }
     branch->set_inherited_level({}, lvl);
-    auto* i = branch->next();
+    const auto* i = branch->next();
     if (!i) return nullptr;
     if (i->parent() == branch->parent())
         return sync_inherited_log_levels(i, lvl);
@@ -125,7 +125,7 @@ const context_base* sync_inherited_log_levels(const context_base* branch,
 namespace detail {
 
 void push_log(const context_base& ctx, level lvl, std::string msg) {
-    auto* c = g_consumer.load(relaxed);
+    const auto* c = g_consumer.load(relaxed);
     if (c) (*c)(ctx, lvl, std::move(msg));
 }
 
@@ -156,7 +156,7 @@ context_base::context_base(const context_base& parent,
 }
 
 constexpr context_base::context_base(detail::context_passkey) noexcept
-    : m_parent(nullptr), m_name() {}
+    : m_parent(nullptr) {}
 
 context_base::~context_base() {
     auto lk = std::unique_lock(g_mut);
@@ -170,7 +170,7 @@ context_base::~context_base() {
     //
     // Normally the parent should be always destroyed after its children but
     // statically created loggers are constructed in arbitrary order.
-    for (auto* p = &root_context(); p != nullptr; p = p->next()) {
+    for (const auto* p = &root_context(); p != nullptr; p = p->next()) {
         if (p->parent() == this) p->m_parent = nullptr;
     }
 #endif

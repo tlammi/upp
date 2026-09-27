@@ -66,7 +66,7 @@ std::vector<test_ctx*> children_of(test_ctx* parent) noexcept {
 }
 
 constexpr bool is_organized(const test_ctx* root) noexcept {
-    auto* parent = root;
+    const auto* parent = root;
     for (const auto* i = parent->next(); i != nullptr; i = i->next()) {
         if (i->parent() == parent) continue;
         if (i->parent() == i->prev()) parent = i->prev();

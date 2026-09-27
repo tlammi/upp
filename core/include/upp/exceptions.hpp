@@ -2,7 +2,7 @@
 
 namespace upp {
 
-[[noreturn]] void throw_errno(int code);
+[[noreturn]] void throw_errno(int ec);
 [[noreturn]] void throw_errno();
 
 // NOLINTNEXTLINE

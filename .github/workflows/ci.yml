@@ -1,0 +1,40 @@
+name: CI
+on:
+  push:
+    branches: [maister]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  build:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v4
+      # Enable this if pip installations are required
+      #- uses: actions/setup-python@v7.0.0
+      #  with:
+      #    python-version: 3.14.7
+      #    cache: pip
+      - uses: awalsh128/cache-apt-pkgs-action@v1.6.3
+        with:
+          packages: meson ninja-build g++-16 libgtest-dev libgmock-dev libboost-all-dev pkgconf libavcodec-dev libavformat-dev ccache
+          version: "0.1"
+      - uses: jianmingyong/ccache-action@v1.4.0
+      - name: Build
+        env:
+          CXX: "ccache g++-16"
+          CC: "ccache gcc-16"
+        run: make
+      - name: Test
+        run: |
+          make test
+          make test-smoke
+      - name: Lint
+        run: |
+          make lint-all
+          make format-check
+          make format-check-meson

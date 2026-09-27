@@ -21,17 +21,18 @@ namespace upp {
  * */
 template <enum_type E>
 class bitmask {
-    E m_v{};
     using raw_type = std::underlying_type_t<E>;
+    raw_type m_v{};
     static constexpr auto zero = static_cast<raw_type>(0);
-    static constexpr auto all_bits = all_set<raw_type>();
+
+    constexpr explicit bitmask(raw_type v) noexcept : m_v(v){}
 
  public:
     constexpr bitmask() = default;
-    constexpr explicit bitmask(E e) noexcept : m_v(e) {}
+    constexpr explicit bitmask(E e) noexcept : bitmask(underlying_cast(e)) {}
 
     constexpr bool none() const noexcept {
-        return underlying_cast(m_v) == zero;
+        return m_v == zero;
     }
 
     /**
@@ -53,12 +54,11 @@ class bitmask {
         static constexpr auto enums = enum_values<E>();
         // TODO: Check if this needs optimization, i.e. whether the compiler is
         // smart enough.
-        const auto raw = underlying_cast(m_v);
         for (auto e : enums) {
             auto r = underlying_cast(e);
             auto bitcount = count_set_bits(r);
             if (bitcount != 1) continue;
-            if (!(raw & r)) return false;
+            if (!(m_v & r)) return false;
         }
         return true;
     }
@@ -67,33 +67,32 @@ class bitmask {
 
     constexpr bool all() const noexcept {
         static constexpr auto enums = magic_enum::enum_values<E>();
-        const auto raw = underlying_cast(m_v);
         for (auto e : enums) {
             auto r = underlying_cast(e);
             auto bitcount = count_set_bits(r);
             if (bitcount != 1) continue;
-            if (!(raw & r)) return false;
+            if (!(m_v & r)) return false;
         }
         return true;
     }
 
 #endif
-    constexpr bitmask operator|(E other) const noexcept {
-        return bitmask(
-            underlying_cast<E>(underlying_cast(m_v) | underlying_cast(other)));
-    }
 
     constexpr bitmask operator|(bitmask other) const noexcept {
-        return *this | other.m_v;
+        return bitmask(m_v | other.m_v);
+    }
+
+    constexpr bitmask operator|(E other) const noexcept {
+        return *this | bitmask(other);
+    }
+
+
+    constexpr bitmask operator&(bitmask other) const noexcept {
+        return bitmask(m_v & other.m_v);
     }
 
     constexpr bitmask operator&(E other) const noexcept {
-        return bitmask(
-            underlying_cast<E>(underlying_cast(m_v) & underlying_cast(other)));
-    }
-
-    constexpr bitmask operator&(bitmask other) const noexcept {
-        return *this & other.m_v;
+      return *this & bitmask(other);
     }
 };
 

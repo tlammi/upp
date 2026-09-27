@@ -8,7 +8,7 @@
 
 namespace upp::fs {
 
-void file::do_close() noexcept {
+void file::do_close() const noexcept {
     if (m_handle == null_native_handle) return;
     ::close(m_handle);
 }
@@ -20,12 +20,14 @@ file::file(const std::filesystem::path& path) {
     if (m_handle == null_native_handle) throw_errno();
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 std::size_t file::write(std::span<const char> data) {
     auto count = ::write(m_handle, data.data(), data.size());
     if (count < 0) throw_errno();
     return count;
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 std::size_t file::seek_begin(std::size_t offset) {
     static constexpr auto max =
         static_cast<std::size_t>(std::numeric_limits<off_t>::max());
@@ -35,18 +37,21 @@ std::size_t file::seek_begin(std::size_t offset) {
     return res;
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 std::size_t file::seek_end(std::ptrdiff_t offset) {
     auto res = ::lseek(m_handle, offset, SEEK_END);
     if (res == static_cast<off_t>(-1)) throw_errno();
     return res;
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 std::size_t file::seek_current(std::ptrdiff_t offset) {
     auto res = ::lseek(m_handle, offset, SEEK_CUR);
     if (res == static_cast<off_t>(-1)) throw_errno();
     return res;
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 std::size_t file::read(std::span<char> data) {
     auto count = ::read(m_handle, data.data(), data.size());
     if (count < 0) throw_errno();

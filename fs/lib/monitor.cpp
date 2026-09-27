@@ -4,6 +4,8 @@
 #include <upp/fs/monitor.hpp>
 #include <vector>
 
+// TODO: Sort this out
+// NOLINTNEXTLINE
 #if 0
 namespace upp::fs {
 namespace {

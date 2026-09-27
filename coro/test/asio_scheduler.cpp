@@ -45,13 +45,14 @@ TEST(Schedule, Return) {
     ASSERT_EQ(*res, 42);
 }
 
-TEST(Schedule, Coroutine){
+TEST(Schedule, Coroutine) {
     auto ctx = boost::asio::io_context();
     auto worker = std::jthread([&] { ctx.run(); });
 
     auto sched = asio_scheduler(ctx);
 
-    auto res = upp::coro::run(sched, [] -> stdexec::task<int> { co_return 42; }());
+    auto res =
+        upp::coro::run(sched, [] -> stdexec::task<int> { co_return 42; }());
     ASSERT_TRUE(res);
     ASSERT_EQ(*res, 42);
 }
