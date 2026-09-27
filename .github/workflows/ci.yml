@@ -15,28 +15,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3-pip
           pip install --user --break-system-packages meson
-          apt-cache policy g++-16
-          apt-cache show g++-16
-          apt-cache depends g++-16
-          apt-cache search '^g\+\+-16$'
-          apt-cache search '^gcc-16$'
-          sudo apt-get install -y ninja-build
-          sudo apt-get install -y g++-16
-          echo "=== installed packages ==="
-          dpkg -l | grep g++ || true
-          command --help || true
-          command -v g++-16 || true
-          ls -l "$(command -v g++-16)" || true
+          sudo apt-get install -y ninja-build g++-16 googletest libboost-all-dev
       - name: Build
         env:
           CXX: g++-16
           CC: gcc-16
-        run: |
-          echo "$PATH"
-          command -v g++-16 || true
-          dpkg -L g++-16 | grep '/bin/'
-          ls -l /usr/bin/g++-16 || true
-          $CXX --version
-          make
+        run: make
       - name: Test
         run: make test
