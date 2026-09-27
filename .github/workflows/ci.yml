@@ -15,6 +15,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3-pip
           pip install --user --break-system-packages meson
+          apt-cache policy g++-16
+          apt-cache show g++-16
+          apt-cache depends g++-16
+          apt-cache search '^g\+\+-16$'
+          apt-cache search '^gcc-16$'
           sudo apt-get install -y ninja-build
           sudo apt-get install -y g++-16
           echo "=== installed packages ==="
