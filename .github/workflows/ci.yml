@@ -19,11 +19,10 @@ jobs:
           export CC=gcc-16
       - name: Build
         run: |
-          echo 1
+          export CXX=g++-16
+          export C=gcc-16
           echo $CXX
-          echo 2
           which $CXX
-          echo 3
           make
       - name: Test
         run: make test
