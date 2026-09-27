@@ -41,7 +41,7 @@ TEST(Symbol, Function) {
 
 TEST(Symbol, Constant) {
     auto dl = setup_dynlib();
-    auto* pi = dl.symbol<const int*>("APPROX_PI");
+    const auto* pi = dl.symbol<const int*>("APPROX_PI");
     ASSERT_TRUE(pi);
     ASSERT_EQ(*pi, 4);
 }
