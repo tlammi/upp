@@ -2,7 +2,6 @@
 
 #include <upp/flexible.hpp>
 
-
 // NOLINTBEGIN(*-bounds-pointer-arithmetic)
 
 struct header {
