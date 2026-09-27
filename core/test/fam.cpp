@@ -10,6 +10,7 @@ static_assert(upp::fam::offset<std::array<std::byte, 3>, std::size_t>() ==
               alignof(std::size_t));
 // NOLINTEND(*magic-number*)
 
+// NOLINTBEGIN(*bounds-pointer-arithmetic)
 template <class T>
 struct header {
     std::size_t count{};
@@ -60,3 +61,4 @@ TEST(Simple, Access) {
     ASSERT_EQ(h->data()[0], 1);
     ASSERT_EQ(h->data()[1], 2);
 }
+// NOLINTEND(*bounds-pointer-arithmetic)

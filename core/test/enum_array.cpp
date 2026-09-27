@@ -2,7 +2,7 @@
 
 #include <upp/enum_array.hpp>
 
-enum enum1 {
+enum class enum1: std::uint8_t {
     val1,
     val2,
     val3,

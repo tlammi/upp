@@ -26,7 +26,7 @@ decoder::decoder(decoder_opts opts) : decoder() {
         int res = avcodec_parameters_to_context(m_ctx, handle->codecpar);
         UPP_CHECK(!res, detail::exception(res));
         m_ctx->pkt_timebase = handle->time_base;
-        auto* codec = avcodec_find_decoder(m_ctx->codec_id);
+        const auto* codec = avcodec_find_decoder(m_ctx->codec_id);
         if (!codec) { throw std::runtime_error("codec not found"); }
         // TODO: Codec options?
         res = avcodec_open2(m_ctx, codec, nullptr);

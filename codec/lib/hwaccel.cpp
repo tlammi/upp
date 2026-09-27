@@ -78,5 +78,4 @@ const char* hwaccel_meta::name() const noexcept {
     return av_hwdevice_get_type_name(underlying_cast<AVHWDeviceType>(m_type));
 }
 
-hwaccel lookup_hardware_accelerator(const char* name);
 }  // namespace upp::codec

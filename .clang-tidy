@@ -1,14 +1,22 @@
 ---
+# TODO: enable clang-analyzer-core.* with newer clang-tidy
 Checks: |
   clang-diagnostic-*,
   clang-analyzer-*,
   cppcoreguidelines-*,
   readability-*,
   -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
+  -cppcoreguidelines-avoid-magic-numbers,
   -readability-magic-numbers,
   -readability-identifier-length,
   -readability-braces-around-statements,
-  -readability-implicit-bool-conversion
+  -readability-implicit-bool-conversion,
+  -readability-convert-member-functions-to-static,
+  -readability-named-parameter,
+  -readability-uppercase-literal-suffix,
+  -readability-static-accessed-through-instance,
+  -clang-analyzer-core.uninitialized.Branch,
+  -clang-analyzer-core.CallAndMessage
 
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
@@ -58,6 +66,8 @@ CheckOptions:
   - key:             cppcoreguidelines-special-member-functions.AllowImplicitlyDeletedCopyOrMove
     value:           true
   - key:             readability-magic-numbers.IgnoreUserDefinedLiterals
+    value:           true
+  - key:             readability-function-cognitive-complexity.IgnoreMacros
     value:           true
 ...
 

@@ -2,6 +2,9 @@
 
 #include <upp/flexible.hpp>
 
+
+// NOLINTBEGIN(*-bounds-pointer-arithmetic)
+
 struct header {
     size_t capacity;
     size_t offset{};
@@ -88,3 +91,5 @@ TEST(Access, SomeAllocator) {
     for (auto i = 0; i < count; ++i) f->data()[i] = i;
     for (auto i = 0; i < count; ++i) ASSERT_EQ(f->data()[i], i);
 }
+
+// NOLINTEND(*-bounds-pointer-arithmetic)
