@@ -15,6 +15,26 @@ test: $(BUILD_DIR)
 test-smoke: $(BUILD_DIR)
 	meson test -C $(BUILD_DIR) --suite smoke --suite $(SUBPROJECT)
 
+.PHONY: lint
+lint: $(BUILD_DIR)
+
+.PHONY: format-check
+format-check: $(BUILD_DIR)
+	./script/run-clang-format -b $(BUILD_DIR)
+
+.PHONY: format-check-meson
+format-check-meson:
+	meson format --check-diff
+
+.PHONY: format-fix
+format-fix: $(BUILD_DIR)
+	./script/run-clang-format -b $(BUILD_DIR) --fix
+
+.PHONY: format-fix-meson
+format-fix-meson:
+	meson format -i
+
+
 .PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)

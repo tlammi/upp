@@ -22,3 +22,8 @@ jobs:
         run: |
           make test
           make test-smoke
+      - name: Lint
+        run: |
+          make lint
+          make format-check
+          make format-check-meson
