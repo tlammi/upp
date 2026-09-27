@@ -15,12 +15,17 @@ jobs:
           sudo apt-get install -y python3-pip
           pip install --user --break-system-packages meson
           sudo apt-get install -y ninja-build g++-16
+          command -v g++-16
+          ls -l "$(command -v g++-16)"
       - name: Build
         env:
           CXX: g++-16
           CC: gcc-16
         run: |
-          echo $CXX
+          echo "$PATH"
+          command -v g++-16 || true
+          dpkg -L g++-16 | grep '/bin/'
+          ls -l /usr/bin/g++-16 || true
           $CXX --version
           make
       - name: Test
