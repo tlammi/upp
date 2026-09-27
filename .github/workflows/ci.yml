@@ -15,6 +15,8 @@ jobs:
           sudo apt-get install -y python3-pip
           pip install --user --break-system-packages meson
           sudo apt-get install -y ninja-build g++-16
+          export CXX=g++-16
+          export CC=gcc-16
       - name: Build
         run: make
       - name: Test
