@@ -22,7 +22,7 @@ jobs:
           export CXX=g++-16
           export C=gcc-16
           echo $CXX
-          which $CXX
+          $CXX --version
           make
       - name: Test
         run: make test
