@@ -20,6 +20,9 @@ jobs:
           version: "0.1"
       - uses: jianmingyong/ccache-action@v1.4.0
       - name: Build
+        env:
+          CXX: "ccache g++-16"
+          CC: "ccache gcc-16"
         run: make
       - name: Test
         run: |
