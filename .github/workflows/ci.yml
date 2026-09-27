@@ -15,7 +15,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3-pip
           pip install --user --break-system-packages meson
-          sudo apt-get install -y ninja-build g++-16 googletest libboost-all-dev
+          sudo apt-get install -y ninja-build g++-16 googletest libboost-all-dev pkgconf
       - name: Build
         env:
           CXX: g++-16
