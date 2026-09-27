@@ -15,8 +15,8 @@ test: $(BUILD_DIR)
 test-smoke: $(BUILD_DIR)
 	meson test -C $(BUILD_DIR) --suite smoke --suite $(SUBPROJECT)
 
-.PHONY: lint
-lint: $(BUILD_DIR)
+.PHONY: lint-all
+lint-all: $(BUILD_DIR)
 
 .PHONY: format-check
 format-check: $(BUILD_DIR)
