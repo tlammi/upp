@@ -10,7 +10,6 @@ void dynamic_library::do_close(void* handle) noexcept { dlclose(handle); }
 dynamic_library::dynamic_library(const char* path)
     : dynamic_library(path, RTLD_LAZY) {}
 
-
 dynamic_library::dynamic_library(const char* path, int flags)
     : m_handle(dlopen(path, flags)) {
     if (!m_handle) throw std::runtime_error(dlerror());
