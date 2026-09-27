@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: awalsh128/cache-apt-pkgs-action@v1.6.3
         with:
-          packages: meson ninja-build g++-16 googletest libgtest-dev libboost-all-dev pkgconf
+          packages: meson ninja-build g++-16 googletest libgtest-dev libboost-all-dev pkgconf libavcodec-dev
           version: "0.1"
       #- name: Install dependencies
       #  run: |
