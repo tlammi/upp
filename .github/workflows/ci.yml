@@ -15,12 +15,11 @@ jobs:
           sudo apt-get install -y python3-pip
           pip install --user --break-system-packages meson
           sudo apt-get install -y ninja-build g++-16
-          export CXX=g++-16
-          export CC=gcc-16
       - name: Build
+        env:
+          CXX: g++-16
+          CC: gcc-16
         run: |
-          export CXX=g++-16
-          export C=gcc-16
           echo $CXX
           $CXX --version
           make
