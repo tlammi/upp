@@ -16,8 +16,9 @@ jobs:
           sudo apt-get install -y python3-pip
           pip install --user --break-system-packages meson
           sudo apt-get install -y ninja-build g++-16
-          command -v g++-16
-          ls -l "$(command -v g++-16)"
+          command --help || true
+          command -v g++-16 || true
+          ls -l "$(command -v g++-16)" || true
       - name: Build
         env:
           CXX: g++-16
