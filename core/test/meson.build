@@ -12,6 +12,7 @@ tests = files(
     'enum_set.cpp',
     'intrusive_list.cpp',
     'fam.cpp',
+    'sbool.cpp',
 )
 
 # Work in progress
