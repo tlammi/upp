@@ -19,7 +19,9 @@ static_assert(sbool(true) > false);
 static_assert(sbool(true) <= true);
 static_assert(sbool(true) >= false);
 
-static_assert(!std::constructible_from<sbool, const char*>, "sbool accepts string literal");
+static_assert(!std::constructible_from<sbool, const char*>,
+              "sbool accepts string literal");
 static_assert(!std::constructible_from<sbool, float>, "sbool accepts float");
 static_assert(!std::constructible_from<sbool, double>, "sbool accepts float");
-static_assert(!std::constructible_from<sbool, decltype(0)>, "sbool accepts integer");
+static_assert(!std::constructible_from<sbool, decltype(0)>,
+              "sbool accepts integer");
