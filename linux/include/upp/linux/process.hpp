@@ -47,9 +47,19 @@ public:
     assert(!joinable());
   }
 
+
+
   sbool joinable() const noexcept;
 
+
+  struct join_result{
+    int exit_code;
+    int signal;
+  };
+
   int join();
+
+  void kill(int sig);
 };
 
 }

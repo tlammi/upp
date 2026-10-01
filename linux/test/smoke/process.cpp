@@ -4,6 +4,8 @@
 
 using upp::linux::process;
 
+using namespace std::literals;
+
 TEST(Empty, NotJoinable) {
     auto p = process();
     ASSERT_FALSE(p.joinable());
@@ -22,5 +24,11 @@ TEST(Fn, ReturnMaches) {
 
 TEST(Fn, Args) {
     auto p = process([](int a, int b) { return a + b; }, 1, 2);
+    ASSERT_EQ(p.join(), 3);
+}
+
+TEST(Fn, Kill) {
+    auto p = process([] { pause(); });
+    p.kill(SIGINT);
     ASSERT_EQ(p.join(), 3);
 }

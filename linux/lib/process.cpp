@@ -24,5 +24,10 @@ int process::join() {
   m_handle = 0;
   return WEXITSTATUS(exit_code);
 }
+  void process::kill(int sig){
+    assert(joinable());
+    auto res = ::kill(m_handle, sig);
+    if(res < 0) throw_errno();
+  }
 
 }
