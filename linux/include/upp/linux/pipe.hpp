@@ -1,5 +1,7 @@
 #pragma once
 
+#include <linux/limits.h>
+
 #include <upp/fs/file.hpp>
 
 namespace upp::linux {
@@ -28,5 +30,6 @@ struct pipe_pair {
 };
 
 pipe_pair pipe();
+pipe_pair pipe(int flags);
 
 }  // namespace upp::linux

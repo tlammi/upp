@@ -6,9 +6,11 @@
 
 namespace upp::linux {
 
-pipe_pair pipe() {
+pipe_pair pipe() { return pipe(0); }
+
+pipe_pair pipe(int flags) {
     auto fds = std::array<int, 2>();
-    int res = pipe2(fds.data(), 0);
+    int res = pipe2(fds.data(), flags);
     if (res) throw_errno();
     return {
         .read = pipe_read(fds[0]),
