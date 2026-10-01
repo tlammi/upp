@@ -35,3 +35,19 @@ TEST(Pipe, PacketMode) {
     view = std::string_view(buffer).substr(0, count - 1);
     ASSERT_EQ(view, "bar");
 }
+
+TEST(Pipe, PacketTooLarge) {
+    auto [read, write] = ul::pipe(upp::bm | ul::pipe_flag::packet);
+
+    static constexpr std::size_t elem_count = PIPE_BUF + PIPE_BUF / 2;
+
+    auto write_buf = std::array<std::byte, elem_count>();
+    write.write(write_buf);
+
+    auto buf = std::string(elem_count, '\0');
+
+    auto count = read.read(buf);
+    ASSERT_EQ(count, PIPE_BUF);
+    count = read.read(buf);
+    ASSERT_LT(count, PIPE_BUF);
+}

@@ -25,20 +25,20 @@ class bitmask {
     raw_type m_v{};
     static constexpr auto zero = static_cast<raw_type>(0);
 
-    constexpr explicit bitmask(raw_type v) noexcept : m_v(v){}
+    constexpr explicit bitmask(raw_type v) noexcept : m_v(v) {}
 
  public:
     constexpr bitmask() = default;
     constexpr explicit bitmask(E e) noexcept : bitmask(underlying_cast(e)) {}
 
-    constexpr bool none() const noexcept {
-        return m_v == zero;
-    }
+    constexpr bool none() const noexcept { return m_v == zero; }
 
     /**
      * \brief Check whether any bits in the mask are set
      * */
     constexpr bool any() const noexcept { return !none(); }
+
+    constexpr explicit operator bool() const noexcept { return any(); }
 
 #if UPP_HAVE_REFLECTION
     /**
@@ -86,13 +86,12 @@ class bitmask {
         return *this | bitmask(other);
     }
 
-
     constexpr bitmask operator&(bitmask other) const noexcept {
         return bitmask(m_v & other.m_v);
     }
 
     constexpr bitmask operator&(E other) const noexcept {
-      return *this & bitmask(other);
+        return *this & bitmask(other);
     }
 };
 
