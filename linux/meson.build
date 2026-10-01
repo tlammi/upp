@@ -5,7 +5,7 @@ SRCS = files()
 
 subdir('lib')
 
-deps = [upp_core_dep]
+deps = [upp_core_dep, upp_fs_dep]
 
 upp_linux_lib = library(
     'upp-linux',
