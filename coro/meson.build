@@ -6,8 +6,12 @@ SRCS = files()
 subdir('lib')
 
 deps = [
-  upp_core_dep,
-  dependency('stdexec', fallback: ['stdexec', 'stdexec_dep'], include_type: 'system'),
+    upp_core_dep,
+    dependency(
+        'stdexec',
+        fallback: ['stdexec', 'stdexec_dep'],
+        include_type: 'system',
+    ),
 ]
 
 upp_coro_lib = library(
