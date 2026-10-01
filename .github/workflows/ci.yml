@@ -23,7 +23,7 @@ jobs:
       - uses: awalsh128/cache-apt-pkgs-action@v1.6.3
         with:
           packages: "meson ninja-build g++-16 libgtest-dev libgmock-dev libboost-all-dev pkgconf libavcodec-dev libavformat-dev ccache"
-          version: "0.2"
+          version: "0.3"
       - uses: jianmingyong/ccache-action@v1.4.0
       - name: Build
         env:
