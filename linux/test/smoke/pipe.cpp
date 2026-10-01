@@ -1,9 +1,9 @@
 #include <fcntl.h>
 #include <gtest/gtest.h>
 
+#include <ranges>
 #include <upp/linux/pipe.hpp>
 #include <upp/unused.hpp>
-#include <ranges>
 
 namespace ul = upp::linux;
 
@@ -29,9 +29,9 @@ TEST(Pipe, PacketMode) {
 
     std::string buffer(10, '\0');
     auto count = read.read(buffer);
-    auto view = std::string_view(buffer).substr(0, count-1);
+    auto view = std::string_view(buffer).substr(0, count - 1);
     ASSERT_EQ(view, "foo");
     count = read.read(buffer);
-    view = std::string_view(buffer).substr(0, count-1);
+    view = std::string_view(buffer).substr(0, count - 1);
     ASSERT_EQ(view, "bar");
 }
