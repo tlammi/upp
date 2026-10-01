@@ -1,4 +1,4 @@
-tests = files('signal.cpp', 'dlopen.cpp', 'pipe.cpp')
+tests = files('signal.cpp', 'dlopen.cpp', 'pipe.cpp', 'process.cpp')
 
 fs = import('fs')
 
