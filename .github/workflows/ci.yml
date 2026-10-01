@@ -28,7 +28,9 @@ jobs:
         env:
           CXX: "ccache g++-16"
           CC: "ccache gcc-16"
-        run: make
+        run: |
+          sudo apt install -y meson
+          make
       - name: Test
         run: |
           make test
