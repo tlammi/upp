@@ -14,21 +14,21 @@ TEST(Empty, NotJoinable) {
 TEST(Fn, NoOp) {
     auto p = process([] {});
     ASSERT_TRUE(p.joinable());
-    ASSERT_EQ(p.join(), 0);
+    ASSERT_TRUE(p.join().ok());
 }
 
 TEST(Fn, ReturnMaches) {
     auto p = process([] { return 1; });
-    ASSERT_EQ(p.join(), 1);
+    ASSERT_EQ(p.join().exit_code, 1);
 }
 
 TEST(Fn, Args) {
     auto p = process([](int a, int b) { return a + b; }, 1, 2);
-    ASSERT_EQ(p.join(), 3);
+    ASSERT_EQ(p.join().exit_code, 3);
 }
 
 TEST(Fn, Kill) {
     auto p = process([] { pause(); });
     p.kill(SIGINT);
-    ASSERT_EQ(p.join(), 3);
+    ASSERT_EQ(p.join().signal, SIGINT);
 }
