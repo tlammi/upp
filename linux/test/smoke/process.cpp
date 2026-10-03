@@ -14,12 +14,17 @@ TEST(Empty, NotJoinable) {
 TEST(Fn, NoOp) {
     auto p = process([] {});
     ASSERT_TRUE(p.joinable());
-    ASSERT_TRUE(p.join().ok());
+    auto res = p.join();
+    ASSERT_TRUE(res.ok());
+    ASSERT_EQ(res.exit_code, 0);
+    ASSERT_EQ(res.signal, 0);
 }
 
 TEST(Fn, ReturnMaches) {
     auto p = process([] { return 1; });
-    ASSERT_EQ(p.join().exit_code, 1);
+    auto res = p.join();
+    ASSERT_EQ(res.exit_code, 1);
+    ASSERT_EQ(res.signal, 0);
 }
 
 TEST(Fn, Args) {
