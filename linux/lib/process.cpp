@@ -5,14 +5,14 @@
 #include <upp/linux/process.hpp>
 
 namespace upp::linux {
-  namespace {
-  constexpr auto to_join_result(int status) noexcept {
+namespace {
+constexpr auto to_join_result(int status) noexcept {
     return process::join_result{
-      .exit_code = WEXITSTATUS(status),
-      .signal = WIFSIGNALED(status) ? WTERMSIG(status) : 0,
+        .exit_code = WEXITSTATUS(status),
+        .signal = WIFSIGNALED(status) ? WTERMSIG(status) : 0,
     };
-  }
-  }
+}
+}  // namespace
 
 pid_t process::do_fork() {
     auto pid = ::fork();
