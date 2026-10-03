@@ -12,7 +12,6 @@ auto to_directory_range(std::string_view path) noexcept {
     return std::ranges::subrange(std::filesystem::directory_iterator(path),
                                  std::filesystem::directory_iterator());
 }
-
 }  // namespace
 
 std::filesystem::path search_path(std::string_view what,
