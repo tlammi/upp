@@ -16,9 +16,9 @@ endforeach
 unit_tests = files('context.cpp')
 
 deps += [
-  dependency('gtest'),
-  dependency('gtest_main'),
-  dependency('gmock'),
+    dependency('gtest'),
+    dependency('gtest_main'),
+    dependency('gmock'),
 ]
 
 foreach t : unit_tests
