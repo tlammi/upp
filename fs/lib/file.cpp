@@ -13,6 +13,12 @@ void fd_holder::do_close() const noexcept {
     if (m_handle == null_native_handle) return;
     ::close(m_handle);
 }
+// NOLINTNEXTLINE(readability-make-member-function-const)
+std::size_t write_impl(native_handle handle, std::span<const char> data) {
+    auto count = ::write(handle, data.data(), data.size());
+    if (count < 0) throw_errno();
+    return count;
+}
 
 }  // namespace detail
 
@@ -28,13 +34,6 @@ native_handle do_open(const std::filesystem::path& path) {
 }  // namespace
 
 file::file(const std::filesystem::path& path) : fd_holder(do_open(path)) {}
-
-// NOLINTNEXTLINE(readability-make-member-function-const)
-std::size_t file::write(std::span<const char> data) {
-    auto count = ::write(native(), data.data(), data.size());
-    if (count < 0) throw_errno();
-    return count;
-}
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 std::size_t file::seek_begin(std::size_t offset) {

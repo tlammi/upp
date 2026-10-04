@@ -87,7 +87,7 @@ class writable_file_base {
 
 }  // namespace detail
 
-class file : public detail::fd_holder {
+class file : public detail::fd_holder, public detail::writable_file_base<file> {
  public:
     using fd_holder::fd_holder;
 
@@ -105,12 +105,6 @@ class file : public detail::fd_holder {
     }
 
     constexpr ~file() = default;
-
-    std::size_t write(std::span<const char> data);
-    std::size_t write(std::span<const std::byte> data) {
-        return write(std::span<const char>(
-            reinterpret_cast<const char*>(data.data()), data.size()));
-    }
 
     std::size_t seek_begin(std::size_t offset = 0);
     std::size_t seek_current(std::ptrdiff_t offset = 0);
