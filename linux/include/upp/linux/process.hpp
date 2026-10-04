@@ -5,49 +5,22 @@
 #include <functional>
 #include <upp/cstr.hpp>
 #include <upp/forward.hpp>
+#include <upp/fs/file.hpp>
+#include <upp/cleanup.hpp>
 #include <upp/sbool.hpp>
-#include <upp/linux/pipe.hpp>
 #include <utility>
+#include <cstring>
 
 namespace upp::linux {
 
-namespace detail{
-template<class T>
-concept c_stringable = requires(T& t){
-  {t.c_str()} -> std::convertible_to<const char*>;
+namespace detail {
+
+template <class T>
+concept c_stringable = requires(T& t) {
+    { t.c_str() } -> std::convertible_to<const char*>;
 } || std::convertible_to<T, const char*>;
 
-}
-class run_t{
-
-  template<class T>
-    static constexpr const char* to_c_str(T& t) noexcept {
-      if constexpr (std::convertible_to<T, const char*>)
-        return t;
-      else return t.c_str();
-    }
-
-  struct options{
-    pipe_read stdin{};
-    pipe_write stdout{};
-    pipe_write stderr{};
-  };
-
-  static int raw_run(const char* path, char* const* argv, char* const* envp, options opts);
-
-
-  public:
-  constexpr explicit run_t() noexcept = default;
-
-  template<detail::c_stringable T>
-  int operator()(T& t) const {
-    return raw_run(to_c_str(t), nullptr, nullptr, {});
-  }
-
-};
-
-
-constexpr run_t run{};
+}  // namespace detail
 
 class process {
     pid_t m_handle{};
