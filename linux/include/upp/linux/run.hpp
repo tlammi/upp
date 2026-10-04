@@ -30,6 +30,15 @@ class run_t {
         out.push_back(nullptr);
     }
 
+    template <std::ranges::range Range>
+    static void init_args(std::vector<char*>& out, Range args) {
+        out.reserve(args.size()+1);
+        for(auto& arg: args){
+          out.push_back(strdup(to_c_str(arg)));
+        }
+        out.push_back(nullptr);
+    }
+
  public:
     constexpr explicit run_t() noexcept = default;
 
@@ -48,6 +57,24 @@ class run_t {
         });
         auto res = proc.join();
         return res.exit_code;
+    }
+
+
+    template<std::ranges::range Range>
+    int operator()(Range&& args) const {
+      static_assert(detail::c_stringable<typename std::remove_cvref_t<Range>::value_type>, "Run arguments must be const char* or convertible to one");
+      auto proc = process([&]{
+              auto argp = std::vector<char*>();
+              auto envp = std::vector<char*>{nullptr};
+              auto cleanup = upp::cleanup([&]{
+                  for(auto* ptr : argp) ::std::free(ptr);
+                  for(auto* ptr: envp) ::std::free(ptr);
+              });
+              init_args(argp, args);
+              execute(argp[0], argp.data(), envp.data());
+          });
+      auto res = proc.join();
+      return res.exit_code;
     }
 };
 

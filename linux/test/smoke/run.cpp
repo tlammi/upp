@@ -17,6 +17,15 @@ TEST(Simple, Args) {
     ASSERT_EQ(res, 2);
 }
 
+TEST(Simple, Dynamic){
+  auto args = std::vector<std::string>{"sh", "-c", "exit 3"};
+  auto res = upp::linux::run(args);
+  ASSERT_EQ(res, 3);
+}
+
+TEST(Io, Stdout){
+
+}
 /*
 TEST(Simple, Stdout){
   auto stdout_pipe = upp::linux::pipe();
