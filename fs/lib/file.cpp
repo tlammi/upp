@@ -8,21 +8,30 @@
 
 namespace upp::fs {
 
-void file::do_close() const noexcept {
+namespace detail {
+void fd_holder::do_close() const noexcept {
     if (m_handle == null_native_handle) return;
     ::close(m_handle);
 }
-file::file(const std::filesystem::path& path) {
-    // TODO: Should not create by default
-    //
+
+}  // namespace detail
+
+namespace {
+
+native_handle do_open(const std::filesystem::path& path) {
     // NOLINTNEXTLINE
-    m_handle = ::open(path.c_str(), O_CREAT | O_RDWR);
-    if (m_handle == null_native_handle) throw_errno();
+    auto handle = ::open(path.c_str(), O_CREAT | O_RDWR);
+    if (handle == null_native_handle) throw_errno();
+    return handle;
 }
+
+}  // namespace
+
+file::file(const std::filesystem::path& path) : fd_holder(do_open(path)) {}
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 std::size_t file::write(std::span<const char> data) {
-    auto count = ::write(m_handle, data.data(), data.size());
+    auto count = ::write(native(), data.data(), data.size());
     if (count < 0) throw_errno();
     return count;
 }
@@ -32,28 +41,28 @@ std::size_t file::seek_begin(std::size_t offset) {
     static constexpr auto max =
         static_cast<std::size_t>(std::numeric_limits<off_t>::max());
     assert(offset <= max);
-    auto res = ::lseek(m_handle, static_cast<off_t>(offset), SEEK_SET);
+    auto res = ::lseek(native(), static_cast<off_t>(offset), SEEK_SET);
     if (res == static_cast<off_t>(-1)) throw_errno();
     return res;
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 std::size_t file::seek_end(std::ptrdiff_t offset) {
-    auto res = ::lseek(m_handle, offset, SEEK_END);
+    auto res = ::lseek(native(), offset, SEEK_END);
     if (res == static_cast<off_t>(-1)) throw_errno();
     return res;
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 std::size_t file::seek_current(std::ptrdiff_t offset) {
-    auto res = ::lseek(m_handle, offset, SEEK_CUR);
+    auto res = ::lseek(native(), offset, SEEK_CUR);
     if (res == static_cast<off_t>(-1)) throw_errno();
     return res;
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 std::size_t file::read(std::span<char> data) {
-    auto count = ::read(m_handle, data.data(), data.size());
+    auto count = ::read(native(), data.data(), data.size());
     if (count < 0) throw_errno();
     return count;
 }

@@ -22,13 +22,10 @@ TEST(Simple, Dynamic){
   auto res = upp::linux::run(args);
   ASSERT_EQ(res, 3);
 }
-
-TEST(Io, Stdout){
-
-}
 /*
-TEST(Simple, Stdout){
-  auto stdout_pipe = upp::linux::pipe();
-  auto res = upp::linux::run({"echo", "foo"}, {.stdout = stdout_pipe.write.fd()});
+TEST(Io, Stdout){
+  auto pipe = upp::linux::pipe();
+
+  auto res = upp::linux::run("echo","foo", {.std_out = pipe.write});
 }
 */

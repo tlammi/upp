@@ -33,6 +33,8 @@ class pipe_write : private upp::fs::file {
 
     using base::write;
     using base::operator bool;
+
+    constexpr auto as_file() {}
 };
 
 struct pipe_pair {

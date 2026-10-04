@@ -26,22 +26,77 @@ struct null_native_handle_t {
 
 constexpr null_native_handle_t null_native_handle{};
 
-class file {
+namespace detail {
+
+class fd_holder {
     native_handle m_handle{null_native_handle};
 
     void do_close() const noexcept;
 
  public:
-    constexpr file() noexcept = default;
-    constexpr explicit file(native_handle h) noexcept : m_handle(h) {}
+    constexpr fd_holder() = default;
+    constexpr explicit fd_holder(native_handle h) noexcept : m_handle(h) {}
+
+    fd_holder(const fd_holder&) = delete;
+    fd_holder& operator=(const fd_holder&) = delete;
+
+    constexpr fd_holder(fd_holder&& other) noexcept
+        : m_handle(std::exchange(other.m_handle, null_native_handle)) {}
+
+    constexpr fd_holder& operator=(fd_holder&& other) noexcept {
+        auto tmp = std::move(other);
+        std::swap(m_handle, tmp.m_handle);
+        return *this;
+    }
+
+    constexpr explicit operator bool() const noexcept {
+        return m_handle != null_native_handle;
+    }
+
+    constexpr auto native() const noexcept { return m_handle; }
+    constexpr auto release() noexcept {
+        return std::exchange(m_handle, null_native_handle);
+    }
+
+ protected:
+    constexpr ~fd_holder() {
+        if (m_handle != null_native_handle) do_close();
+    }
+};
+
+std::size_t write_impl(native_handle handle, std::span<const char> data);
+
+template <class Self>
+class writable_file_base {
+ public:
+    constexpr writable_file_base() noexcept = default;
+
+    auto write(std::span<const char> data) {
+        return write_impl(static_cast<Self*>(this)->native(), data);
+    }
+
+    auto write(std::span<std::byte> data) {
+        return write(std::span<const char>(
+            /*NOLINT*/ reinterpret_cast<const char*>(data.data()),
+            data.size()));
+    }
+
+ protected:
+    constexpr ~writable_file_base() = default;
+};
+
+}  // namespace detail
+
+class file : public detail::fd_holder {
+ public:
+    using fd_holder::fd_holder;
 
     explicit file(const std::filesystem::path& path);
 
     file(const file&) = delete;
     file& operator=(const file&) = delete;
 
-    constexpr file(file&& other) noexcept
-        : m_handle(std::exchange(other.m_handle, null_native_handle)) {}
+    constexpr file(file&& other) noexcept : fd_holder(std::move(other)) {}
 
     constexpr file& operator=(file&& other) noexcept {
         std::destroy_at(this);
@@ -49,19 +104,14 @@ class file {
         return *this;
     }
 
-    constexpr ~file() {
-        if (m_handle != null_native_handle) do_close();
-    }
-
-    constexpr explicit operator bool() const noexcept {
-        return m_handle != null_native_handle;
-    }
+    constexpr ~file() = default;
 
     std::size_t write(std::span<const char> data);
     std::size_t write(std::span<const std::byte> data) {
         return write(std::span<const char>(
             reinterpret_cast<const char*>(data.data()), data.size()));
     }
+
     std::size_t seek_begin(std::size_t offset = 0);
     std::size_t seek_current(std::ptrdiff_t offset = 0);
     std::size_t seek_end(std::ptrdiff_t offset = 0);
@@ -71,10 +121,5 @@ class file {
 
     std::vector<std::byte> read_bin();
     std::string read_text();
-
-    constexpr auto native() const noexcept { return m_handle; }
-    constexpr auto release() noexcept {
-        return std::exchange(m_handle, null_native_handle);
-    }
 };
 }  // namespace upp::fs
