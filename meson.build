@@ -13,6 +13,7 @@ subdir('coro')
 subdir('fs')
 subdir('logs')
 subdir('codec')
+subdir('rest')
 subdir('linux')
 
 upp_dep = declare_dependency(
