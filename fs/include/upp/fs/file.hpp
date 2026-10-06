@@ -60,9 +60,11 @@ class fd_holder {
     }
 
     constexpr auto native() const noexcept { return m_handle; }
-    constexpr auto release() noexcept {
+    [[nodiscard]] constexpr auto release() noexcept {
         return std::exchange(m_handle, null_native_handle);
     }
+
+    void close() const noexcept { do_close(); }
 
  protected:
     constexpr ~fd_holder() {

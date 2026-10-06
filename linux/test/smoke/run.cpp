@@ -4,6 +4,8 @@
 #include <upp/linux/pipe.hpp>
 #include <upp/linux/run.hpp>
 
+using namespace std::literals;
+
 TEST(Simple, True) {
     auto res = upp::linux::run({"true"});
     ASSERT_EQ(res, 0);
@@ -51,17 +53,16 @@ TEST(Io, Stdin) {
     auto in = upp::linux::pipe();
     auto out = upp::linux::pipe();
 
-    in.write.write("token");
-    ::close(in.write.release());
+    in.write.write("token"sv);
+    in.write.close();  // Send end-of-stream
     auto res = upp::linux::run(
         {
             "cat",
         },
-        {.std_in = std::move(in.read), .std_out = std::move(in.write)});
-    std::cerr << "after\n";
+        {.std_in = std::move(in.read), .std_out = std::move(out.write)});
     ASSERT_EQ(res, 0);
     auto buf = std::string(100, '\0');
     auto count = out.read.read(buf);
     buf = buf.substr(0, count);
-    ASSERT_EQ(buf, "123baz456");
+    ASSERT_EQ(buf, "token");
 }
