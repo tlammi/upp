@@ -158,11 +158,15 @@ class basic_file : public detail::fd_holder,
     static constexpr bool is_writable = (std::same_as<Traits, writable> || ...);
     static constexpr bool is_readable = (std::same_as<Traits, readable> || ...);
     static constexpr bool is_seekable = (std::same_as<Traits, seekable> || ...);
+
     using detail::fd_holder::fd_holder;
+
     explicit basic_file(const std::filesystem::path& path)
         : detail::fd_holder(path) {}
     basic_file(const basic_file&) = delete;
     basic_file& operator=(const basic_file&) = delete;
+
+    // TODO: Should have implicit conversions to basic_files with subset traits
 
     constexpr basic_file(basic_file&& other) noexcept
         : fd_holder(std::move(other)) {}

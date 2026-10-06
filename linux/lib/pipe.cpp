@@ -26,8 +26,8 @@ pipe_pair pipe(int flags) {
     int res = pipe2(fds.data(), flags);
     if (res) throw_errno();
     return {
-        .read = pipe_read(fds[0]),
-        .write = pipe_write(fds[1]),
+        .read = fs::readable_file(fds[0]),
+        .write = fs::writable_file(fds[1]),
     };
 }
 pipe_pair pipe(bitmask<pipe_flag> flags) {

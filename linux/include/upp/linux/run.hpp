@@ -1,83 +1,84 @@
 #pragma once
 
+#include <unistd.h>
+
 #include <upp/linux/process.hpp>
 
-
-namespace upp::linux{
+namespace upp::linux {
 
 class run_t {
-
-    template <class T>
-    static constexpr const char* to_c_str(T& t) noexcept {
-        if constexpr (std::convertible_to<T, const char*>)
-            return t;
-        else
-            return t.c_str();
-    }
-
-    struct options {
-        fs::file std_in{};
-        fs::file std_out{};
-        fs::file std_err{};
-    };
-
     static void execute(const char* path, char* const* argv, char* const* envp);
 
-    template <detail::c_stringable... Ts>
-    static void init_args(std::vector<char*>& out, Ts&... ts) {
-        out.reserve(sizeof...(Ts)+1);
-        (out.push_back(strdup(to_c_str(ts))), ...);
-        out.push_back(nullptr);
+    static char* strview_dup(std::string_view s) {
+        // TODO: Use new
+        auto* ptr = new char[s.size() + 1];
+        std::copy(s.begin(), s.end(), ptr);
+        ptr[s.size()] = '\0';
+        return ptr;
     }
 
     template <std::ranges::range Range>
     static void init_args(std::vector<char*>& out, Range args) {
-        out.reserve(args.size()+1);
-        for(auto& arg: args){
-          out.push_back(strdup(to_c_str(arg)));
-        }
+        out.reserve(args.size() + 1);
+        for (auto& arg : args) { out.push_back(strview_dup(arg)); }
         out.push_back(nullptr);
     }
+
+    struct options {
+        fs::readable_file std_in{};
+        fs::writable_file std_out{};
+        fs::writable_file std_err{};
+    };
 
  public:
     constexpr explicit run_t() noexcept = default;
 
-    template <detail::c_stringable T, detail::c_stringable... Ts>
-    int operator()(T& t, Ts&... ts) const {
-        auto proc = process([&]{
-          auto args = std::vector<char*>();
-          auto envp = std::vector<char*>{nullptr};
-          // execute() never returns on success so this is only executed on errors.
-          auto cleanup = upp::cleanup([&]{
-              for(auto* ptr : args) ::std::free(ptr);
-              for(auto* ptr: envp) ::std::free(ptr);
-          });
-          init_args(args, t, ts...);
-          execute(args[0], args.data(), envp.data());
+    int operator()(std::initializer_list<std::string_view> cmd) const {
+        return operator()(cmd, options{});
+    }
+
+    int operator()(std::initializer_list<std::string_view> cmd,
+                   options opts) const {
+        auto proc = process([&] {
+            auto args = std::vector<char*>();
+            auto envp = std::vector<char*>{nullptr};
+            // execute() never returns on success so this is only executed on
+            // errors.
+            auto cleanup = upp::cleanup([&] {
+                for (auto* ptr : args) delete[] (ptr);  // NOLINT
+                for (auto* ptr : envp) delete[] (ptr);  // NOLINT
+            });
+            init_args(args, cmd);
+            if (opts.std_out) ::dup2(opts.std_out.native(), STDOUT_FILENO);
+            if (opts.std_err) ::dup2(opts.std_err.native(), STDERR_FILENO);
+            if (opts.std_in) ::dup2(opts.std_in.native(), STDIN_FILENO);
+            execute(args[0], args.data(), envp.data());
         });
         auto res = proc.join();
         return res.exit_code;
     }
 
-
-    template<std::ranges::range Range>
+    template <std::ranges::range Range>
     int operator()(Range&& args) const {
-      static_assert(detail::c_stringable<typename std::remove_cvref_t<Range>::value_type>, "Run arguments must be const char* or convertible to one");
-      auto proc = process([&]{
-              auto argp = std::vector<char*>();
-              auto envp = std::vector<char*>{nullptr};
-              auto cleanup = upp::cleanup([&]{
-                  for(auto* ptr : argp) ::std::free(ptr);
-                  for(auto* ptr: envp) ::std::free(ptr);
-              });
-              init_args(argp, args);
-              execute(argp[0], argp.data(), envp.data());
-          });
-      auto res = proc.join();
-      return res.exit_code;
+        static_assert(
+            std::convertible_to<typename std::remove_cvref_t<Range>::value_type,
+                                std::string_view>,
+            "Run arguments must be const char* or convertible to one");
+        auto proc = process([&] {
+            auto argp = std::vector<char*>();
+            auto envp = std::vector<char*>{nullptr};
+            auto cleanup = upp::cleanup([&] {
+                for (auto* ptr : argp) delete[] (ptr);  // NOLINT
+                for (auto* ptr : envp) delete[] (ptr);  // NOLINT
+            });
+            init_args(argp, UPP_FWD(args));
+            execute(argp[0], argp.data(), envp.data());
+        });
+        auto res = proc.join();
+        return res.exit_code;
     }
 };
 
 constexpr run_t run{};
 
-}
+}  // namespace upp::linux

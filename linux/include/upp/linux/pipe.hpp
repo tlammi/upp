@@ -13,33 +13,9 @@ enum class pipe_flag : std::uint8_t {
     nonblock = 0x4,
 };
 
-class pipe_read : private upp::fs::file {
-    using base = upp::fs::file;
-
- public:
-    constexpr pipe_read() noexcept = default;
-    explicit constexpr pipe_read(int handle) noexcept : base(handle) {}
-
-    using base::read;
-    using base::operator bool;
-};
-
-class pipe_write : private upp::fs::file {
-    using base = upp::fs::file;
-
- public:
-    constexpr pipe_write() noexcept = default;
-    explicit constexpr pipe_write(int handle) noexcept : base(handle) {}
-
-    using base::write;
-    using base::operator bool;
-
-    constexpr auto as_file() {}
-};
-
 struct pipe_pair {
-    pipe_read read;
-    pipe_write write;
+    upp::fs::readable_file read;
+    upp::fs::writable_file write;
 };
 
 pipe_pair pipe();
