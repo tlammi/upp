@@ -59,7 +59,7 @@ TEST(Io, Stdin) {
         {
             "cat",
         },
-        {.std_in = std::move(in.read), .std_out = std::move(out.write)});
+        {.std_in = &in, .std_out = std::move(out.write)});
     ASSERT_EQ(res, 0);
     auto buf = std::string(100, '\0');
     auto count = out.read.read(buf);
