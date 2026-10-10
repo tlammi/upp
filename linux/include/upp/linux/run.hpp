@@ -35,29 +35,51 @@ class run_t {
         std::variant<fs::writable_file*, fs::native_handle, pipe_pair*>;
 
     struct ivariant_visitor {
-        void operator()(fs::readable_file* f) {
+        void operator()(fs::readable_file* f) const {
             if (!f) return;
             operator()(f->release());
         }
 
-        void operator()(fs::native_handle f) {
+        void operator()(fs::native_handle f) const {
             if (f < 0) return;
             if (f == STDIN_FILENO) return;
             auto res = ::dup2(f, STDIN_FILENO);
             if (res < 0) throw_errno();
             ::close(f);
         }
-        void operator()(pipe_pair* pipe) {
+        void operator()(pipe_pair* pipe) const {
             if (!pipe) return;
             pipe->write.close();
             operator()(&pipe->read);
         }
     };
 
+    struct ovariant_visitor {
+        fs::native_handle tgt;
+
+        void operator()(fs::writable_file* f) const {
+            if (!f) return;
+            operator()(f->release());
+        }
+
+        void operator()(fs::native_handle f) const {
+            if (f < 0) return;
+            if (f == tgt) return;
+            auto res = ::dup2(f, tgt);
+            if (res < 0) throw_errno();
+            ::close(f);
+        }
+        void operator()(pipe_pair* pipe) const {
+            if (!pipe) return;
+            pipe->read.close();
+            operator()(&pipe->write);
+        }
+    };
+
     struct options {
         ivariant std_in;
-        fs::writable_file std_out{};
-        fs::writable_file std_err{};
+        ovariant std_out{};
+        ovariant std_err{};
     };
 
  public:
@@ -79,8 +101,8 @@ class run_t {
                 for (auto* ptr : envp) delete[] (ptr);  // NOLINT
             });
             init_args(args, cmd);
-            if (opts.std_out) ::dup2(opts.std_out.native(), STDOUT_FILENO);
-            if (opts.std_err) ::dup2(opts.std_err.native(), STDERR_FILENO);
+            std::visit(ovariant_visitor(STDOUT_FILENO), opts.std_out);
+            std::visit(ovariant_visitor(STDERR_FILENO), opts.std_err);
             std::visit(ivariant_visitor(), opts.std_in);
             execute(args[0], args.data(), envp.data());
         });

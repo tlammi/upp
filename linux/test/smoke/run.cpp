@@ -29,8 +29,7 @@ TEST(Simple, Dynamic) {
 
 TEST(Io, Stdout) {
     auto pipe = upp::linux::pipe();
-    auto res = upp::linux::run({"echo", "-n", "foo"},
-                               {.std_out = std::move(pipe.write)});
+    auto res = upp::linux::run({"echo", "-n", "foo"}, {.std_out = &pipe});
     ASSERT_EQ(res, 0);
     auto buf = std::string(100, '\0');
     auto count = pipe.read.read(buf);
@@ -40,8 +39,8 @@ TEST(Io, Stdout) {
 
 TEST(Io, Stderr) {
     auto pipe = upp::linux::pipe();
-    auto res = upp::linux::run({"sh", "-c", "echo -n bar >&2"},
-                               {.std_err = std::move(pipe.write)});
+    auto res =
+        upp::linux::run({"sh", "-c", "echo -n bar >&2"}, {.std_err = &pipe});
     ASSERT_EQ(res, 0);
     auto buf = std::string(100, '\0');
     auto count = pipe.read.read(buf);
@@ -59,7 +58,7 @@ TEST(Io, Stdin) {
         {
             "cat",
         },
-        {.std_in = &in, .std_out = std::move(out.write)});
+        {.std_in = &in, .std_out = &out});
     ASSERT_EQ(res, 0);
     auto buf = std::string(100, '\0');
     auto count = out.read.read(buf);
