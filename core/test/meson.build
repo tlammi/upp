@@ -13,6 +13,7 @@ tests = files(
     'intrusive_list.cpp',
     'fam.cpp',
     'sbool.cpp',
+    'matcher.cpp',
 )
 
 # Work in progress
