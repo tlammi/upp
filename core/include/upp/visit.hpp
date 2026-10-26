@@ -13,4 +13,5 @@ constexpr decltype(auto) visit(Variant&& variant, Fn&&... fn) {
     return std::visit(visitor(std::forward<Fn>(fn)...),
                       std::forward<Variant>(variant));
 }
+
 }  // namespace upp

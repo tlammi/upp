@@ -1,4 +1,4 @@
-tests = files('file.cpp', 'tempdir.cpp')
+tests = files('file.cpp', 'tempdir.cpp', 'search_path.cpp')
 
 
 fs = import('fs')

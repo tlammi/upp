@@ -15,6 +15,7 @@ Checks: |
   -readability-named-parameter,
   -readability-uppercase-literal-suffix,
   -readability-static-accessed-through-instance,
+  -readability-redundant-member-init,
   -clang-analyzer-core.uninitialized.Branch,
   -clang-analyzer-core.CallAndMessage
 
